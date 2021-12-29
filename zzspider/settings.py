@@ -47,16 +47,15 @@ ROBOTSTXT_OBEY = False
 
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
-SPIDER_MIDDLEWARES = {
-    'scrapy_splash.SplashDeduplicateArgsMiddleware': 100,
-}
+# SPIDER_MIDDLEWARES = {
+#     'scrapy_splash.SplashDeduplicateArgsMiddleware': 100,
+# }
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-    'scrapy_splash.SplashCookiesMiddleware': 723,
-    'scrapy_splash.SplashMiddleware': 725,
-    'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 810,
+   'zzspider.middlewares.ZzspiderSpiderMiddleware': 300,
+   'zzspider.middlewares.ZzspiderDownloaderMiddleware': 301,
 }
 
 # Enable or disable extensions
@@ -104,8 +103,3 @@ MYSQL_USER = ConfigUtil.config['db']['db_user']
 MYSQL_PASSWD = ConfigUtil.config['db']['db_pwd']
 # 数据库端口
 MYSQL_PORT = int(ConfigUtil.config['db']['db_port'])
-
-
-SPLASH_URL = 'http://192.168.0.103:8050'
-DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'
-HTTPCACHE_STORAGE = 'scrapy_splash.SplashAwareFSCacheStorage'

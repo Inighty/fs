@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
+import json
 import os
+import random
 import time
 
 import scrapy
 from bs4 import BeautifulSoup
-from scrapy import Request
-from scrapy_splash import SplashRequest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
@@ -43,4 +43,21 @@ class zzspider(scrapy.Spider):
         time.sleep(2)
         text = driver.page_source
         soup = BeautifulSoup(text, "html.parser")
-        a = 1
+        result_jsons = soup.find_all('script', attrs={'data-for': 's-result-json'})
+        result = []
+        for rj in result_jsons:
+            data = json.loads(rj.text)
+            if data.__contains__("data"):
+                d = data['data']
+                if d.__contains__('title'):
+                    a = d['title']
+                if d.__contains__('display_type_self') and (d['display_type_self'] == 'self_article' or d['display_type_self'] == 'self_step_or_list'):
+                    item = {'title': d['title'], 'source_url': d['source_url'], 'comment_count': d['comment_count']}
+                    result.append(item)
+        item = random.choice(result)
+        driver.get(item['source_url'])
+        time.sleep(2)
+        text = driver.page_source
+        soup = BeautifulSoup(text, "html.parser")
+        contents = soup.find_all('article')[0]
+        driver.quit()
