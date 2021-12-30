@@ -1,5 +1,7 @@
 import logging
 import os
+import random
+import sys
 import time
 from logging.handlers import TimedRotatingFileHandler
 
@@ -7,6 +9,7 @@ from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 
 from zzspider import settings
+from zzspider.config import ConfigUtil
 from zzspider.spiders.zzspider import zzspider
 from zzspider.tools.dbhelper import DBHelper
 
@@ -22,15 +25,26 @@ logHandler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s
 logging.getLogger().handlers = [logHandler]
 dbhelper = DBHelper()
 
+cates = ConfigUtil.config['collect']['cate'].split(',')
 
-def get_start_urls():
+
+def get_start_urls(cate):
     sql = 'SELECT `word` FROM `zbp_words` WHERE `cate` = %s and `used` = 0 limit 1'
-    word = dbhelper.fetch_one(sql, [1])
+    word = dbhelper.fetch_one(sql, [cate])
     timestamp = time.time()
     url = f"""https://so.toutiao.com/search?dvpf=pc&source=input&keyword={word['word']}&filter_vendor=site&index_resource=site&filter_period=all&min_time=0&max_time={timestamp}"""
-    return [url]
+    return [url], word['word']
 
 
-process = CrawlerProcess(install_root_handler=False, settings=get_project_settings())
-process.crawl(zzspider, start_urls=get_start_urls())
-process.start()
+if __name__ == '__main__':
+    count = 1
+    arg = sys.argv
+    if len(arg) > 1:
+        count = int(arg[1])
+
+    for i in range(0, count):
+        cate = random.choice(cates)
+        process = CrawlerProcess(install_root_handler=False, settings=get_project_settings())
+        start_urls, word = get_start_urls(cate)
+        process.crawl(zzspider, start_urls=start_urls, cate=cate, word=word)
+        process.start()

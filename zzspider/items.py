@@ -28,3 +28,17 @@ class PostItem(scrapy.Item):
     log_ViewNums = scrapy.Field()
     log_Template = scrapy.Field()
     log_Meta = scrapy.Field()
+
+
+class UploadItem(scrapy.Item):
+    ul_ID = scrapy.Field()
+    ul_AuthorID = scrapy.Field()
+    ul_Size = scrapy.Field()
+    ul_Name = scrapy.Field()
+    ul_SourceName = scrapy.Field()
+    ul_MimeType = scrapy.Field()
+    ul_PostTime = scrapy.Field()
+    ul_DownNums = scrapy.Field()
+    ul_LogID = scrapy.Field()
+    ul_Intro = scrapy.Field()
+    ul_Meta = scrapy.Field()

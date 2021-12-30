@@ -53,9 +53,8 @@ class FileEventHandler(FileSystemEventHandler):
 def update_rules():
     ConfigUtil.config = configparser.ConfigParser()
     # config.read('config.ini')
-    config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config,ini')
     config_env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config_env,ini')
-    ConfigUtil.config.read([config_path, config_env_path], encoding='utf-8')
+    ConfigUtil.config.read([config_env_path], encoding='utf-8')
 
 
 class ConfigUtil(object):
