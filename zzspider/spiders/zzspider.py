@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import datetime
-import hashlib
 import json
 import logging
 import os
@@ -25,15 +24,20 @@ logger = logging.getLogger(__name__)
 sentence_pattern = r',|\.|/|;|\'|`|\[|\]|<|>|\?|:|"|\{|\}|\~|!|@|#|\$|%|\^|&|\(|\)|-|=|\_|\+|，|。|、|；|‘|’|【|】|·|！| |…|（|）'
 
 
+def update_word_to_used(word_id):
+    dbhelper.execute(f"update zbp_words set used = 1 where id = {word_id}")
+
+
 class zzspider(scrapy.Spider):
     name = 'zzspider'
     allowed_domains = ['toutiao.com']
     start_urls = []
 
-    def __init__(self, start_urls, cate, word):
+    def __init__(self, start_urls, cate, word, word_id):
         self.start_urls.extend(start_urls)
         self.cate = cate
         self.word = word
+        self.word_id = word_id
 
         mems = dbhelper.fetch_all("select mem_ID from zbp_member")
         self.author = random.choice(mems)['mem_ID']
@@ -132,13 +136,14 @@ class zzspider(scrapy.Spider):
 
         now_time = int(round(time.time()))
         content_str = content_str.replace('\'', '\\\'')
-        dbhelper.execute(
+        result = dbhelper.execute(
             f"INSERT INTO `zbp_post`(`log_CateID`, `log_AuthorID`, `log_Tag`, `log_Status`, `log_Type`, `log_Alias`, `log_IsTop`, `log_IsLock`, `log_Title`, `log_Intro`, `log_Content`, `log_CreateTime`, `log_PostTime`, `log_UpdateTime`, `log_CommNums`, `log_ViewNums`, `log_Template`, `log_Meta`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
             [self.cate, self.author, '', 0, 0, '', 0, 1, title, intro, f"<h3>{title}</h3>" + content_str, now_time,
              now_time,
              now_time, 0,
              0, '', ''])
-        pass
+        if result:
+            update_word_to_used(self.word_id)
 
     def insert_upload(self, real_path):
         kind = filetype.guess(real_path)

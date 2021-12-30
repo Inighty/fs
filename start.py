@@ -29,11 +29,11 @@ cates = ConfigUtil.config['collect']['cate'].split(',')
 
 
 def get_start_urls(cate):
-    sql = 'SELECT `word` FROM `zbp_words` WHERE `cate` = %s and `used` = 0 limit 1'
+    sql = 'SELECT id, `word` FROM `zbp_words` WHERE `cate` = %s and `used` = 0 limit 1'
     word = dbhelper.fetch_one(sql, [cate])
     timestamp = time.time()
     url = f"""https://so.toutiao.com/search?dvpf=pc&source=input&keyword={word['word']}&filter_vendor=site&index_resource=site&filter_period=all&min_time=0&max_time={timestamp}"""
-    return [url], word['word']
+    return [url], word['word'], word['id']
 
 
 if __name__ == '__main__':
@@ -45,6 +45,6 @@ if __name__ == '__main__':
     for i in range(0, count):
         cate = random.choice(cates)
         process = CrawlerProcess(install_root_handler=False, settings=get_project_settings())
-        start_urls, word = get_start_urls(cate)
-        process.crawl(zzspider, start_urls=start_urls, cate=cate, word=word)
+        start_urls, word, word_id = get_start_urls(cate)
+        process.crawl(zzspider, start_urls=start_urls, cate=cate, word=word, word_id=word_id)
         process.start()
