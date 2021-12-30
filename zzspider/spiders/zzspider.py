@@ -124,12 +124,11 @@ class zzspider(scrapy.Spider):
                     new_file.write(file + b'\0')
             os.remove(temp_path)
 
-            sftp.upload_to_dir(real_path, )
-
+            linux_relate_path = f"/zb_users/upload/{str(now.year)}/{str(now.month)}/{filename}"
+            sftp.upload_to_dir(real_path, ConfigUtil.config['sftp']['path'] + linux_relate_path)
             self.insert_upload(real_path)
             upload_count += 1
-            content_str = content_str.replace(src,
-                                              f"{ConfigUtil.config['main']['url']}/zb_users/upload/{str(now.year)}/{str(now.month)}/{filename}")
+            content_str = content_str.replace(src, linux_relate_path)
         self.update_upload_count(upload_count)
         print("result:")
         print(content_str)
