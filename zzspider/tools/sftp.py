@@ -26,20 +26,17 @@ class Sftp(metaclass=Singleton):
 
     def upload(self, local_path, remote_path):
         self.sftp.put(local_path, remote_path)
-        self.close()
         return True
 
     def upload_to_dir(self, local_path, remote_path):
         self.ssh.exec_command("mkdir -p " + remote_path)
         head, tail = os.path.split(local_path)
-        self.sftp.put(local_path, os.path.join(remote_path, tail))
-        self.close()
+        self.sftp.put(local_path, remote_path + '/' + tail)
         return True
 
     def upload_batch_to_dir(self, local_paths, remote_path):
         self.ssh.exec_command("mkdir -p " + remote_path)
         for path in local_paths:
             head, tail = os.path.split(path)
-            self.sftp.put(path, os.path.join(remote_path, tail))
-        self.close()
+            self.sftp.put(path, remote_path + '/' + tail)
         return True
