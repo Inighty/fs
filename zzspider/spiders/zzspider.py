@@ -17,9 +17,11 @@ from zzspider import settings
 from zzspider.config import ConfigUtil
 from zzspider.tools.browser import Browser
 from zzspider.tools.dbhelper import DBHelper
+from zzspider.tools.sftp import Sftp
 
 browser = Browser()
 dbhelper = DBHelper()
+sftp = Sftp()
 logger = logging.getLogger(__name__)
 sentence_pattern = r',|\.|/|;|\'|`|\[|\]|<|>|\?|:|"|\{|\}|\~|!|@|#|\$|%|\^|&|\(|\)|-|=|\_|\+|，|。|、|；|‘|’|【|】|·|！| |…|（|）'
 
@@ -74,8 +76,9 @@ class zzspider(scrapy.Spider):
                 break
 
         title = f"{self.word}({title})"
-        print(article_url)
-        print(title)
+        # print(article_url)
+        # print(title)
+        # exit(0)
 
         # article_url = 'http://www.toutiao.com/a6406080444747825409/?channel=&source=search_tab'
         # title = '家有阳台看过来，注意这个小细节，锦上添花！'
@@ -120,6 +123,9 @@ class zzspider(scrapy.Spider):
                 with open(real_path, 'wb') as new_file:
                     new_file.write(file + b'\0')
             os.remove(temp_path)
+
+            sftp.upload_to_dir(real_path, )
+
             self.insert_upload(real_path)
             upload_count += 1
             content_str = content_str.replace(src,

@@ -107,4 +107,10 @@ MYSQL_PASSWD = ConfigUtil.config['db']['db_pwd']
 # 数据库端口
 MYSQL_PORT = int(ConfigUtil.config['db']['db_port'])
 
+
+SFTP_HOST = ConfigUtil.config['sftp']['host']
+SFTP_USER = ConfigUtil.config['sftp']['user']
+SFTP_PASSWD = ConfigUtil.config['sftp']['pwd']
+
+
 UPLOAD_PATH = os.path.join(ConfigUtil.config['main']['path'], 'zb_users', 'upload')

@@ -12,6 +12,7 @@ from zzspider import settings
 from zzspider.config import ConfigUtil
 from zzspider.spiders.zzspider import zzspider
 from zzspider.tools.dbhelper import DBHelper
+from zzspider.tools.sftp import Sftp
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,10 @@ def get_start_urls(cate):
 
 
 if __name__ == '__main__':
+    sftp = Sftp()
+    sftp.
+
+    exit(0)
     count = 1
     arg = sys.argv
     if len(arg) > 1:
