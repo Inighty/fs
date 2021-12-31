@@ -27,10 +27,12 @@ logger = logging.getLogger(__name__)
 sentence_pattern = r',|\.|/|;|\'|`|\[|\]|<|>|\?|:|"|\{|\}|\~|!|@|#|\$|%|\^|&|？|\(|\)|-|=|\_|\+|，|。|、|；|‘|’|【|】|·|！| |…|（|）'
 
 
-def after_insert_post(word_id, author):
+def after_insert_post(word_id, author, cate):
     dbhelper.execute(f"update zbp_words set used = 1 where id = {word_id}")
     dbhelper.execute(
         f"update zbp_member set mem_Articles = mem_Articles + 1, mem_PostTime = {int(round(time.time()))} where mem_ID = {author}")
+    dbhelper.execute(
+        f"update zbp_category set cate_Count = cate_Count + 1 where cate_ID = {cate}")
 
 
 class zzspider(scrapy.Spider):
@@ -155,7 +157,7 @@ class zzspider(scrapy.Spider):
              now_time, 0,
              0, '', ''])
         if result:
-            after_insert_post(self.word_id, self.author)
+            after_insert_post(self.word_id, self.author, self.cate)
 
     def insert_upload(self, real_path):
         kind = filetype.guess(real_path)
