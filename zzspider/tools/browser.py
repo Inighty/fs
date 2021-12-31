@@ -26,8 +26,13 @@ class Browser(metaclass=Singleton):
         # comment out the following line if you don't want to actually show Chrome instance
         # but you can still see that the crawling is working via output in console
 
-        # chrome_options.add_argument("--headless")
+        self.chrome_options.add_argument("--headless")
+        self.chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
 
+        self.chrome_options.add_argument('--start-maximized')
+        self.chrome_options.add_argument("disable-blink-features=AutomationControlled")
+
+        self.chrome_options.add_argument(f'user-agent={settings.USER_AGENT}')
         # comment out the following two lines to setup ProxyMesh service
         # make sure you add the IP of the machine running this script to you ProxyMesh account for IP authentication
         # IP:PORT or HOST:PORT you get this in your account once you pay for a plan
