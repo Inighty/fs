@@ -12,6 +12,7 @@ from mimetypes import guess_extension
 import filetype as filetype
 import scrapy
 from bs4 import BeautifulSoup
+from scrapy import Request
 
 from zzspider import settings
 from zzspider.config import ConfigUtil
@@ -23,18 +24,18 @@ browser = Browser()
 dbhelper = DBHelper()
 sftp = Sftp()
 logger = logging.getLogger(__name__)
-sentence_pattern = r',|\.|/|;|\'|`|\[|\]|<|>|\?|:|"|\{|\}|\~|!|@|#|\$|%|\^|&|\(|\)|-|=|\_|\+|，|。|、|；|‘|’|【|】|·|！| |…|（|）'
+sentence_pattern = r',|\.|/|;|\'|`|\[|\]|<|>|\?|:|"|\{|\}|\~|!|@|#|\$|%|\^|&|？|\(|\)|-|=|\_|\+|，|。|、|；|‘|’|【|】|·|！| |…|（|）'
 
 
 def after_insert_post(word_id, author):
     dbhelper.execute(f"update zbp_words set used = 1 where id = {word_id}")
     dbhelper.execute(
-        f"update zbp_member set mem_Articles = mem_Articles + 1, mem_UpdateTime = {int(round(time.time()))} where mem_ID = {author}")
+        f"update zbp_member set mem_Articles = mem_Articles + 1, mem_PostTime = {int(round(time.time()))} where mem_ID = {author}")
 
 
 class zzspider(scrapy.Spider):
     name = 'zzspider'
-    allowed_domains = ['toutiao.com']
+    # allowed_domains = ['toutiao.com']
     start_urls = []
 
     def __init__(self, start_urls, cate, word, word_id):
@@ -46,8 +47,11 @@ class zzspider(scrapy.Spider):
         mems = dbhelper.fetch_all("select mem_ID from zbp_member")
         self.author = random.choice(mems)['mem_ID']
 
+    def start_requests(self):
+        yield Request("http://127.0.0.1")
+
     def parse(self, response):
-        text = browser.get(response.url)
+        text = browser.get(self.start_urls[0])
         soup = BeautifulSoup(text, "html.parser")
         result_jsons = soup.find_all('script', attrs={'data-for': 's-result-json'})
         result = []
@@ -82,7 +86,7 @@ class zzspider(scrapy.Spider):
         title = f"{self.word}({title})"
         print(article_url)
         print(title)
-
+        # return
         # article_url = 'http://www.toutiao.com/a6406080444747825409/?channel=&source=search_tab'
         # title = '家有阳台看过来，注意这个小细节，锦上添花！'
         text = browser.get(article_url)
@@ -140,18 +144,18 @@ class zzspider(scrapy.Spider):
 
     def insert_post(self, title, content_str, pure_text):
         pure_text = pure_text.replace('\'', '\\\'')
-        intro = pure_text[0:100]
+        intro = pure_text[0:150]
 
         now_time = int(round(time.time()))
         content_str = content_str.replace('\'', '\\\'')
         result = dbhelper.execute(
             f"INSERT INTO `zbp_post`(`log_CateID`, `log_AuthorID`, `log_Tag`, `log_Status`, `log_Type`, `log_Alias`, `log_IsTop`, `log_IsLock`, `log_Title`, `log_Intro`, `log_Content`, `log_CreateTime`, `log_PostTime`, `log_UpdateTime`, `log_CommNums`, `log_ViewNums`, `log_Template`, `log_Meta`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-            [self.cate, self.author, '', 0, 0, '', 0, 1, title, intro, f"<h3>{title}</h3>" + content_str, now_time,
+            [self.cate, self.author, '', 0, 0, '', 0, 1, title, intro, content_str, now_time,
              now_time,
              now_time, 0,
              0, '', ''])
         if result:
-            after_insert_post(self.word_id)
+            after_insert_post(self.word_id, self.author)
 
     def insert_upload(self, real_path):
         kind = filetype.guess(real_path)

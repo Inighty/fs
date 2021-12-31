@@ -37,14 +37,14 @@ def get_start_urls(cate):
 
 
 if __name__ == '__main__':
-    count = 1
-    arg = sys.argv
-    if len(arg) > 1:
-        count = int(arg[1])
-
-    for i in range(0, count):
-        cate = random.choice(cates)
-        process = CrawlerProcess(install_root_handler=False, settings=get_project_settings())
-        start_urls, word, word_id = get_start_urls(cate)
-        process.crawl(zzspider, start_urls=start_urls, cate=cate, word=word, word_id=word_id)
-        process.start()
+    # count = 1
+    # arg = sys.argv
+    # if len(arg) > 1:
+    #     count = int(arg[1])
+    #
+    # for i in range(0, count):
+    cate = random.choice(cates)
+    process = CrawlerProcess(install_root_handler=False, settings=get_project_settings())
+    start_urls, word, word_id = get_start_urls(cate)
+    process.crawl(zzspider, start_urls=start_urls, cate=cate, word=word, word_id=word_id)
+    process.start()
