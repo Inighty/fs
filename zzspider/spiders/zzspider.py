@@ -26,8 +26,10 @@ logger = logging.getLogger(__name__)
 sentence_pattern = r',|\.|/|;|\'|`|\[|\]|<|>|\?|:|"|\{|\}|\~|!|@|#|\$|%|\^|&|\(|\)|-|=|\_|\+|，|。|、|；|‘|’|【|】|·|！| |…|（|）'
 
 
-def update_word_to_used(word_id):
+def after_insert_post(word_id, author):
     dbhelper.execute(f"update zbp_words set used = 1 where id = {word_id}")
+    dbhelper.execute(
+        f"update zbp_member set mem_Articles = mem_Articles + 1, mem_UpdateTime = {int(round(time.time()))} where mem_ID = {author}")
 
 
 class zzspider(scrapy.Spider):
@@ -64,6 +66,8 @@ class zzspider(scrapy.Spider):
                             'index': index}
                     result.append(item)
         result = sorted(result, key=lambda i: i['index'])
+        if len(result) == 0:
+            exit(0)
         item = result[0]
         article_url = item['source_url']
         title = item['title']
@@ -76,9 +80,8 @@ class zzspider(scrapy.Spider):
                 break
 
         title = f"{self.word}({title})"
-        # print(article_url)
-        # print(title)
-        # exit(0)
+        print(article_url)
+        print(title)
 
         # article_url = 'http://www.toutiao.com/a6406080444747825409/?channel=&source=search_tab'
         # title = '家有阳台看过来，注意这个小细节，锦上添花！'
@@ -148,7 +151,7 @@ class zzspider(scrapy.Spider):
              now_time, 0,
              0, '', ''])
         if result:
-            update_word_to_used(self.word_id)
+            after_insert_post(self.word_id)
 
     def insert_upload(self, real_path):
         kind = filetype.guess(real_path)
