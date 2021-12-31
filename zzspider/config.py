@@ -64,7 +64,7 @@ class ConfigUtil(object):
     config_env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config_env,ini')
     config.read([config_path, config_env_path], encoding='utf-8')
 
-    observer = Observer()
-    event_handler = FileEventHandler()
-    observer.schedule(event_handler, config_env_path, True)
-    observer.start()
+    # observer = Observer()
+    # event_handler = FileEventHandler()
+    # observer.schedule(event_handler, config_env_path, True)
+    # observer.start()
