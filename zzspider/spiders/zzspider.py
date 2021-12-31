@@ -49,12 +49,8 @@ class zzspider(scrapy.Spider):
         mems = dbhelper.fetch_all("select mem_ID from zbp_member")
         self.author = random.choice(mems)['mem_ID']
 
-    def start_requests(self):
-        yield Request("http://127.0.0.1")
-
     def parse(self, response):
-        text = browser.get(self.start_urls[0])
-        soup = BeautifulSoup(text, "html.parser")
+        soup = BeautifulSoup(response.text, "html.parser")
         result_jsons = soup.find_all('script', attrs={'data-for': 's-result-json'})
         result = []
         for rj in result_jsons:
@@ -73,7 +69,7 @@ class zzspider(scrapy.Spider):
                     result.append(item)
         result = sorted(result, key=lambda i: i['index'])
         if len(result) == 0:
-            exit(0)
+            return
         item = result[0]
         article_url = item['source_url']
         title = item['title']
@@ -91,8 +87,12 @@ class zzspider(scrapy.Spider):
         # return
         # article_url = 'http://www.toutiao.com/a6406080444747825409/?channel=&source=search_tab'
         # title = '家有阳台看过来，注意这个小细节，锦上添花！'
-        text = browser.get(article_url)
-        soup = BeautifulSoup(text, "html.parser")
+        yield scrapy.Request(url=article_url, dont_filter=True, meta={'title': title},
+                             callback=self.article)
+
+    def article(self, response):
+        title = response.meta['title']
+        soup = BeautifulSoup(response.text, "html.parser")
         data = soup.find_all('article')[0]
         contents = data.find_all(['img', 'p'])
         content_str = ''
@@ -127,6 +127,9 @@ class zzspider(scrapy.Spider):
             relate_path = os.path.join(str(now.year), str(now.month), filename)
             real_path = os.path.join(settings.UPLOAD_PATH, relate_path)
 
+            dirs = os.path.dirname(real_path)
+            if not os.path.exists(dirs):
+                os.makedirs(dirs)
             with open(temp_path, 'rb') as of:
                 file = of.read()
                 with open(real_path, 'wb') as new_file:

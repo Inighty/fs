@@ -6,6 +6,9 @@
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
+from scrapy.http import HtmlResponse
+
+from zzspider.tools.browser import Browser
 
 
 class ZzspiderSpiderMiddleware:
@@ -61,6 +64,8 @@ class ZzspiderDownloaderMiddleware:
     # scrapy acts as if the downloader middleware does not modify the
     # passed objects.
 
+    browser = Browser()
+
     @classmethod
     def from_crawler(cls, crawler):
         # This method is used by Scrapy to create your spiders.
@@ -69,16 +74,9 @@ class ZzspiderDownloaderMiddleware:
         return s
 
     def process_request(self, request, spider):
-        # Called for each request that goes through the downloader
-        # middleware.
-
-        # Must either:
-        # - return None: continue processing this request
-        # - or return a Response object
-        # - or return a Request object
-        # - or raise IgnoreRequest: process_exception() methods of
-        #   installed downloader middleware will be called
-        return None
+        origin_code = self.browser.get(request.url)
+        res = HtmlResponse(url=request.url, encoding='utf8', body=origin_code, request=request)
+        return res
 
     def process_response(self, request, response, spider):
         # Called with the response returned from the downloader.
