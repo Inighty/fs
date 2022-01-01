@@ -135,6 +135,8 @@ class zzspider(scrapy.Spider):
             if result and len(result) > 0:
                 temp_path = result[0]
                 suffix = guess_extension(result[1].get_content_type().partition(';')[0].strip())
+                if suffix == '.jpe':
+                    suffix = '.jpg'
             else:
                 logger.error("下载图片异常:" + src)
                 continue
