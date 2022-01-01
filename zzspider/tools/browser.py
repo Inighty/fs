@@ -44,7 +44,7 @@ class Browser(metaclass=Singleton):
         if self.driver is not None:
             return self.driver
         chrome_driver_path = os.path.join(basedir, 'chromedriver')
-        self.driver = webdriver.Chrome(chrome_options=self.chrome_options, executable_path=chrome_driver_path)
+        self.driver = webdriver.Chrome(chrome_options=self.chrome_options)
         return self.driver
 
     # 关闭标签
