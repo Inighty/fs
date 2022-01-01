@@ -27,19 +27,19 @@ logger = logging.getLogger(__name__)
 sentence_pattern = r',|\.|/|;|\'|`|\[|\]|<|>|\?|:|：|"|\{|\}|\~|!|@|#|\$|%|\^|&|？|\(|\)|-|=|\_|\+|，|。|、|；|‘|’|【|】|·|！| |…|（|）'
 
 
-def after_insert_post(word_id, author, cate):
-    dbhelper.execute(f"update zbp_words set used = 1 where id = {word_id}")
+def after_insert_post(word_id, author, cate, url):
+    dbhelper.execute(f"update zbp_words set used = 1, url = {url} where id = {word_id}")
     dbhelper.execute(
         f"update zbp_member set mem_Articles = mem_Articles + 1, mem_PostTime = {int(round(time.time()))} where mem_ID = {author}")
     dbhelper.execute(
         f"update zbp_category set cate_Count = cate_Count + 1 where cate_ID = {cate}")
 
 
-def duplicate_title(title):
-    # res = dbhelper.fetch_one(
-    #     "select count(*) as num from zbp_post where log_Title like concat('%%',\'%s\','%%')", [title])
-    # if res and res['num'] > 0:
-    #     return True
+def duplicate_title(url):
+    res = dbhelper.fetch_one(
+        "select count(*) as num from zbp_words where url = '" + url + "'")
+    if res and res['num'] > 0:
+        return True
     return False
 
 
@@ -89,7 +89,7 @@ class zzspider(scrapy.Spider):
                 title = item
                 break
 
-        if duplicate_title(title):
+        if duplicate_title(article_url):
             return
 
         title = f"{self.word}({title})"
@@ -160,9 +160,9 @@ class zzspider(scrapy.Spider):
         print("result:")
         print(content_str)
 
-        self.insert_post(title, content_str, data.text)
+        self.insert_post(title, content_str, data.text, response.url)
 
-    def insert_post(self, title, content_str, pure_text):
+    def insert_post(self, title, content_str, pure_text, url):
         pure_text = pure_text.replace('\'', '\\\'')
         intro = pure_text[0:150]
 
@@ -175,7 +175,7 @@ class zzspider(scrapy.Spider):
              now_time, 0,
              0, '', ''])
         if result:
-            after_insert_post(self.word_id, self.author, self.cate)
+            after_insert_post(self.word_id, self.author, self.cate, url)
 
     def insert_upload(self, real_path):
         kind = filetype.guess(real_path)
