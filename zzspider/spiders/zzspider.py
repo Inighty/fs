@@ -24,7 +24,7 @@ browser = Browser()
 dbhelper = DBHelper()
 sftp = Sftp()
 logger = logging.getLogger(__name__)
-sentence_pattern = r',|\.|/|;|\'|`|\[|\]|<|>|\?|:|"|\{|\}|\~|!|@|#|\$|%|\^|&|？|\(|\)|-|=|\_|\+|，|。|、|；|‘|’|【|】|·|！| |…|（|）'
+sentence_pattern = r',|\.|/|;|\'|`|\[|\]|<|>|\?|:|：|"|\{|\}|\~|!|@|#|\$|%|\^|&|？|\(|\)|-|=|\_|\+|，|。|、|；|‘|’|【|】|·|！| |…|（|）'
 
 
 def after_insert_post(word_id, author, cate):
@@ -33,6 +33,14 @@ def after_insert_post(word_id, author, cate):
         f"update zbp_member set mem_Articles = mem_Articles + 1, mem_PostTime = {int(round(time.time()))} where mem_ID = {author}")
     dbhelper.execute(
         f"update zbp_category set cate_Count = cate_Count + 1 where cate_ID = {cate}")
+
+
+def duplicate_title(title):
+    # res = dbhelper.fetch_one(
+    #     "select count(*) as num from zbp_post where log_Title like concat('%%',\'%s\','%%')", [title])
+    # if res and res['num'] > 0:
+    #     return True
+    return False
 
 
 class zzspider(scrapy.Spider):
@@ -70,7 +78,7 @@ class zzspider(scrapy.Spider):
         result = sorted(result, key=lambda i: i['index'])
         if len(result) == 0:
             return
-        item = result[0]
+        item = random.choice(result)
         article_url = item['source_url']
         title = item['title']
 
@@ -80,6 +88,9 @@ class zzspider(scrapy.Spider):
             if item and len(item) > 0:
                 title = item
                 break
+
+        if duplicate_title(title):
+            return
 
         title = f"{self.word}({title})"
         print(article_url)
@@ -97,11 +108,15 @@ class zzspider(scrapy.Spider):
         contents = data.find_all(['img', 'p'])
         content_str = ''
         for item in contents:
+            if not item.text:
+                continue
             if len(item.find_all(['img', 'a'])) > 0:
                 continue
             if item.name == 'img':
                 content_str += '<p>' + str(item) + '</p>'
                 continue
+            for i in item.find_all(attrs={'class': True}):
+                del i['class']
             leap_flag = False
             for f in ConfigUtil.config['collect']['filter'].split(','):
                 if str(item).__contains__(f):
