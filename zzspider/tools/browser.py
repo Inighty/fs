@@ -30,6 +30,7 @@ class Browser(metaclass=Singleton):
         self.chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
 
         self.chrome_options.add_argument('--start-maximized')
+        self.chrome_options.add_argument('--no-sandbox')
         self.chrome_options.add_argument("disable-blink-features=AutomationControlled")
 
         self.chrome_options.add_argument(f'user-agent={settings.USER_AGENT}')
