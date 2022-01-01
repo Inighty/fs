@@ -28,7 +28,7 @@ sentence_pattern = r',|\.|/|;|\'|`|\[|\]|<|>|\?|:|：|"|\{|\}|\~|!|@|#|\$|%|\^|&
 
 
 def after_insert_post(word_id, author, cate, url):
-    dbhelper.execute(f"update zbp_words set used = 1, url = {url} where id = {word_id}")
+    dbhelper.execute(f"update zbp_words set used = 1, url = '{url}' where id = {word_id}")
     dbhelper.execute(
         f"update zbp_member set mem_Articles = mem_Articles + 1, mem_PostTime = {int(round(time.time()))} where mem_ID = {author}")
     dbhelper.execute(
@@ -104,6 +104,9 @@ class zzspider(scrapy.Spider):
     def article(self, response):
         title = response.meta['title']
         soup = BeautifulSoup(response.text, "html.parser")
+        for tag in soup():
+            for attribute in ["class", "style"]:
+                del tag[attribute]
         data = soup.find_all('article')[0]
         contents = data.find_all(['img', 'p'])
         content_str = ''
