@@ -95,7 +95,7 @@ class zzspider(scrapy.Spider):
         title = f"{self.word}({title})"
         print(article_url)
         print(title)
-        return
+        # return
         # article_url = 'http://www.toutiao.com/a6406080444747825409/?channel=&source=search_tab'
         # title = '家有阳台看过来，注意这个小细节，锦上添花！'
         yield scrapy.Request(url=article_url, dont_filter=True, meta={'title': title},
