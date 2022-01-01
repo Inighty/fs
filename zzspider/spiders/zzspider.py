@@ -58,7 +58,7 @@ class zzspider(scrapy.Spider):
         self.author = random.choice(mems)['mem_ID']
 
     def parse(self, response):
-        print("获取到结果")
+        print("获取到结果：" + response.text)
         soup = BeautifulSoup(response.text, "html.parser")
         result_jsons = soup.find_all('script', attrs={'data-for': 's-result-json'})
         result = []
@@ -78,6 +78,7 @@ class zzspider(scrapy.Spider):
                     result.append(item)
         result = sorted(result, key=lambda i: i['index'])
         if len(result) == 0:
+            print("没有东西")
             return
         item = random.choice(result)
         article_url = item['source_url']
