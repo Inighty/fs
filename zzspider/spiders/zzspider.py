@@ -108,8 +108,6 @@ class zzspider(scrapy.Spider):
         contents = data.find_all(['img', 'p'])
         content_str = ''
         for item in contents:
-            if not item.text:
-                continue
             if len(item.find_all(['img', 'a'])) > 0:
                 continue
             if item.name == 'img':
