@@ -105,7 +105,7 @@ class zzspider(scrapy.Spider):
         print(article_url)
         print(title)
         # return
-        # article_url = 'http://www.toutiao.com/a6406080444747825409/?channel=&source=search_tab'
+        # article_url = 'https://www.toutiao.com/i6497837978075791885/?channel=&source=search_tab'
         # title = '家有阳台看过来，注意这个小细节，锦上添花！'
         yield scrapy.Request(url=article_url, dont_filter=True, meta={'title': title},
                              callback=self.article)
@@ -121,14 +121,17 @@ class zzspider(scrapy.Spider):
         contents = data.find_all(['img', 'p'])
         content_str = ''
         for item in contents:
-            if len(item.find_all(['img', 'a'])) > 0:
-                continue
+            dels = item.find_all(['img', 'a'])
+            if len(dels) > 0:
+                for d in dels:
+                    d.extract()
             if item.name == 'img':
                 content_str += '<p>' + str(item) + '</p>'
                 continue
             for i in item.find_all(attrs={'class': True}):
                 del i['class']
             leap_flag = False
+
             for f in ConfigUtil.config['collect']['filter'].split(','):
                 if str(item).__contains__(f):
                     leap_flag = True
