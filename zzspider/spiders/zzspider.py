@@ -35,12 +35,16 @@ def after_insert_post(word_id, author, cate, url):
         f"update zbp_category set cate_Count = cate_Count + 1 where cate_ID = {cate}")
 
 
-def duplicate_title(url):
-    res = dbhelper.fetch_one(
+def duplicate_title(result):
+    f = None
+    for item in result:
+        url = result['source_url']
+        res = dbhelper.fetch_one(
         "select count(*) as num from zbp_words where url = '" + url + "'")
-    if res and res['num'] > 0:
-        return True
-    return False
+        if res['num'] == 0:
+            f = item
+            break
+    return f
 
 
 class zzspider(scrapy.Spider):
@@ -80,7 +84,10 @@ class zzspider(scrapy.Spider):
         if len(result) == 0:
             #print("没有东西")
             return
-        item = result[0]
+        
+        item = duplicate_title(result)
+        if item is None:
+            return
         article_url = item['source_url']
         title = item['title']
 
@@ -91,8 +98,8 @@ class zzspider(scrapy.Spider):
                 title = item
                 break
 
-        if duplicate_title(article_url):
-            return
+        #if duplicate_title(article_url):
+        #   return
 
         title = f"{self.word}({title})"
         print(article_url)
