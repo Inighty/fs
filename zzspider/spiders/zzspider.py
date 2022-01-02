@@ -38,7 +38,7 @@ def after_insert_post(word_id, author, cate, url):
 def duplicate_title(result):
     f = None
     for item in result:
-        url = result['source_url']
+        url = item['source_url']
         res = dbhelper.fetch_one(
         "select count(*) as num from zbp_words where url = '" + url + "'")
         if res['num'] == 0:
