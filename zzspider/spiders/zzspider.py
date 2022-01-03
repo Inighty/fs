@@ -34,6 +34,7 @@ def after_insert_post(word_id, author, cate, url):
         f"update zbp_member set mem_Articles = mem_Articles + 1, mem_PostTime = {int(round(time.time()))} where mem_ID = {author}")
     dbhelper.execute(
         f"update zbp_category set cate_Count = cate_Count + 1 where cate_ID = {cate}")
+    os.remove(ConfigUtil.config['main']['sitemap_path'])
 
 
 def duplicate_title(result):
@@ -41,7 +42,7 @@ def duplicate_title(result):
     for item in result:
         url = item['source_url']
         res = dbhelper.fetch_one(
-        "select count(*) as num from zbp_words where url = '" + url + "'")
+            "select count(*) as num from zbp_words where url = '" + url + "'")
         if res['num'] == 0:
             f = item
             break
@@ -63,7 +64,7 @@ class zzspider(scrapy.Spider):
         self.author = random.choice(mems)['mem_ID']
 
     def parse(self, response):
-        #print("获取到结果：" + response.text)
+        # print("获取到结果：" + response.text)
         soup = BeautifulSoup(response.text, "html.parser")
         result_jsons = soup.find_all('script', attrs={'data-for': 's-result-json'})
         result = []
@@ -83,9 +84,9 @@ class zzspider(scrapy.Spider):
                     result.append(item)
         result = sorted(result, key=lambda i: i['index'])
         if len(result) == 0:
-            #print("没有东西")
+            # print("没有东西")
             return
-        
+
         item = duplicate_title(result)
         if item is None:
             return
@@ -99,7 +100,7 @@ class zzspider(scrapy.Spider):
                 title = item
                 break
 
-        #if duplicate_title(article_url):
+        # if duplicate_title(article_url):
         #   return
 
         title = f"{self.word}({title})"
@@ -112,7 +113,7 @@ class zzspider(scrapy.Spider):
                              callback=self.article)
 
     def article(self, response):
-        #print("获取到文章内容")
+        # print("获取到文章内容")
         title = response.meta['title']
         soup = BeautifulSoup(response.text, "html.parser")
         for tag in soup():
@@ -170,7 +171,7 @@ class zzspider(scrapy.Spider):
             img_to_progressive(real_path)
 
             linux_relate_path = f"/zb_users/upload/{str(now.year)}/{str(now.month)}"
-            #sftp.upload_to_dir(real_path, ConfigUtil.config['sftp']['path'] + linux_relate_path)
+            # sftp.upload_to_dir(real_path, ConfigUtil.config['sftp']['path'] + linux_relate_path)
             self.insert_upload(real_path)
             upload_count += 1
             content_str = content_str.replace(src, linux_relate_path + f"/{filename}")
