@@ -188,9 +188,14 @@ class zzspider(scrapy.Spider):
             result = urllib.request.urlretrieve(src)
             if result and len(result) > 0:
                 temp_path = result[0]
-                suffix = guess_extension(result[1].get_content_type().partition(';')[0].strip())
-                logger.error(result[1].get_content_type())
+                content_type = result[1].get_content_type().partition(';')[0].strip()
+                if content_type = 'image/webp':
+                    suffix = '.webp'
+                else:
+                    suffix = guess_extension(content_type)
+                logger.error(content_type)
                 logger.error(suffix)
+
                 if suffix == '.jpe':
                     suffix = '.jpg'
             else:
