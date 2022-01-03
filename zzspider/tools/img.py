@@ -11,8 +11,9 @@ def img_to_progressive(path):
     img = Image.open(path)
     destination = path.split('.')[:-1][0] + '_destination.' + path.split('.')[-1:][0]
     new_width = 1200
-    new_height = int(new_width * img.size[1] * 1.0 / img.size[0])
-    img = img.resize((new_width, new_height))
+    if img.size[0] > new_width:
+        new_height = int(new_width * img.size[1] * 1.0 / img.size[0])
+        img = img.resize((new_width, new_height))
     print(path.split('/')[-1:][0], '开始转换图片')
     img.save(destination, "PNG", quality=80, optimize=True, progressive=True)
     print(path.split('/')[-1:][0], '转换完毕')
