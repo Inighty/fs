@@ -99,7 +99,7 @@ class zzspider(scrapy.Spider):
         self.cate = cate
         self.word = word
         self.word_id = word_id
-
+        logger.error(self.word)
         mems = dbhelper.fetch_all("select mem_ID from zbp_member")
         self.author = random.choice(mems)['mem_ID']
 
@@ -144,8 +144,8 @@ class zzspider(scrapy.Spider):
         #   return
 
         title = f"{self.word}({title})"
-        print(article_url)
-        print(title)
+        logger.error(article_url)
+        logger.error(title)
         # return
         # article_url = 'http://www.toutiao.com/a6696692803763700232/?channel=&source=search_tab'
         # title = '家有阳台看过来，注意这个小细节，锦上添花！'
