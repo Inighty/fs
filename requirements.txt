@@ -1,3 +1,4 @@
+PIL
 beautifulsoup4~=4.6.3
 selenium~=3.141.0
 Scrapy~=2.1.0

@@ -18,6 +18,7 @@ from zzspider import settings
 from zzspider.config import ConfigUtil
 from zzspider.tools.browser import Browser
 from zzspider.tools.dbhelper import DBHelper
+from zzspider.tools.img import img_to_progressive
 from zzspider.tools.sftp import Sftp
 
 browser = Browser()
@@ -165,6 +166,10 @@ class zzspider(scrapy.Spider):
                 with open(real_path, 'wb') as new_file:
                     new_file.write(file + b'\0')
             os.remove(temp_path)
+
+            img_size = int(os.path.getsize(real_path))
+            if img_size > 500000:
+                img_to_progressive(real_path)
 
             linux_relate_path = f"/zb_users/upload/{str(now.year)}/{str(now.month)}"
             #sftp.upload_to_dir(real_path, ConfigUtil.config['sftp']['path'] + linux_relate_path)

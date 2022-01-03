@@ -6,9 +6,9 @@ import re
 import sys
 import time
 from logging.handlers import TimedRotatingFileHandler
+from mimetypes import guess_extension
 
 import filetype
-from mimetypes import guess_extension
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 
@@ -16,6 +16,7 @@ from zzspider import settings
 from zzspider.config import ConfigUtil
 from zzspider.spiders.zzspider import zzspider
 from zzspider.tools.dbhelper import DBHelper
+from zzspider.tools.img import img_to_progressive
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +80,6 @@ def process_img(img_temp, content, author):
 
 regex = r"src=\"(http.*?)\""
 
-
 def repair():
     result = []
     sql = 'SELECT log_ID,log_Content,log_AuthorID FROM `zbp_post` WHERE log_Type = 0'
@@ -96,14 +96,21 @@ def repair():
             content = process_img(result, content, author)
             dbhelper.execute(f"update zbp_post set log_Content = '{content}' where log_ID = {id}")
 
+
 if __name__ == '__main__':
-    # count = 1
     arg = sys.argv
     if len(arg) > 1:
         if arg[1] == 'repair':
             repair()
-            exit(0)
-
+        elif arg[1] == 'compress':
+            for d, _, fl in os.walk(ConfigUtil.config['main']['path'] + '/zb_users/upload'):  # 遍历目录下所有文件
+                for f in fl:
+                    try:
+                        img_to_progressive(d + '\\' + f)
+                    except Exception as e:
+                        print(e)
+                        pass
+        exit(0)
     # for i in range(0, count):
     cate = random.choice(cates)
     process = CrawlerProcess(install_root_handler=False, settings=get_project_settings())
