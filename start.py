@@ -106,7 +106,7 @@ if __name__ == '__main__':
             for d, _, fl in os.walk(ConfigUtil.config['main']['path'] + '/zb_users/upload'):  # 遍历目录下所有文件
                 for f in fl:
                     try:
-                        img_to_progressive(d + '\\' + f)
+                        img_to_progressive(d + '/' + f)
                     except Exception as e:
                         print(e)
                         pass
