@@ -14,7 +14,7 @@ from scrapy.utils.project import get_project_settings
 
 from zzspider import settings
 from zzspider.config import ConfigUtil
-from zzspider.spiders.zzspider import zzspider
+from zzspider.spiders.zzspider import zzspider, baidu_push
 from zzspider.tools.dbhelper import DBHelper
 from zzspider.tools.img import img_to_progressive
 
@@ -98,6 +98,8 @@ def repair():
 
 
 if __name__ == '__main__':
+    baidu_push()
+    exit()
     arg = sys.argv
     if len(arg) > 1:
         if arg[1] == 'repair':
