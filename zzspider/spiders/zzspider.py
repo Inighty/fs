@@ -189,6 +189,8 @@ class zzspider(scrapy.Spider):
             if result and len(result) > 0:
                 temp_path = result[0]
                 suffix = guess_extension(result[1].get_content_type().partition(';')[0].strip())
+                logger.error(result[1].get_content_type())
+                logger.error(suffix)
                 if suffix == '.jpe':
                     suffix = '.jpg'
             else:
