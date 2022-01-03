@@ -105,7 +105,7 @@ class zzspider(scrapy.Spider):
         print(article_url)
         print(title)
         # return
-        # article_url = 'https://www.toutiao.com/i6497837978075791885/?channel=&source=search_tab'
+        # article_url = 'http://www.toutiao.com/a6696692803763700232/?channel=&source=search_tab'
         # title = '家有阳台看过来，注意这个小细节，锦上添花！'
         yield scrapy.Request(url=article_url, dont_filter=True, meta={'title': title},
                              callback=self.article)
@@ -118,6 +118,8 @@ class zzspider(scrapy.Spider):
             for attribute in ["class", "style"]:
                 del tag[attribute]
         data = soup.find_all('article')[0]
+        imgs = data.find_all('img')
+        img_temp = list(set([item.attrs['src'] for item in imgs]))
         contents = data.find_all(['img', 'p'])
         content_str = ''
         for item in contents:
@@ -138,9 +140,6 @@ class zzspider(scrapy.Spider):
                     break
             if not leap_flag:
                 content_str += str(item)
-        imgs = data.find_all('img')
-
-        img_temp = list(set([item.attrs['src'] for item in imgs]))
 
         upload_count = 0
         for src in img_temp:
