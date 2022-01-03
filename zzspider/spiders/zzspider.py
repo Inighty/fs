@@ -10,6 +10,7 @@ import urllib.request
 from mimetypes import guess_extension
 
 import filetype as filetype
+import requests
 import scrapy
 from bs4 import BeautifulSoup
 from scrapy import Request
@@ -28,6 +29,42 @@ logger = logging.getLogger(__name__)
 sentence_pattern = r',|\.|/|;|\'|`|\[|\]|<|>|\?|:|：|"|\{|\}|\~|!|@|#|\$|%|\^|&|？|\(|\)|-|=|\_|\+|，|。|、|；|‘|’|【|】|·|！| |…|（|）'
 
 
+def baidu_push():
+    remainpath = 'baidu.remain'
+    if os.path.exists(remainpath):
+        mtime = os.path.getmtime(remainpath)
+        mday = int(time.strftime("%d", time.localtime(mtime)))
+        if mday == datetime.date.today().day:
+            # 当天
+            with open(remainpath, 'r', encoding='utf-8') as f:
+                remain = int(f.read())
+                if remain == 0:
+                    return
+        else:
+            # 非当天
+            remain = 3000
+    else:
+        remain = 3000
+    if remain > 0:
+        id = dbhelper.fetch_one(f"select log_ID from zbp_post order by log_ID desc limit 1")
+        id = id['log_ID']
+        push_url = 'http://data.zz.baidu.com/urls?site=' + ConfigUtil.config['main']['url'] + '&token=' + \
+                   ConfigUtil.config['main']['baidu_push_token']
+        url = ConfigUtil.config['main']['url'] + f"/s/{id}.html"
+        response = requests.post(push_url, data=url)
+        res_dict = json.loads(response.text)
+
+        if response.status_code == 400:
+            # 超出 不应该走到这
+            print("push overflow.")
+            pass
+        else:
+            remain = res_dict['remain']
+            # 推送成功
+            with open(remainpath, 'w', encoding='utf-8') as f:
+                f.write(str(remain))
+
+
 def after_insert_post(word_id, author, cate, url):
     dbhelper.execute(f"update zbp_words set used = 1, url = '{url}' where id = {word_id}")
     dbhelper.execute(
@@ -35,6 +72,7 @@ def after_insert_post(word_id, author, cate, url):
     dbhelper.execute(
         f"update zbp_category set cate_Count = cate_Count + 1 where cate_ID = {cate}")
     os.remove(ConfigUtil.config['main']['sitemap_path'])
+    baidu_push()
 
 
 def duplicate_title(result):
