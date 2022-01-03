@@ -189,7 +189,7 @@ class zzspider(scrapy.Spider):
             if result and len(result) > 0:
                 temp_path = result[0]
                 content_type = result[1].get_content_type().partition(';')[0].strip()
-                if content_type = 'image/webp':
+                if content_type == 'image/webp':
                     suffix = '.webp'
                 else:
                     suffix = guess_extension(content_type)
