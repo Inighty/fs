@@ -16,7 +16,6 @@ from zzspider import settings
 from zzspider.config import ConfigUtil
 from zzspider.spiders.zzspider import zzspider
 from zzspider.tools.dbhelper import DBHelper
-from zzspider.tools.format import transfer_content
 
 logger = logging.getLogger(__name__)
 
