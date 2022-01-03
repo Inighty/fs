@@ -27,7 +27,7 @@ dbhelper = DBHelper()
 sftp = Sftp()
 logger = logging.getLogger(__name__)
 sentence_pattern = r',|\.|/|;|\'|`|\[|\]|<|>|\?|:|：|"|\{|\}|\~|!|@|#|\$|%|\^|&|？|\(|\)|-|=|\_|\+|，|。|、|；|‘|’|【|】|·|！| |…|（|）'
-
+sitemap_path = ConfigUtil.config['main']['sitemap_path']
 
 def baidu_push():
     basedir = os.path.dirname(os.path.realpath('__file__'))
@@ -72,7 +72,8 @@ def after_insert_post(word_id, author, cate, url):
         f"update zbp_member set mem_Articles = mem_Articles + 1, mem_PostTime = {int(round(time.time()))} where mem_ID = {author}")
     dbhelper.execute(
         f"update zbp_category set cate_Count = cate_Count + 1 where cate_ID = {cate}")
-    os.remove(ConfigUtil.config['main']['sitemap_path'])
+    if os.path.exists(sitemap_path):
+        os.remove(sitemap_path)
     baidu_push()
 
 
