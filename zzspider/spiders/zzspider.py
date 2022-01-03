@@ -30,7 +30,8 @@ sentence_pattern = r',|\.|/|;|\'|`|\[|\]|<|>|\?|:|：|"|\{|\}|\~|!|@|#|\$|%|\^|&
 
 
 def baidu_push():
-    remainpath = 'baidu.remain'
+    basedir = os.path.dirname(os.path.realpath('__file__'))
+    remainpath = os.path.join(basedir, 'baidu.remain')
     if os.path.exists(remainpath):
         mtime = os.path.getmtime(remainpath)
         mday = int(time.strftime("%d", time.localtime(mtime)))
