@@ -9,7 +9,6 @@ def img_to_progressive(path):
     if os.path.isdir(path):
         return
     img_size = int(os.path.getsize(path))
-    print('当前图片大小：' + str(img_size))
     if img_size < 500000:
         return
     img = Image.open(path)
@@ -24,5 +23,5 @@ def img_to_progressive(path):
     print('开始重命名文件')
     os.remove(path)
     os.rename(destination, path)
-    img_size = int(os.path.getsize(path))
-    print('后续图片大小：' + str(img_size))
+    new_img_size = int(os.path.getsize(path))
+    print('图片大小：' + str(img_size) + '--->' + str(new_img_size))
