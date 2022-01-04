@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 sentence_pattern = r',|\.|/|;|\'|`|\[|\]|<|>|\?|:|：|"|\{|\}|\~|!|@|#|\$|%|\^|&|？|\(|\)|-|=|\_|\+|，|。|、|；|‘|’|【|】|·|！| |…|（|）'
 sitemap_path = ConfigUtil.config['main']['sitemap_path']
 
+
 def baidu_push():
     basedir = os.path.dirname(os.path.realpath('__file__'))
     remainpath = os.path.join(basedir, 'baidu.remain')
@@ -131,12 +132,21 @@ class zzspider(scrapy.Spider):
 
         item = duplicate_title(result)
         if item is None:
+            # 翻页
+            pages = soup.find_all('div', attrs={'class': 'cs-pagination'})
+            if pages and len(pages) > 0:
+                aa = pages[0].find_all('a')
+                last_href = "https://so.toutiao.com" + aa[len(aa) - 1]['href']
+                yield scrapy.Request(url=last_href, dont_filter=True, callback=self.parse)
             return
         article_url = item['source_url']
         title = item['title']
 
         title_list = re.split(sentence_pattern, title)
-        title = ''.join(title_list)
+        for item in title_list:
+            if item and len(item) > 0:
+                title = item
+                break
 
         # if duplicate_title(article_url):
         #   return
