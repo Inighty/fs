@@ -82,6 +82,14 @@ def duplicate_title(result):
     f = None
     for item in result:
         url = item['source_url']
+        title = item['title']
+        leap_flag = False
+        for f in ConfigUtil.config['collect']['title_filter'].split(','):
+            if title.__contains__(f):
+                leap_flag = True
+                break
+        if leap_flag:
+            continue
         res = dbhelper.fetch_one(
             "select count(*) as num from zbp_words where url = '" + url + "'")
         if res['num'] == 0:
@@ -105,6 +113,22 @@ class zzspider(scrapy.Spider):
         self.author = random.choice(mems)['mem_ID']
 
     def parse(self, response):
+        first_title = self.word
+        res = requests.get(
+            "https://sp0.baidu.com/5a1Fazu8AA54nxGko9WTAnF6hhy/su?json=1&bs=s&wd=" + self.word, verify=False)
+        try:
+            if res.ok:
+                res_json = json.loads(res.text[17: -2])
+                for item in res_json['s']:
+                    if item.startswith(self.word):
+                        first_title = item
+                        break
+        except Exception as e:
+            logger.error(e)
+            pass
+        finally:
+            res.close()
+
         # print("获取到结果：" + response.text)
         soup = BeautifulSoup(response.text, "html.parser")
         result_jsons = soup.find_all('script', attrs={'data-for': 's-result-json'})
@@ -151,7 +175,7 @@ class zzspider(scrapy.Spider):
         # if duplicate_title(article_url):
         #   return
 
-        title = f"{self.word}({title})"
+        title = f"{first_title}({title})"
         logger.error(article_url)
         logger.error(title)
         # return
