@@ -124,7 +124,8 @@ class zzspider(scrapy.Spider):
                     result.append(item)
         result = sorted(result, key=lambda i: i['index'])
         if len(result) == 0:
-            # print("没有东西")
+            logger.error(f"关键词{self.word}没有东西")
+            dbhelper.execute(f"update zbp_words set used = 1 where id = {self.word_id}")
             return
 
         item = duplicate_title(result)
