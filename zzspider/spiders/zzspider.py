@@ -203,6 +203,7 @@ class zzspider(scrapy.Spider):
                 for d in dels:
                     d.extract()
             if item.name == 'img':
+                item['class'] = 'syl-page-img aligncenter j-lazy'
                 content_str += '<p>' + str(item) + '</p>'
                 continue
             for i in item.find_all(attrs={'class': True}):
