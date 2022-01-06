@@ -237,7 +237,7 @@ class zzspider(scrapy.Spider):
                 continue
             now = datetime.datetime.now()
             filename = str(now.year) + str(now.month) + str(now.day) + str(round(time.time() * 1000)) + suffix
-            relate_path = os.path.join(str(now.year), str(now.month), filename)
+            relate_path = os.path.join(str(now.year), str(now.month).zfill(2), filename)
             real_path = os.path.join(settings.UPLOAD_PATH, relate_path)
 
             dirs = os.path.dirname(real_path)
