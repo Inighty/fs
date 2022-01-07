@@ -166,16 +166,18 @@ class zzspider(scrapy.Spider):
             return
         article_url = item['source_url']
         title = item['title']
-
+        new_title = ''
         title_list = re.split(sentence_pattern, title)
         for item in title_list:
             if item and len(item) > 0:
-                title = item
-                break
+                new_title += item
+                if len(new_title) > 6:
+                    break
 
         # if duplicate_title(article_url):
         #   return
-
+        if new_title != '':
+            title = new_title
         title = f"{first_title}({title})"
         logger.error(article_url)
         logger.error(title)
