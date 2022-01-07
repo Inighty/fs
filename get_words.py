@@ -23,25 +23,18 @@ headers = {
     'Cookie': 'v5_quickSort_ad=1; v5_adVipStatus=1; token=6jydn10Mk1GRZNE%2BFeB0RV4KKQ4KrfUoJD6MlyRQ969n%2FyKLaH5Ir1I0%2BnvDlzbC; Hm_lvt_3e5875cdd6fd6a5ada5e50e88906a4a3=1640335766; PHPSESSID=j2556efhvur4ea259k1112ojvo; v5_quickSort_ad=1; v5_quickSearchHistory=%5B%22www.52biqv.com%22%5D; v5_66189569c6d8f25c8454b33293f7dc75=1; v5_3710099c77f3703fdd257bd8b6a784ef=1; v5_oauth_user=dhDHkg1kMK29Ow4ZFe1iUtpcs1JQib; PHPSESSID=9j37cmrdi3b59vb2qad0pqg3d8; v5_oauth_user=0mO7ki1rUXF4vPJcIB%2BjN8DEfGGTja; v5_quickSearchHistory=%5B%22www.52biqv.com%22%5D'
 }
 
-response = requests.request("GET", url, headers=headers, data=payload)
-res = json.loads(response.text)
-first = True
-count = res['count']
-page = count // 100
-an = count % 100
-
-if an > 0:
-    all_page = page + 1
-else:
-    all_page = page
-
 result = []
-data = res['data']
-result.extend(data)
-
-for i in range(2, all_page + 1):
-    url = f"https://didi.seowhy.com/www/quickSort/analyse?page={page}&limit=100&url=https%3A%2F%2Fwww.52biqv.com&type=7"
+index = 1
+while True:
+    url = f"https://didi.seowhy.com/www/quickSort/analyse?page={index}&limit=100&url=https%3A%2F%2Fwww.52biqv.com&type=7"
     response = requests.request("GET", url, headers=headers, data=payload)
     res = json.loads(response.text)
     data = res['data']
-    result.extend(data)
+    if len(data) < 100:
+        break
+    result += data
+    index += 1
+
+with open('result.txt', mode='w') as f:
+    lines = [f"{item['keyword']}\t{item['index_bd_pc']}\t{item['rank_bd_pc']}\n" for item in result]
+    f.writelines(lines)
