@@ -84,8 +84,8 @@ def duplicate_title(result):
         url = item['source_url']
         title = item['title']
         leap_flag = False
-        for f in ConfigUtil.config['collect']['title_filter'].split(','):
-            if title.__contains__(f):
+        for i in ConfigUtil.config['collect']['title_filter'].split(','):
+            if title.__contains__(i):
                 leap_flag = True
                 break
         if leap_flag:
