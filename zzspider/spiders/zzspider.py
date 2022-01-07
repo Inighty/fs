@@ -236,8 +236,9 @@ class zzspider(scrapy.Spider):
                 logger.error("下载图片异常:" + src)
                 continue
             now = datetime.datetime.now()
-            filename = str(now.year) + str(now.month) + str(now.day) + str(round(time.time() * 1000)) + suffix
-            relate_path = os.path.join(str(now.year), str(now.month).zfill(2), filename)
+            full_month = str(now.month).zfill(2)
+            filename = str(now.year) + full_month + str(now.day) + str(round(time.time() * 1000)) + suffix
+            relate_path = os.path.join(str(now.year), full_month, filename)
             real_path = os.path.join(settings.UPLOAD_PATH, relate_path)
 
             dirs = os.path.dirname(real_path)
@@ -251,7 +252,7 @@ class zzspider(scrapy.Spider):
 
             img_to_progressive(real_path)
 
-            linux_relate_path = f"/zb_users/upload/{str(now.year)}/{str(now.month).zfill(2)}"
+            linux_relate_path = f"/zb_users/upload/{str(now.year)}/{full_month}"
             # sftp.upload_to_dir(real_path, ConfigUtil.config['sftp']['path'] + linux_relate_path)
             self.insert_upload(real_path)
             upload_count += 1
