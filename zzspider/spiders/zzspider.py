@@ -112,6 +112,15 @@ class zzspider(scrapy.Spider):
         mems = dbhelper.fetch_all("select mem_ID from zbp_member")
         self.author = random.choice(mems)['mem_ID']
 
+    def start_requests(self):
+        if ConfigUtil.config['collect']['special_url']:
+            for url in self.start_urls:
+                yield scrapy.Request(url=url, dont_filter=True, meta={'title': self.word},
+                                     callback=self.article)
+        else:
+            for url in self.start_urls:
+                yield Request(url, dont_filter=True)
+
     def parse(self, response):
         first_title = self.word
         # 百度下拉
