@@ -10,6 +10,7 @@ import urllib.request
 from mimetypes import guess_extension
 
 import filetype as filetype
+import requests
 import scrapy
 from bs4 import BeautifulSoup
 from scrapy import Request
@@ -18,6 +19,7 @@ from zzspider import settings
 from zzspider.config import ConfigUtil
 from zzspider.tools.browser import Browser
 from zzspider.tools.dbhelper import DBHelper
+from zzspider.tools.img import img_to_progressive
 from zzspider.tools.sftp import Sftp
 
 browser = Browser()
@@ -25,6 +27,44 @@ dbhelper = DBHelper()
 sftp = Sftp()
 logger = logging.getLogger(__name__)
 sentence_pattern = r',|\.|/|;|\'|`|\[|\]|<|>|\?|:|：|"|\{|\}|\~|!|@|#|\$|%|\^|&|？|\(|\)|-|=|\_|\+|，|。|、|；|‘|’|【|】|·|！| |…|（|）'
+sitemap_path = ConfigUtil.config['main']['sitemap_path']
+
+
+def baidu_push():
+    basedir = os.path.dirname(os.path.realpath('__file__'))
+    remainpath = os.path.join(basedir, 'baidu.remain')
+    if os.path.exists(remainpath):
+        mtime = os.path.getmtime(remainpath)
+        mday = int(time.strftime("%d", time.localtime(mtime)))
+        if mday == datetime.date.today().day:
+            # 当天
+            with open(remainpath, 'r', encoding='utf-8') as f:
+                remain = int(f.read())
+                if remain == 0:
+                    return
+        else:
+            # 非当天
+            remain = 3000
+    else:
+        remain = 3000
+    if remain > 0:
+        id = dbhelper.fetch_one(f"select log_ID from zbp_post order by log_ID desc limit 1")
+        id = id['log_ID']
+        push_url = 'http://data.zz.baidu.com/urls?site=' + ConfigUtil.config['main']['url'] + '&token=' + \
+                   ConfigUtil.config['main']['baidu_push_token']
+        url = ConfigUtil.config['main']['url'] + f"/s/{id}.html"
+        response = requests.post(push_url, data=url)
+        res_dict = json.loads(response.text)
+
+        if response.status_code == 400:
+            # 超出 不应该走到这
+            print("push overflow.")
+            pass
+        else:
+            remain = res_dict['remain']
+            # 推送成功
+            with open(remainpath, 'w', encoding='utf-8') as f:
+                f.write(str(remain))
 
 
 def after_insert_post(word_id, author, cate, url):
@@ -33,12 +73,23 @@ def after_insert_post(word_id, author, cate, url):
         f"update zbp_member set mem_Articles = mem_Articles + 1, mem_PostTime = {int(round(time.time()))} where mem_ID = {author}")
     dbhelper.execute(
         f"update zbp_category set cate_Count = cate_Count + 1 where cate_ID = {cate}")
+    if os.path.exists(sitemap_path):
+        os.remove(sitemap_path)
+    baidu_push()
 
 
 def duplicate_title(result):
     f = None
     for item in result:
         url = item['source_url']
+        title = item['title']
+        leap_flag = False
+        for i in ConfigUtil.config['collect']['title_filter'].split(','):
+            if title.__contains__(i):
+                leap_flag = True
+                break
+        if leap_flag:
+            continue
         res = dbhelper.fetch_one(
             "select count(*) as num from zbp_words where url = '" + url + "'")
         if res['num'] == 0:
@@ -57,20 +108,28 @@ class zzspider(scrapy.Spider):
         self.cate = cate
         self.word = word
         self.word_id = word_id
-
+        logger.error(self.word)
         mems = dbhelper.fetch_all("select mem_ID from zbp_member")
         self.author = random.choice(mems)['mem_ID']
 
-    def start_requests(self):
-        if ConfigUtil.config['collect']['special_url']:
-            for url in self.start_urls:
-                yield scrapy.Request(url=url, dont_filter=True, meta={'title': self.word},
-                                     callback=self.article)
-        else:
-            for url in self.start_urls:
-                yield Request(url, dont_filter=True)
-
     def parse(self, response):
+        first_title = self.word
+        # 百度下拉
+        # res = requests.get(
+        #     "https://sp0.baidu.com/5a1Fazu8AA54nxGko9WTAnF6hhy/su?json=1&bs=s&wd=" + self.word, verify=False)
+        # try:
+        #     if res.ok:
+        #         res_json = json.loads(res.text[17: -2])
+        #         for item in res_json['s']:
+        #             if item.startswith(self.word):
+        #                 first_title = item
+        #                 break
+        # except Exception as e:
+        #     logger.error(e)
+        #     pass
+        # finally:
+        #     res.close()
+
         # print("获取到结果：" + response.text)
         soup = BeautifulSoup(response.text, "html.parser")
         result_jsons = soup.find_all('script', attrs={'data-for': 's-result-json'})
@@ -91,30 +150,39 @@ class zzspider(scrapy.Spider):
                     result.append(item)
         result = sorted(result, key=lambda i: i['index'])
         if len(result) == 0:
-            # print("没有东西")
+            logger.error(f"关键词{self.word}没有东西")
+            if len(result_jsons) > 0:
+                dbhelper.execute(f"update zbp_words set used = 1 where id = {self.word_id}")
             return
 
         item = duplicate_title(result)
         if item is None:
+            # 翻页
+            pages = soup.find_all('div', attrs={'class': 'cs-pagination'})
+            if pages and len(pages) > 0:
+                aa = pages[0].find_all('a')
+                last_href = "https://so.toutiao.com" + aa[len(aa) - 1]['href']
+                yield scrapy.Request(url=last_href, dont_filter=True, callback=self.parse)
             return
         article_url = item['source_url']
         title = item['title']
-
+        new_title = ''
         title_list = re.split(sentence_pattern, title)
-
         for item in title_list:
             if item and len(item) > 0:
-                title = item
-                break
+                new_title += item
+                if len(new_title) > 6:
+                    break
 
         # if duplicate_title(article_url):
         #   return
-
-        title = f"{self.word}({title})"
-        print(article_url)
-        print(title)
+        if new_title != '':
+            title = new_title
+        title = f"{first_title}({title})"
+        logger.error(article_url)
+        logger.error(title)
         # return
-        # article_url = 'https://www.toutiao.com/i6497837978075791885/?channel=&source=search_tab'
+        # article_url = 'http://www.toutiao.com/a6696692803763700232/?channel=&source=search_tab'
         # title = '家有阳台看过来，注意这个小细节，锦上添花！'
         yield scrapy.Request(url=article_url, dont_filter=True, meta={'title': title},
                              callback=self.article)
@@ -127,6 +195,8 @@ class zzspider(scrapy.Spider):
             for attribute in ["class", "style"]:
                 del tag[attribute]
         data = soup.find_all('article')[0]
+        imgs = data.find_all('img')
+        img_temp = list(set([item.attrs['src'] for item in imgs]))
         contents = data.find_all(['img', 'p'])
         content_str = ''
         for item in contents:
@@ -135,6 +205,7 @@ class zzspider(scrapy.Spider):
                 for d in dels:
                     d.extract()
             if item.name == 'img':
+                item['class'] = 'syl-page-img aligncenter j-lazy'
                 content_str += '<p>' + str(item) + '</p>'
                 continue
             for i in item.find_all(attrs={'class': True}):
@@ -147,24 +218,30 @@ class zzspider(scrapy.Spider):
                     break
             if not leap_flag:
                 content_str += str(item)
-        imgs = data.find_all('img')
-
-        img_temp = list(set([item.attrs['src'] for item in imgs]))
 
         upload_count = 0
         for src in img_temp:
             result = urllib.request.urlretrieve(src)
             if result and len(result) > 0:
                 temp_path = result[0]
-                suffix = guess_extension(result[1].get_content_type().partition(';')[0].strip())
+                content_type = result[1].get_content_type().partition(';')[0].strip()
+                if content_type == 'image/webp':
+                    suffix = '.webp'
+                else:
+                    suffix = guess_extension(content_type)
+                logger.error(content_type)
+                logger.error(suffix)
+
                 if suffix == '.jpe':
                     suffix = '.jpg'
             else:
                 logger.error("下载图片异常:" + src)
                 continue
             now = datetime.datetime.now()
-            filename = str(now.year) + str(now.month) + str(now.day) + str(round(time.time() * 1000)) + suffix
-            relate_path = os.path.join(str(now.year), str(now.month), filename)
+            full_month = str(now.month).zfill(2)
+            full_day = str(now.day).zfill(2)
+            filename = str(now.year) + full_month + full_day + str(round(time.time() * 1000)) + suffix
+            relate_path = os.path.join(str(now.year), full_month, filename)
             real_path = os.path.join(settings.UPLOAD_PATH, relate_path)
 
             dirs = os.path.dirname(real_path)
@@ -176,7 +253,9 @@ class zzspider(scrapy.Spider):
                     new_file.write(file + b'\0')
             os.remove(temp_path)
 
-            linux_relate_path = f"/zb_users/upload/{str(now.year)}/{str(now.month)}"
+            img_to_progressive(real_path)
+
+            linux_relate_path = f"/zb_users/upload/{str(now.year)}/{full_month}"
             # sftp.upload_to_dir(real_path, ConfigUtil.config['sftp']['path'] + linux_relate_path)
             self.insert_upload(real_path)
             upload_count += 1
