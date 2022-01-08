@@ -40,7 +40,7 @@ def duplicate_title(result):
     for item in result:
         url = item['source_url']
         res = dbhelper.fetch_one(
-        "select count(*) as num from zbp_words where url = '" + url + "'")
+            "select count(*) as num from zbp_words where url = '" + url + "'")
         if res['num'] == 0:
             f = item
             break
@@ -61,8 +61,17 @@ class zzspider(scrapy.Spider):
         mems = dbhelper.fetch_all("select mem_ID from zbp_member")
         self.author = random.choice(mems)['mem_ID']
 
+    def start_requests(self):
+        if ConfigUtil.config['collect']['special_url']:
+            for url in self.start_urls:
+                yield scrapy.Request(url=url, dont_filter=True, meta={'title': self.word},
+                                     callback=self.article)
+        else:
+            for url in self.start_urls:
+                yield Request(url, dont_filter=True)
+
     def parse(self, response):
-        #print("获取到结果：" + response.text)
+        # print("获取到结果：" + response.text)
         soup = BeautifulSoup(response.text, "html.parser")
         result_jsons = soup.find_all('script', attrs={'data-for': 's-result-json'})
         result = []
@@ -82,9 +91,9 @@ class zzspider(scrapy.Spider):
                     result.append(item)
         result = sorted(result, key=lambda i: i['index'])
         if len(result) == 0:
-            #print("没有东西")
+            # print("没有东西")
             return
-        
+
         item = duplicate_title(result)
         if item is None:
             return
@@ -98,7 +107,7 @@ class zzspider(scrapy.Spider):
                 title = item
                 break
 
-        #if duplicate_title(article_url):
+        # if duplicate_title(article_url):
         #   return
 
         title = f"{self.word}({title})"
@@ -111,7 +120,7 @@ class zzspider(scrapy.Spider):
                              callback=self.article)
 
     def article(self, response):
-        #print("获取到文章内容")
+        # print("获取到文章内容")
         title = response.meta['title']
         soup = BeautifulSoup(response.text, "html.parser")
         for tag in soup():
@@ -168,7 +177,7 @@ class zzspider(scrapy.Spider):
             os.remove(temp_path)
 
             linux_relate_path = f"/zb_users/upload/{str(now.year)}/{str(now.month)}"
-            #sftp.upload_to_dir(real_path, ConfigUtil.config['sftp']['path'] + linux_relate_path)
+            # sftp.upload_to_dir(real_path, ConfigUtil.config['sftp']['path'] + linux_relate_path)
             self.insert_upload(real_path)
             upload_count += 1
             content_str = content_str.replace(src, linux_relate_path + f"/{filename}")

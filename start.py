@@ -1,7 +1,6 @@
 import logging
 import os
 import random
-import sys
 import time
 from logging.handlers import TimedRotatingFileHandler
 
@@ -36,15 +35,27 @@ def get_start_urls(cate):
     return [url], word['word'], word['id']
 
 
+def filter_duplicate(urlss, w):
+    res = dbhelper.fetch_one(
+        "select count(*) as num from zbp_words where url = '" + urlss[0] + "'")
+    if res['num'] == 0:
+        dbhelper.execute(f"insert into zbp_words (`word`,`url`) values ({w}, '{urlss[0]}')")
+        return_id = dbhelper.cur.lastrowid
+        return urlss, return_id
+    return None, None
+
+
 if __name__ == '__main__':
-    # count = 1
-    # arg = sys.argv
-    # if len(arg) > 1:
-    #     count = int(arg[1])
-    #
-    # for i in range(0, count):
-    cate = random.choice(cates)
     process = CrawlerProcess(install_root_handler=False, settings=get_project_settings())
-    start_urls, word, word_id = get_start_urls(cate)
+    if ConfigUtil.config['collect']['special_url']:
+        cate = int(ConfigUtil.config['collect']['special_cate'])
+        start_urls = [ConfigUtil.config['collect']['special_url']]
+        word = [ConfigUtil.config['collect']['special_title']]
+        start_urls, word_id = filter_duplicate(start_urls, word)
+        if start_urls is None:
+            exit(0)
+    else:
+        cate = random.choice(cates)
+        start_urls, word, word_id = get_start_urls(cate)
     process.crawl(zzspider, start_urls=start_urls, cate=cate, word=word, word_id=word_id)
     process.start()
