@@ -122,7 +122,7 @@ class zzspider(scrapy.Spider):
                 yield Request(url, dont_filter=True)
 
     def parse(self, response):
-        first_title = self.word
+        first_title = self.word.replace(' ', '')
         # 百度下拉
         # res = requests.get(
         #     "https://sp0.baidu.com/5a1Fazu8AA54nxGko9WTAnF6hhy/su?json=1&bs=s&wd=" + self.word, verify=False)
