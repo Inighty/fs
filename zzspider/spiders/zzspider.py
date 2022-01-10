@@ -274,7 +274,7 @@ class zzspider(scrapy.Spider):
 
             img_to_progressive(real_path)
 
-            linux_relate_path = '{#ZC_BLOG_HOST#}' + f"/zb_users/upload/{str(now.year)}/{full_month}"
+            linux_relate_path = '{#ZC_BLOG_HOST#}' + f"zb_users/upload/{str(now.year)}/{full_month}"
             # sftp.upload_to_dir(real_path, ConfigUtil.config['sftp']['path'] + linux_relate_path)
             self.insert_upload(real_path)
             upload_count += 1
