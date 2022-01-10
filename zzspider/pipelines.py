@@ -5,10 +5,9 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 from zzspider.tools.browser import Browser
-from zzspider.tools.sftp import Sftp
 
 browser = Browser()
-sftp = Sftp()
+# sftp = Sftp()
 
 
 class PostPipeline:
@@ -17,4 +16,4 @@ class PostPipeline:
 
     def close_spider(self, spider):
         browser.quit()
-        sftp.close()
+        # sftp.close()

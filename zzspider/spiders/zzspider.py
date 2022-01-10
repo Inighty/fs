@@ -20,11 +20,9 @@ from zzspider.config import ConfigUtil
 from zzspider.tools.browser import Browser
 from zzspider.tools.dbhelper import DBHelper
 from zzspider.tools.img import img_to_progressive
-from zzspider.tools.sftp import Sftp
 
 browser = Browser()
 dbhelper = DBHelper()
-sftp = Sftp()
 logger = logging.getLogger(__name__)
 sentence_pattern = r',|\.|/|;|\'|`|\[|\]|<|>|\?|:|：|"|\{|\}|\~|!|@|#|\$|%|\^|&|？|\(|\)|-|=|\_|\+|，|。|、|；|‘|’|【|】|·|！| |…|（|）'
 sitemap_path = ConfigUtil.config['main']['sitemap_path']
@@ -227,7 +225,7 @@ class zzspider(scrapy.Spider):
                 continue
 
             # 去除不要的attr
-            invalid_attrs = ['class', 'data-track']
+            invalid_attrs = ['class', 'data-track', 'toutiao-origin']
             for attr in invalid_attrs:
                 if attr in item.attrs:
                     del item[attr]
@@ -276,7 +274,7 @@ class zzspider(scrapy.Spider):
 
             img_to_progressive(real_path)
 
-            linux_relate_path = f"/zb_users/upload/{str(now.year)}/{full_month}"
+            linux_relate_path = '{#ZC_BLOG_HOST#}' + f"/zb_users/upload/{str(now.year)}/{full_month}"
             # sftp.upload_to_dir(real_path, ConfigUtil.config['sftp']['path'] + linux_relate_path)
             self.insert_upload(real_path)
             upload_count += 1
