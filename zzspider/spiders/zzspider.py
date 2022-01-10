@@ -209,18 +209,30 @@ class zzspider(scrapy.Spider):
         contents = data.find_all(['img', 'p'])
         content_str = ''
         for item in contents:
+            # 去除不要的tag 不保留内容
             dels = item.find_all(['img', 'a'])
             if len(dels) > 0:
                 for d in dels:
                     d.extract()
+
+            # 去除不要的tag 保留内容
+            invalid_tags = ['span']
+            for tag in invalid_tags:
+                for match in item.findAll(tag):
+                    match.replaceWithChildren()
+
             if item.name == 'img':
                 item['class'] = 'syl-page-img aligncenter j-lazy'
                 content_str += '<p>' + str(item) + '</p>'
                 continue
-            for i in item.find_all(attrs={'class': True}):
-                del i['class']
-            leap_flag = False
 
+            # 去除不要的attr
+            invalid_attrs = ['class', 'data-track']
+            for attr in invalid_attrs:
+                if attr in item.attrs:
+                    del item[attr]
+
+            leap_flag = False
             for f in ConfigUtil.config['collect']['filter'].split(','):
                 if str(item).__contains__(f):
                     leap_flag = True

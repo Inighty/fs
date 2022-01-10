@@ -39,7 +39,7 @@ def filter_duplicate(urlss, w):
     res = dbhelper.fetch_one(
         "select count(*) as num from zbp_words where url = '" + urlss[0] + "'")
     if res['num'] == 0:
-        dbhelper.execute(f"insert into zbp_words (`word`,`url`) values ({w}, '{urlss[0]}')")
+        dbhelper.execute(f"insert into zbp_words (`word`,`url`) values ('{w}', '{urlss[0]}')")
         return_id = dbhelper.cur.lastrowid
         return urlss, return_id
     return None, None
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     if ConfigUtil.config['collect']['special_url']:
         cate = int(ConfigUtil.config['collect']['special_cate'])
         start_urls = [ConfigUtil.config['collect']['special_url']]
-        word = [ConfigUtil.config['collect']['special_title']]
+        word = ConfigUtil.config['collect']['special_title']
         start_urls, word_id = filter_duplicate(start_urls, word)
         if start_urls is None:
             exit(0)
