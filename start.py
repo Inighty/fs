@@ -1,9 +1,11 @@
+import json
 import logging
 import os
 import random
 import time
 from logging.handlers import TimedRotatingFileHandler
 
+import requests
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 
@@ -31,8 +33,24 @@ def get_start_urls(cate):
     sql = 'SELECT id, `word` FROM `zbp_words` WHERE `cate` = %s and `used` = 0 limit 1'
     word = dbhelper.fetch_one(sql, [cate])
     timestamp = time.time()
-    url = f"""https://so.toutiao.com/search?dvpf=pc&source=input&keyword={word['word']}&filter_vendor=site&index_resource=site&filter_period=all&min_time=0&max_time={timestamp}"""
-    return [url], word['word'], word['id']
+
+    real_word = word['word']
+    res = requests.get(
+        "https://sp0.baidu.com/5a1Fazu8AA54nxGko9WTAnF6hhy/su?json=1&bs=s&wd=" + real_word, verify=False)
+    try:
+        if res.ok:
+            res_json = json.loads(res.text[17: -2])
+            for item in res_json['s']:
+                real_word = item
+                break
+    except Exception as e:
+        logger.error(e)
+        pass
+    finally:
+        res.close()
+
+    url = f"""https://so.toutiao.com/search?dvpf=pc&source=input&keyword={real_word}&filter_vendor=site&index_resource=site&filter_period=all&min_time=0&max_time={timestamp}"""
+    return [url], real_word, word['id']
 
 
 def filter_duplicate(urlss, w):

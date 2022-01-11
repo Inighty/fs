@@ -121,21 +121,6 @@ class zzspider(scrapy.Spider):
 
     def parse(self, response):
         first_title = self.word.replace(' ', '')
-        res = requests.get(
-            "https://sp0.baidu.com/5a1Fazu8AA54nxGko9WTAnF6hhy/su?json=1&bs=s&wd=" + self.word, verify=False)
-        try:
-            if res.ok:
-                res_json = json.loads(res.text[17: -2])
-                for item in res_json['s']:
-                    first_title = item
-                    break
-        except Exception as e:
-            logger.error(e)
-            pass
-        finally:
-            res.close()
-
-        print("获取到结果：" + response.text)
         soup = BeautifulSoup(response.text, "html.parser")
         result_jsons = soup.find_all('script', attrs={'data-for': 's-result-json'})
         result = []
