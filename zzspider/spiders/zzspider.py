@@ -20,6 +20,7 @@ from zzspider.config import ConfigUtil
 from zzspider.tools.browser import Browser
 from zzspider.tools.dbhelper import DBHelper
 from zzspider.tools.img import img_to_progressive
+from zzspider.tools.same_word import get_best_word
 
 browser = Browser()
 dbhelper = DBHelper()
@@ -76,10 +77,12 @@ def after_insert_post(word_id, author, cate, url):
     baidu_push()
 
 
-def duplicate_title(result):
-    f = None
+def duplicate_title(word, result):
+    noduplicate_result = []
+    noduplicate_result_titles = []
     for item in result:
         url = item['source_url']
+        item['title'] = re.sub('[^\u4e00-\u9fa5]+', '', item['title'])
         title = item['title']
         leap_flag = False
         for i in ConfigUtil.config['collect']['title_filter'].split(','):
@@ -91,8 +94,14 @@ def duplicate_title(result):
         res = dbhelper.fetch_one(
             "select count(*) as num from zbp_words where url = '" + url + "'")
         if res['num'] == 0:
-            f = item
-            break
+            noduplicate_result.append(item)
+            noduplicate_result_titles.append(item['title'])
+    f = get_best_word(word, noduplicate_result_titles)
+    if f is not None:
+        for i in noduplicate_result:
+            if i['title'] == f:
+                f = i
+                break
     return f
 
 
@@ -101,10 +110,12 @@ class zzspider(scrapy.Spider):
     # allowed_domains = ['toutiao.com']
     start_urls = []
 
-    def __init__(self, start_urls, cate, word, word_id):
+    def __init__(self, start_urls, cate, start_word, word, word_sub, word_id):
         self.start_urls.extend(start_urls)
         self.cate = cate
+        self.start_word = start_word
         self.word = word
+        self.word_sub = word_sub
         self.word_id = word_id
         logger.error(self.word)
         mems = dbhelper.fetch_all("select mem_ID from zbp_member")
@@ -144,7 +155,7 @@ class zzspider(scrapy.Spider):
                 dbhelper.execute(f"update zbp_words set used = 1 where id = {self.word_id}")
             return
 
-        item = duplicate_title(result)
+        item = duplicate_title(self.start_word, result)
         if item is None:
             # 翻页
             pages = soup.find_all('div', attrs={'class': 'cs-pagination'})
@@ -155,6 +166,11 @@ class zzspider(scrapy.Spider):
             return
         article_url = item['source_url']
         title = item['title']
+        if self.word_sub is not None:
+            title = f"{self.word}({self.word_sub})"
+        else:
+            title = f"{self.word}({title})"
+        exit(0)
         # return
         # article_url = 'http://www.toutiao.com/a6696692803763700232/?channel=&source=search_tab'
         # title = '家有阳台看过来，注意这个小细节，锦上添花！'
