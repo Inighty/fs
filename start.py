@@ -3,6 +3,7 @@ import logging
 import os
 import random
 import time
+import urllib.parse
 from logging.handlers import TimedRotatingFileHandler
 
 import requests
@@ -37,15 +38,19 @@ def get_start_urls(cate):
     word = dbhelper.fetch_one(sql, [cate])
     timestamp = time.time()
     word['word'] = word['word'].replace(" ", "")
+    word['word'] = '家里大阳台种苹果树影响风水吗'
     start_word = word['word']
     title = word['word']
     down_words = []
+    url_word = urllib.parse.unquote(start_word)
     res = requests.get(
-        "https://sp0.baidu.com/5a1Fazu8AA54nxGko9WTAnF6hhy/su?json=1&bs=s&wd=" + start_word, verify=False)
+        f"https://www.baidu.com/sugrec?pre=1&p=3&ie=utf-8&json=1&prod=pc&from=pc_web&wd={url_word}",
+        verify=False)
     try:
         if res.ok:
-            res_json = json.loads(res.text[17: -2])
-            down_words.extend(item for item in res_json['s'])
+            res_json = json.loads(res.text)
+            for item in res_json['g']:
+                down_words.append(item['q'])
             best_word = get_best_word(word['word'], down_words)
             if best_word is not None:
                 title = best_word
