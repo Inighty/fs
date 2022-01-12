@@ -170,6 +170,7 @@ class zzspider(scrapy.Spider):
             title = f"{self.word}({self.word_sub})"
         else:
             title = f"{self.word}({title})"
+        print("real title:" + title)
         exit(0)
         # return
         # article_url = 'http://www.toutiao.com/a6696692803763700232/?channel=&source=search_tab'
