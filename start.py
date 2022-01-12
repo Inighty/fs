@@ -38,7 +38,7 @@ def get_start_urls(cate):
     word = dbhelper.fetch_one(sql, [cate])
     timestamp = time.time()
     word['word'] = word['word'].replace(" ", "")
-    word['word'] = '家里大阳台种苹果树影响风水吗'
+    # word['word'] = '家里大阳台种苹果树影响风水吗'
     start_word = word['word']
     title = word['word']
     down_words = []
