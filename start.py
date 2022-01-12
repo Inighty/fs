@@ -51,7 +51,7 @@ def get_start_urls(cate):
             res_json = json.loads(res.text)
             for item in res_json['g']:
                 down_words.append(item['q'])
-            best_word = get_best_word(word['word'], down_words)
+            best_word = get_best_word(start_word, down_words)
             if best_word is not None:
                 title = best_word
     except Exception as e:
@@ -60,12 +60,13 @@ def get_start_urls(cate):
     finally:
         res.close()
 
-    url = f"""https://so.toutiao.com/search?dvpf=pc&source=input&keyword={title}&filter_vendor=site&index_resource=site&filter_period=all&min_time=0&max_time={timestamp}"""
+    url = f"""https://so.toutiao.com/search?dvpf=pc&source=input&keyword={start_word}&filter_vendor=site&index_resource=site&filter_period=all&min_time=0&max_time={timestamp}"""
 
     # 相关搜索
-    result_all = baiduspider.search_web(word['word'], 1,
+    result_all = baiduspider.search_web(start_word, 1,
                                         ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
-    sub_title = get_best_word(word['word'], result_all.related)
+    result_all.related.remove(title)
+    sub_title = get_best_word(start_word, result_all.related)
     return [url], start_word, title, sub_title, word['id']
 
 
