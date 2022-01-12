@@ -6,6 +6,7 @@ import time
 from logging.handlers import TimedRotatingFileHandler
 
 import requests
+from baiduspider import BaiduSpider
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 
@@ -13,6 +14,7 @@ from zzspider import settings
 from zzspider.config import ConfigUtil
 from zzspider.spiders.zzspider import zzspider
 from zzspider.tools.dbhelper import DBHelper
+from zzspider.tools.same_word import get_best_word
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +29,7 @@ logging.getLogger().handlers = [logHandler]
 dbhelper = DBHelper()
 
 cates = ConfigUtil.config['collect']['cate'].split(',')
+baiduspider = BaiduSpider()
 
 
 def get_start_urls(cate):
@@ -35,14 +38,17 @@ def get_start_urls(cate):
     timestamp = time.time()
 
     real_word = word['word']
+
+    down_words = []
     res = requests.get(
         "https://sp0.baidu.com/5a1Fazu8AA54nxGko9WTAnF6hhy/su?json=1&bs=s&wd=" + real_word, verify=False)
     try:
         if res.ok:
             res_json = json.loads(res.text[17: -2])
-            for item in res_json['s']:
-                real_word = item
-                break
+            down_words.extend(item for item in res_json['s'])
+            best_word = get_best_word(real_word, down_words)
+            if best_word is not None:
+                real_word = best_word
     except Exception as e:
         logger.error(e)
         pass
@@ -50,7 +56,13 @@ def get_start_urls(cate):
         res.close()
 
     url = f"""https://so.toutiao.com/search?dvpf=pc&source=input&keyword={real_word}&filter_vendor=site&index_resource=site&filter_period=all&min_time=0&max_time={timestamp}"""
-    return [url], real_word, word['id']
+
+    # 相关搜索
+    result_all = baiduspider.search_web(word['word'], 1,
+                                        ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
+    sub_title = get_best_word(word['word'], result_all.related)
+    real_title = f"{real_word}({sub_title})"
+    return [url], real_title, word['id']
 
 
 def filter_duplicate(urlss, w):

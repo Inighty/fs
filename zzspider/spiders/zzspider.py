@@ -120,7 +120,6 @@ class zzspider(scrapy.Spider):
                 yield Request(url, dont_filter=True)
 
     def parse(self, response):
-        first_title = self.word.replace(' ', '')
         soup = BeautifulSoup(response.text, "html.parser")
         result_jsons = soup.find_all('script', attrs={'data-for': 's-result-json'})
         result = []
@@ -156,21 +155,6 @@ class zzspider(scrapy.Spider):
             return
         article_url = item['source_url']
         title = item['title']
-        new_title = ''
-        title_list = re.split(sentence_pattern, title)
-        for item in title_list:
-            if item and len(item) > 0:
-                new_title += item
-                if len(new_title) > 6:
-                    break
-
-        # if duplicate_title(article_url):
-        #   return
-        if new_title != '':
-            title = new_title
-        title = f"{first_title}({title})"
-        logger.error(article_url)
-        logger.error(title)
         # return
         # article_url = 'http://www.toutiao.com/a6696692803763700232/?channel=&source=search_tab'
         # title = '家有阳台看过来，注意这个小细节，锦上添花！'
