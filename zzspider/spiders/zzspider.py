@@ -171,7 +171,6 @@ class zzspider(scrapy.Spider):
         else:
             title = f"{self.word}({title})"
         print("real title:" + title)
-        exit(0)
         # return
         # article_url = 'http://www.toutiao.com/a6696692803763700232/?channel=&source=search_tab'
         # title = '家有阳台看过来，注意这个小细节，锦上添花！'
