@@ -30,6 +30,8 @@ sitemap_path = ConfigUtil.config['main']['sitemap_path']
 
 
 def baidu_push():
+    if ConfigUtil.config['main']['baidu_push_switch'] != '1':
+        return
     basedir = os.path.dirname(os.path.realpath('__file__'))
     remainpath = os.path.join(basedir, 'baidu.remain')
     if os.path.exists(remainpath):
