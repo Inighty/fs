@@ -46,6 +46,13 @@ class Browser(metaclass=Singleton):
             return self.driver
         chrome_driver_path = os.path.join(basedir, 'chromedriver')
         self.driver = webdriver.Chrome(chrome_options=self.chrome_options)
+        self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+            "source": """
+            Object.defineProperty(navigator, 'webdriver', {
+              get: () => undefined
+            })
+          """
+        })
         return self.driver
 
     # 关闭标签
@@ -59,8 +66,9 @@ class Browser(metaclass=Singleton):
             self.driver.quit()
 
     # 执行数据库的sq语句,主要用来做插入操作
-    def get(self, url, sleep=2):
+    def get(self, url):
         driver = self.start_driver()
+        driver.implicitly_wait(10)
         driver.get(url)
-        time.sleep(sleep)
+        # time.sleep(sleep)
         return driver.page_source

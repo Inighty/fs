@@ -62,15 +62,18 @@ def get_start_urls(cate):
 
     url = f"""https://so.toutiao.com/search?dvpf=pc&source=input&keyword={start_word}&filter_vendor=site&index_resource=site&filter_period=all&min_time=0&max_time={timestamp}"""
 
-    # 相关搜索
-    result_all = baiduspider.search_web(start_word, 1,
-                                        ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
-    print(len(result_all.related))
-    exit(0)
-    if title in result_all.related:
-        result_all.related.remove(title)
-    sub_title = get_best_word(start_word, result_all.related)
-    return [url], start_word, title, sub_title, word['id']
+    s_word = urllib.parse.quote(start_word, "utf-8")
+    baidu_url = f"https://www.baidu.com/s?wd={s_word}&pn=0&inputT={random.randint(500, 4000)}"
+
+    # # 相关搜索
+    # result_all = baiduspider.search_web(start_word, 1,
+    #                                     ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
+    # print(len(result_all.related))
+    # exit(0)
+    # if title in result_all.related:
+    #     result_all.related.remove(title)
+    # sub_title = get_best_word(start_word, result_all.related)
+    return [baidu_url], start_word, title, url, word['id']
 
 
 def filter_duplicate(urlss, w):
@@ -94,7 +97,7 @@ if __name__ == '__main__':
             exit(0)
     else:
         cate = random.choice(cates)
-        start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
-    process.crawl(zzspider, start_urls=start_urls, cate=cate, start_word=start_word, word=word, word_sub=word_sub,
+        start_urls, start_word, word, url, word_id = get_start_urls(cate)
+    process.crawl(zzspider, start_urls=start_urls, cate=cate, start_word=start_word, word=word, toutiao_url=url,
                   word_id=word_id)
     process.start()

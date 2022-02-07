@@ -19,6 +19,7 @@ from zzspider import settings
 from zzspider.config import ConfigUtil
 from zzspider.tools.browser import Browser
 from zzspider.tools.dbhelper import DBHelper
+from zzspider.tools.format import format_txt
 from zzspider.tools.img import img_to_progressive
 from zzspider.tools.same_word import get_best_word
 
@@ -84,7 +85,7 @@ def duplicate_title(word, result):
     noduplicate_result_titles = []
     for item in result:
         url = item['source_url']
-        item['title'] = re.sub('[^\u4e00-\u9fa5]+', '', item['title'])
+        item['title'] = format_txt(item['title'])
         title = item['title']
         leap_flag = False
         for i in ConfigUtil.config['collect']['title_filter'].split(','):
@@ -115,13 +116,14 @@ class zzspider(scrapy.Spider):
     # allowed_domains = ['toutiao.com']
     start_urls = []
 
-    def __init__(self, start_urls, cate, start_word, word, word_sub, word_id):
+    def __init__(self, start_urls, cate, start_word, word, toutiao_url, word_id):
         self.start_urls.extend(start_urls)
         self.cate = cate
         self.start_word = start_word
         self.word = word
-        self.word_sub = word_sub
+        self.toutiao_url = toutiao_url
         self.word_id = word_id
+        self.word_sub = None
         logger.error(self.word)
         mems = dbhelper.fetch_all("select mem_ID from zbp_member")
         self.author = random.choice(mems)['mem_ID']
@@ -129,13 +131,29 @@ class zzspider(scrapy.Spider):
     def start_requests(self):
         if ConfigUtil.config['collect']['special_url']:
             for url in self.start_urls:
-                yield scrapy.Request(url=url, dont_filter=True, meta={'title': self.word},
+                yield scrapy.Request(url=url, dont_filter=True,
                                      callback=self.article)
         else:
             for url in self.start_urls:
                 yield Request(url, dont_filter=True)
 
     def parse(self, response):
+        # 获取百度搜索结果
+        soup = BeautifulSoup(response.text, "html.parser")
+        try:
+            _related = soup.findAll("table")[-1].findAll("td")
+        except Exception as e:
+            print(e)
+            _related = []
+        related = []
+        # 一个一个append相关搜索
+        for _ in _related:
+            if _.text:
+                related.append(format_txt(_.text))
+        self.word_sub = get_best_word(self.word, related)
+        yield scrapy.Request(url=self.toutiao_url, dont_filter=True, callback=self.toutiao_list)
+
+    def toutiao_list(self, response):
         soup = BeautifulSoup(response.text, "html.parser")
         result_jsons = soup.find_all('script', attrs={'data-for': 's-result-json'})
         result = []
@@ -145,7 +163,8 @@ class zzspider(scrapy.Spider):
                 d = data['data']
                 is_one_article = d.__contains__('display_type_self') and (
                         d['display_type_self'] == 'self_article' or d['display_type_self'] == 'self_step_or_list')
-                is_two_article = d.__contains__('display') and d['display'].__contains__('self_info') and d['display']['self_info']['type_ext'] == 'self_article'
+                is_two_article = d.__contains__('display') and d['display'].__contains__('self_info') and \
+                                 d['display']['self_info']['type_ext'] == 'self_article'
                 if is_one_article or is_two_article:
                     index = 0
                     if data.__contains__("extraData"):
