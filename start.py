@@ -38,7 +38,7 @@ def get_start_urls(cate):
     word = dbhelper.fetch_one(sql, [cate])
     timestamp = time.time()
     word['word'] = word['word'].replace(" ", "")
-    word['word'] = '银行卡尺寸'
+    # word['word'] = '银行卡尺寸'
     start_word = word['word']
     title = word['word']
     down_words = []
