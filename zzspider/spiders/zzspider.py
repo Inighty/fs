@@ -176,7 +176,7 @@ class zzspider(scrapy.Spider):
                     result.append(item)
         result = sorted(result, key=lambda i: i['index'])
         if len(result) == 0:
-            logger.error(f"关键词{self.word}没有东西")
+            logger.error(f"关键词{self.start_word}没有东西")
             if len(result_jsons) > 0:
                 dbhelper.execute(f"update zbp_words set used = 1 where id = {self.word_id}")
             return
