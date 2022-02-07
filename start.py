@@ -38,7 +38,7 @@ def get_start_urls(cate):
     word = dbhelper.fetch_one(sql, [cate])
     timestamp = time.time()
     word['word'] = word['word'].replace(" ", "")
-    # word['word'] = '家里大阳台种苹果树影响风水吗'
+    word['word'] = '银行卡尺寸'
     start_word = word['word']
     title = word['word']
     down_words = []
@@ -65,6 +65,8 @@ def get_start_urls(cate):
     # 相关搜索
     result_all = baiduspider.search_web(start_word, 1,
                                         ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
+    print(len(result_all.related))
+    exit(0)
     if title in result_all.related:
         result_all.related.remove(title)
     sub_title = get_best_word(start_word, result_all.related)
