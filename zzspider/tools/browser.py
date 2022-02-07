@@ -4,9 +4,11 @@ import logging
 import os
 import time
 
-import pymysql
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 from zzspider import settings
 from zzspider.tools.singleton_type import Singleton
@@ -66,9 +68,22 @@ class Browser(metaclass=Singleton):
             self.driver.quit()
 
     # 执行数据库的sq语句,主要用来做插入操作
-    def get(self, url):
+    def get(self, url, sleep=5):
         driver = self.start_driver()
-        driver.implicitly_wait(10)
         driver.get(url)
-        # time.sleep(sleep)
+        time.sleep(sleep)
+        return driver.page_source
+
+    def get_util_class(self, url, classname):
+        driver = self.start_driver()
+        # driver.implicitly_wait(10)
+        driver.get(url)
+        WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CLASS_NAME, classname)))
+        return driver.page_source
+
+    def get_util_id(self, url, id):
+        driver = self.start_driver()
+        # driver.implicitly_wait(10)
+        driver.get(url)
+        WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.ID, id)))
         return driver.page_source
