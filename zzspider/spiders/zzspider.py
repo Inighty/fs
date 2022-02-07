@@ -143,8 +143,10 @@ class zzspider(scrapy.Spider):
             data = json.loads(rj.text)
             if data.__contains__("data"):
                 d = data['data']
-                if d.__contains__('display_type_self') and (
-                        d['display_type_self'] == 'self_article' or d['display_type_self'] == 'self_step_or_list'):
+                is_one_article = d.__contains__('display_type_self') and (
+                        d['display_type_self'] == 'self_article' or d['display_type_self'] == 'self_step_or_list')
+                is_two_article = d.__contains__('display') and d['display'].__contains__('self_info') and d['display']['self_info']['type_ext'] == 'self_article'
+                if is_one_article or is_two_article:
                     index = 0
                     if data.__contains__("extraData"):
                         extra = data['extraData']
