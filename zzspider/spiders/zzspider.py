@@ -98,15 +98,15 @@ def duplicate_title(word, result):
         if res['num'] == 0:
             noduplicate_result.append(item)
             noduplicate_result_titles.append(item['title'])
-    if len(noduplicate_result) == 0:
-        return None
-    f = noduplicate_result[0]
-    # f = get_best_word(word, noduplicate_result_titles, None)
-    # if f is not None:
-    #     for i in noduplicate_result:
-    #         if i['title'] == f:
-    #             f = i
-    #             break
+    # if len(noduplicate_result) == 0:
+    #     return None
+    # f = noduplicate_result[0]
+    f = get_best_word(word, noduplicate_result_titles, None)
+    if f is not None:
+        for i in noduplicate_result:
+            if i['title'] == f:
+                f = i
+                break
     return f
 
 
