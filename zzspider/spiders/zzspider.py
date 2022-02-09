@@ -22,12 +22,14 @@ from zzspider.tools.dbhelper import DBHelper
 from zzspider.tools.format import format_txt
 from zzspider.tools.img import img_to_progressive
 from zzspider.tools.same_word import get_best_word
+from zzspider.tools.sftp import Sftp
 
 browser = Browser()
 dbhelper = DBHelper()
 logger = logging.getLogger(__name__)
 sentence_pattern = r',|\.|/|;|\'|`|\[|\]|<|>|\?|:|：|"|\{|\}|\~|!|@|#|\$|%|\^|&|？|\(|\)|-|=|\_|\+|，|。|、|；|‘|’|【|】|·|！| |…|（|）'
 sitemap_path = ConfigUtil.config['main']['sitemap_path']
+sftp = Sftp()
 
 
 def baidu_push():
@@ -283,11 +285,12 @@ class zzspider(scrapy.Spider):
 
             img_to_progressive(real_path)
 
-            linux_relate_path = '{#ZC_BLOG_HOST#}' + f"zb_users/upload/{str(now.year)}/{full_month}"
-            # sftp.upload_to_dir(real_path, ConfigUtil.config['sftp']['path'] + linux_relate_path)
+            linux_relate_path = f"zb_users/upload/{str(now.year)}/{full_month}"
             self.insert_upload(real_path)
+            if ConfigUtil.config['sftp']['enable'] == '1':
+                sftp.upload_to_dir(real_path, ConfigUtil.config['sftp']['path'] + linux_relate_path)
             upload_count += 1
-            content_str = content_str.replace(src, linux_relate_path + f"/{filename}")
+            content_str = content_str.replace(src, '{#ZC_BLOG_HOST#}' + linux_relate_path + f"/{filename}")
         self.update_upload_count(upload_count)
         print("result:")
         print(content_str)
