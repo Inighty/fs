@@ -288,7 +288,7 @@ class zzspider(scrapy.Spider):
             linux_relate_path = f"zb_users/upload/{str(now.year)}/{full_month}"
             self.insert_upload(real_path)
             if ConfigUtil.config['sftp']['enable'] == '1':
-                sftp.upload_to_dir(real_path, ConfigUtil.config['sftp']['path'] + linux_relate_path)
+                sftp.upload_to_dir(real_path, ConfigUtil.config['sftp']['path'] + "/" + linux_relate_path)
             upload_count += 1
             content_str = content_str.replace(src, '{#ZC_BLOG_HOST#}' + linux_relate_path + f"/{filename}")
         self.update_upload_count(upload_count)
