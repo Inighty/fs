@@ -33,9 +33,10 @@ class Browser(metaclass=Singleton):
         self.chrome_options.add_argument('--proxy-server=http://0.0.0.0:9090')
         self.chrome_options.add_argument('--start-maximized')
         self.chrome_options.add_argument('--no-sandbox')
+        self.chrome_options.add_argument("--disable-extensions")
         self.chrome_options.add_argument("disable-blink-features=AutomationControlled")
 
-        self.chrome_options.add_argument(f'user-agent={settings.USER_AGENT}')
+        # self.chrome_options.add_argument(f'user-agent={settings.USER_AGENT}')
         # comment out the following two lines to setup ProxyMesh service
         # make sure you add the IP of the machine running this script to you ProxyMesh account for IP authentication
         # IP:PORT or HOST:PORT you get this in your account once you pay for a plan
@@ -48,13 +49,10 @@ class Browser(metaclass=Singleton):
             return self.driver
         chrome_driver_path = os.path.join(basedir, 'chromedriver')
         self.driver = webdriver.Chrome(chrome_options=self.chrome_options)
-        self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-            "source": """
-            Object.defineProperty(navigator, 'webdriver', {
-              get: () => undefined
-            })
-          """
-        })
+
+        self.driver.execute_cdp_cmd('Network.setUserAgentOverride', {
+            "userAgent": f'{settings.USER_AGENT}'})
+        self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
         return self.driver
 
     # 关闭标签
