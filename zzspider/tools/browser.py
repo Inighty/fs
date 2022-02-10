@@ -30,7 +30,7 @@ class Browser(metaclass=Singleton):
 
         self.chrome_options.add_argument("--headless")
         self.chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
-        self.chrome_options.add_argument('--proxy-server=http://127.0.0.1:9090')
+        self.chrome_options.add_argument('--proxy-server=http://0.0.0.0:9090')
         self.chrome_options.add_argument('--start-maximized')
         self.chrome_options.add_argument('--no-sandbox')
         self.chrome_options.add_argument("disable-blink-features=AutomationControlled")
