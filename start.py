@@ -38,7 +38,7 @@ def get_start_urls(cate):
     word = dbhelper.fetch_one(sql, [cate])
     timestamp = time.time()
     word['word'] = word['word'].replace(" ", "")
-    # word['word'] = '银行卡尺寸'
+    # word['word'] = '神兽归笼'
     start_word = word['word']
     title = word['word']
     down_words = []
@@ -60,7 +60,7 @@ def get_start_urls(cate):
     finally:
         res.close()
 
-    url = f"""https://so.toutiao.com/search?dvpf=pc&source=input&keyword={start_word}&filter_vendor=site&index_resource=site&filter_period=all&min_time=0&max_time={timestamp}"""
+    url = f"""https://so.toutiao.com/search?dvpf=pc&source=input&keyword={title}&filter_vendor=site&index_resource=site&filter_period=all&min_time=0&max_time={timestamp}"""
 
     s_word = urllib.parse.quote(start_word, "utf-8")
     baidu_url = f"https://www.baidu.com/s?wd={s_word}&pn=0&inputT={random.randint(500, 4000)}"
