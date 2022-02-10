@@ -127,8 +127,14 @@ class zzspider(scrapy.Spider):
         self.word_id = word_id
         self.word_sub = None
         logger.error(self.word)
-        mems = dbhelper.fetch_all("select mem_ID from zbp_member")
-        self.author = random.choice(mems)['mem_ID']
+
+        if ConfigUtil.config['collect']['post_id']:
+            author = dbhelper.fetch_one("select `log_AuthorID` from zbp_post where log_ID = %s",
+                                        [ConfigUtil.config['collect']['post_id']])
+            self.author = author['log_AuthorID']
+        else:
+            mems = dbhelper.fetch_all("select mem_ID from zbp_member")
+            self.author = random.choice(mems)['mem_ID']
 
     def start_requests(self):
         if ConfigUtil.config['collect']['special_url']:
@@ -207,7 +213,6 @@ class zzspider(scrapy.Spider):
 
     def article(self, response):
         # print("获取到文章内容")
-        title = response.meta['title']
         soup = BeautifulSoup(response.text, "html.parser")
         for tag in soup():
             for attribute in ["class", "style"]:
@@ -295,22 +300,25 @@ class zzspider(scrapy.Spider):
         print("result:")
         print(content_str)
 
-        self.insert_post(title, content_str, data.text, response.url)
-
-    def insert_post(self, title, content_str, pure_text, url):
-        pure_text = pure_text.replace('\'', '\\\'')
+        pure_text = data.text.replace('\'', '\\\'')
         intro = pure_text[0:150]
 
         now_time = int(round(time.time()))
         content_str = content_str.replace('\'', '\\\'')
-        result = dbhelper.execute(
-            f"INSERT INTO `zbp_post`(`log_CateID`, `log_AuthorID`, `log_Tag`, `log_Status`, `log_Type`, `log_Alias`, `log_IsTop`, `log_IsLock`, `log_Title`, `log_Intro`, `log_Content`, `log_CreateTime`, `log_PostTime`, `log_UpdateTime`, `log_CommNums`, `log_ViewNums`, `log_Template`, `log_Meta`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-            [self.cate, self.author, '', 0, 0, '', 0, 1, title, intro, content_str, now_time,
-             now_time,
-             now_time, 0,
-             0, '', ''])
-        if result:
-            after_insert_post(self.word_id, self.author, self.cate, url)
+        if ConfigUtil.config['collect']['post_id'] != '':
+            dbhelper.execute(
+                f"UPDATE `zbp_post` set `log_Intro` = %s,`log_Content` = %s,`log_UpdateTime` = %s where log_ID = %s",
+                [intro, content_str, now_time, ConfigUtil.config['collect']['post_id']])
+        else:
+            title = response.meta['title']
+            result = dbhelper.execute(
+                f"INSERT INTO `zbp_post`(`log_CateID`, `log_AuthorID`, `log_Tag`, `log_Status`, `log_Type`, `log_Alias`, `log_IsTop`, `log_IsLock`, `log_Title`, `log_Intro`, `log_Content`, `log_CreateTime`, `log_PostTime`, `log_UpdateTime`, `log_CommNums`, `log_ViewNums`, `log_Template`, `log_Meta`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                [self.cate, self.author, '', 0, 0, '', 0, 1, title, intro, content_str, now_time,
+                 now_time,
+                 now_time, 0,
+                 0, '', ''])
+            if result:
+                after_insert_post(self.word_id, self.author, self.cate, response.url)
 
     def insert_upload(self, real_path):
         kind = filetype.guess(real_path)
