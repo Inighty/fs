@@ -151,8 +151,8 @@ class zzspider(scrapy.Spider):
         try:
             _related = soup.findAll("table")[-1].findAll("td")
         except Exception as e:
-            print(e)
-            print(soup.text)
+            logger.error(e)
+            logger.error(soup.text)
             _related = []
         related = []
         # 一个一个append相关搜索
