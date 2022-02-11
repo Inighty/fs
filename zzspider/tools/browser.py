@@ -40,8 +40,8 @@ class Browser(metaclass=Singleton):
         # make sure you add the IP of the machine running this script to you ProxyMesh account for IP authentication
         # IP:PORT or HOST:PORT you get this in your account once you pay for a plan
 
-        # PROXY = "us-wa.proxymesh.com:31280"
-        # chrome_options.add_argument('--proxy-server=%s' % PROXY)
+        PROXY = "114.115.220.11:8095"
+        self.chrome_options.add_argument('--proxy-server=%s' % PROXY)
 
     def start_driver(self):
         if self.driver is not None:
