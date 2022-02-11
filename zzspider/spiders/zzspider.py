@@ -133,8 +133,7 @@ class zzspider(scrapy.Spider):
                                         [ConfigUtil.config['collect']['post_id']])
             self.author = author['log_AuthorID']
         else:
-            mems = dbhelper.fetch_all("select mem_ID from zbp_member")
-            self.author = random.choice(mems)['mem_ID']
+            self.author = self.cate
 
     def start_requests(self):
         if ConfigUtil.config['collect']['special_url']:
