@@ -65,8 +65,7 @@ def get_start_urls(cate):
     # 相关搜索
     result_all = baiduspider.search_web(start_word, 1,
                                         ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
-    print(len(result_all.related))
-    exit(0)
+    logger.error("相关搜索数量：" + str(len(result_all.related)))
     if title in result_all.related:
         result_all.related.remove(title)
     sub_title = get_best_word(start_word, result_all.related)
