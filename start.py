@@ -38,6 +38,7 @@ def get_start_urls(cate):
     word = dbhelper.fetch_one(sql, [cate])
     timestamp = time.time()
     word['word'] = word['word'].replace(" ", "")
+    # word['word'] = "怎么选房子才是好风水"
     start_word = word['word']
     title = word['word']
     down_words = []
@@ -61,18 +62,15 @@ def get_start_urls(cate):
 
     url = f"""https://so.toutiao.com/search?dvpf=pc&source=input&keyword={title}&filter_vendor=site&index_resource=site&filter_period=all&min_time=0&max_time={timestamp}"""
 
-    s_word = urllib.parse.quote(start_word, "utf-8")
-    baidu_url = f"https://www.baidu.com/s?wd={s_word}&pn=0&inputT={random.randint(500, 4000)}"
-
-    # # 相关搜索
-    # result_all = baiduspider.search_web(start_word, 1,
-    #                                     ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
-    # print(len(result_all.related))
-    # exit(0)
-    # if title in result_all.related:
-    #     result_all.related.remove(title)
-    # sub_title = get_best_word(start_word, result_all.related)
-    return [baidu_url], start_word, title, url, word['id']
+    # 相关搜索
+    result_all = baiduspider.search_web(start_word, 1,
+                                        ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
+    print(len(result_all.related))
+    exit(0)
+    if title in result_all.related:
+        result_all.related.remove(title)
+    sub_title = get_best_word(start_word, result_all.related)
+    return [url], start_word, title, sub_title, word['id']
 
 
 def filter_duplicate(urlss, w):
@@ -92,15 +90,15 @@ if __name__ == '__main__':
         start_urls = [ConfigUtil.config['collect']['special_url']]
         start_word = ConfigUtil.config['collect']['special_title']
         word = ConfigUtil.config['collect']['special_title']
+        word_sub = None
         if start_word is None or start_word == '':
             start_word = str(round(time.time() * 1000))
         start_urls, word_id = filter_duplicate(start_urls, start_word)
         if start_urls is None:
             exit(0)
-        url = None
     else:
         cate = random.choice(cates)
-        start_urls, start_word, word, url, word_id = get_start_urls(cate)
-    process.crawl(zzspider, start_urls=start_urls, cate=cate, start_word=start_word, word=word, toutiao_url=url,
+        start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
+    process.crawl(zzspider, start_urls=start_urls, cate=cate, start_word=start_word, word=word, word_sub=word_sub,
                   word_id=word_id)
     process.start()

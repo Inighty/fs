@@ -118,15 +118,13 @@ class zzspider(scrapy.Spider):
     # allowed_domains = ['toutiao.com']
     start_urls = []
 
-    def __init__(self, start_urls, cate, start_word, word, toutiao_url, word_id):
+    def __init__(self, start_urls, cate, start_word, word, word_sub, word_id):
         self.start_urls.extend(start_urls)
         self.cate = cate
         self.start_word = start_word
         self.word = word
-        self.toutiao_url = toutiao_url
+        self.word_sub = word_sub
         self.word_id = word_id
-        self.word_sub = None
-        logger.error(self.word)
 
         if ConfigUtil.config['collect']['post_id']:
             author = dbhelper.fetch_one("select `log_AuthorID` from zbp_post where log_ID = %s",
@@ -145,23 +143,6 @@ class zzspider(scrapy.Spider):
                 yield Request(url, dont_filter=True)
 
     def parse(self, response):
-        # 获取百度搜索结果
-        soup = BeautifulSoup(response.text, "html.parser")
-        try:
-            _related = soup.findAll("table")[-1].findAll("td")
-        except Exception as e:
-            logger.error(e)
-            logger.error(soup.text)
-            _related = []
-        related = []
-        # 一个一个append相关搜索
-        for _ in _related:
-            if _.text:
-                related.append(format_txt(_.text))
-        self.word_sub = get_best_word(self.word, related)
-        yield scrapy.Request(url=self.toutiao_url, dont_filter=True, callback=self.toutiao_list)
-
-    def toutiao_list(self, response):
         soup = BeautifulSoup(response.text, "html.parser")
         result_jsons = soup.find_all('script', attrs={'data-for': 's-result-json'})
         result = []
