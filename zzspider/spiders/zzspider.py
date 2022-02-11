@@ -6,6 +6,7 @@ import os
 import random
 import re
 import time
+import traceback
 import urllib.request
 from mimetypes import guess_extension
 
@@ -242,6 +243,7 @@ class zzspider(scrapy.Spider):
                 result = urllib.request.urlretrieve(src)
             except Exception as e:
                 logger.error("下载图片异常:" + src)
+                logger.error(traceback.format_exc())
                 exit(0)
             if result and len(result) > 0:
                 temp_path = result[0]
