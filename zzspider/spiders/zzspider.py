@@ -238,7 +238,11 @@ class zzspider(scrapy.Spider):
 
         upload_count = 0
         for src in img_temp:
-            result = urllib.request.urlretrieve(src)
+            try:
+                result = urllib.request.urlretrieve(src)
+            except Exception as e:
+                logger.error("下载图片异常:" + src)
+                exit(0)
             if result and len(result) > 0:
                 temp_path = result[0]
                 content_type = result[1].get_content_type().partition(';')[0].strip()
