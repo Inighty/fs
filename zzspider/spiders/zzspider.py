@@ -244,7 +244,7 @@ class zzspider(scrapy.Spider):
             except Exception as e:
                 logger.error("下载图片异常:" + src)
                 logger.error(traceback.format_exc())
-                exit(0)
+                continue
             if result and len(result) > 0:
                 temp_path = result[0]
                 content_type = result[1].get_content_type().partition(';')[0].strip()
