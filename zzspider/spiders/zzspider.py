@@ -30,7 +30,6 @@ dbhelper = DBHelper()
 logger = logging.getLogger(__name__)
 sentence_pattern = r',|\.|/|;|\'|`|\[|\]|<|>|\?|:|：|"|\{|\}|\~|!|@|#|\$|%|\^|&|？|\(|\)|-|=|\_|\+|，|。|、|；|‘|’|【|】|·|！| |…|（|）'
 sitemap_path = ConfigUtil.config['main']['sitemap_path']
-sftp = Sftp()
 
 
 def baidu_push():
@@ -203,9 +202,11 @@ class zzspider(scrapy.Spider):
         data = soup.find_all('article')[0]
         imgs = data.find_all('img')
         img_temp = list(set([item.attrs['src'] for item in imgs]))
-        contents = data.find_all(['img', 'p', 'ul'])
+        contents = data.find_all(['img', 'p', 'ul', 'h1', 'ol'])
         content_str = ''
         for item in contents:
+            if item.name == 'h1':
+                item.name = 'h3'
             # 去除不要的tag 不保留内容
             dels = item.find_all(['img', 'a'])
             if len(dels) > 0:
@@ -224,7 +225,7 @@ class zzspider(scrapy.Spider):
                 continue
 
             # 去除不要的attr
-            invalid_attrs = ['class', 'data-track', 'toutiao-origin']
+            invalid_attrs = ['class', 'data-track', 'toutiao-origin', 'start']
             for attr in invalid_attrs:
                 if attr in item.attrs:
                     del item[attr]
@@ -281,6 +282,7 @@ class zzspider(scrapy.Spider):
             linux_relate_path = f"zb_users/upload/{str(now.year)}/{full_month}"
             self.insert_upload(real_path)
             if ConfigUtil.config['sftp']['enable'] == '1':
+                sftp = Sftp()
                 sftp.upload_to_dir(real_path, ConfigUtil.config['sftp']['path'] + "/" + linux_relate_path)
             upload_count += 1
             content_str = content_str.replace(src, '{#ZC_BLOG_HOST#}' + linux_relate_path + f"/{filename}")
