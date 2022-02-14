@@ -203,7 +203,7 @@ class zzspider(scrapy.Spider):
         data = soup.find_all('article')[0]
         imgs = data.find_all('img')
         img_temp = list(set([item.attrs['src'] for item in imgs]))
-        contents = data.find_all(['img', 'p'])
+        contents = data.find_all(['img', 'p', 'ul'])
         content_str = ''
         for item in contents:
             # 去除不要的tag 不保留内容
