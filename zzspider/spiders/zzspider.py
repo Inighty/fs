@@ -71,12 +71,21 @@ def baidu_push():
                 f.write(str(remain))
 
 
-def after_insert_post(word_id, author, cate, url):
+def after_insert_post(word_id, author, cate, url, title, post_id):
     dbhelper.execute(f"update zbp_words set used = 1, url = '{url}' where id = {word_id}")
     dbhelper.execute(
         f"update zbp_member set mem_Articles = mem_Articles + 1, mem_PostTime = {int(round(time.time()))} where mem_ID = {author}")
     dbhelper.execute(
         f"update zbp_category set cate_Count = cate_Count + 1 where cate_ID = {cate}")
+
+    tags = dbhelper.fetch_all("select tag_ID,tag_Name from zbp_tag where tag_Type = 0")
+    tag_sql = []
+    for tag in tags:
+        if tag['tag_Name'] in title:
+            tag_sql.append('{' + str(tag['tag_ID']) + '}')
+    if len(tag_sql) > 0:
+        tag_sql_str = ",".join(tag_sql)
+        dbhelper.execute(f"update zbp_post set log_Tag = '{tag_sql_str}' where log_ID = {post_id}")
     if os.path.exists(sitemap_path):
         os.remove(sitemap_path)
     baidu_push()
@@ -311,7 +320,8 @@ class zzspider(scrapy.Spider):
                  now_time, 0,
                  0, '', ''])
             if result:
-                after_insert_post(self.word_id, self.author, self.cate, response.url)
+                return_id = dbhelper.cur.lastrowid
+                after_insert_post(self.word_id, self.author, self.cate, response.url, title, return_id)
 
     def insert_upload(self, real_path):
         kind = filetype.guess(real_path)
