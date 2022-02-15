@@ -300,7 +300,10 @@ class zzspider(scrapy.Spider):
                 f"UPDATE `zbp_post` set `log_Intro` = %s,`log_Content` = %s,`log_UpdateTime` = %s where log_ID = %s",
                 [intro, content_str, now_time, ConfigUtil.config['collect']['post_id']])
         else:
-            title = response.meta['title']
+            if ConfigUtil.config['collect']['special_title'] == '':
+                title = response.meta['title']
+            else:
+                title = ConfigUtil.config['collect']['special_title']
             result = dbhelper.execute(
                 f"INSERT INTO `zbp_post`(`log_CateID`, `log_AuthorID`, `log_Tag`, `log_Status`, `log_Type`, `log_Alias`, `log_IsTop`, `log_IsLock`, `log_Title`, `log_Intro`, `log_Content`, `log_CreateTime`, `log_PostTime`, `log_UpdateTime`, `log_CommNums`, `log_ViewNums`, `log_Template`, `log_Meta`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
                 [self.cate, self.author, '', 0, 0, '', 0, 1, title, intro, content_str, now_time,
