@@ -13,7 +13,7 @@ def img_to_progressive(path):
         return
     img = Image.open(path)
     destination = path.split('.')[:-1][0] + '_destination.' + path.split('.')[-1:][0]
-    if img.mode == "P":
+    if img.mode == "CMYK":
         img = img.convert('RGB')
     new_width = 600
     if img.size[0] > new_width:
