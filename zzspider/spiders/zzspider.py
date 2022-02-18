@@ -3,14 +3,11 @@ import datetime
 import json
 import logging
 import os
-import random
-import re
 import time
 import traceback
 import urllib.request
 from mimetypes import guess_extension
 
-import filetype as filetype
 import requests
 import scrapy
 from bs4 import BeautifulSoup
@@ -289,7 +286,7 @@ class zzspider(scrapy.Spider):
             img_to_progressive(real_path)
 
             linux_relate_path = f"zb_users/upload/{str(now.year)}/{full_month}"
-            self.insert_upload(real_path)
+            self.insert_upload(real_path, content_type)
             if ConfigUtil.config['sftp']['enable'] == '1':
                 sftp = Sftp()
                 sftp.upload_to_dir(real_path, ConfigUtil.config['sftp']['path'] + "/" + linux_relate_path)
@@ -323,12 +320,11 @@ class zzspider(scrapy.Spider):
                 return_id = dbhelper.cur.lastrowid
                 after_insert_post(self.word_id, self.author, self.cate, response.url, title, return_id)
 
-    def insert_upload(self, real_path):
-        kind = filetype.guess(real_path)
+    def insert_upload(self, real_path, content_type):
         head, tail = os.path.split(real_path)
         dbhelper.execute(
             f"INSERT INTO `zbp_upload`(`ul_AuthorID`, `ul_Size`, `ul_Name`, `ul_SourceName`, `ul_MimeType`, `ul_PostTime`, `ul_DownNums`, `ul_LogID`, `ul_Intro`, `ul_Meta`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-            [self.author, int(os.path.getsize(real_path)), tail, tail, str(kind.mime), int(round(time.time())), 0, 0,
+            [self.author, int(os.path.getsize(real_path)), tail, tail, content_type, int(round(time.time())), 0, 0,
              '', ''])
 
     def update_upload_count(self, upload_count):
