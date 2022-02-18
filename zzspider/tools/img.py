@@ -13,6 +13,8 @@ def img_to_progressive(path):
         return
     img = Image.open(path)
     destination = path.split('.')[:-1][0] + '_destination.' + path.split('.')[-1:][0]
+    if img.mode == "P":
+        img = img.convert('RGB')
     new_width = 600
     if img.size[0] > new_width:
         new_height = int(new_width * img.size[1] * 1.0 / img.size[0])
