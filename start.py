@@ -37,8 +37,7 @@ def get_start_urls(cate):
     sql = 'SELECT id, `word` FROM `zbp_words` WHERE `cate` = %s and `used` = 0 limit 1'
     word = dbhelper.fetch_one(sql, [cate])
     if word is None:
-        logger.error(f"该分类{cate}下没有关键词，结束")
-        exit(0)
+        get_start_urls(random.choice(cates))
     timestamp = time.time()
     word['word'] = word['word'].replace(" ", "")
     # word['word'] = "怎么选房子才是好风水"
