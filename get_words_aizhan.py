@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 
+from zzspider.tools.dbhelper import DBHelper
+
 result = []
 
 payload = {}
@@ -46,6 +48,7 @@ type = 'mobile'
 domain = 'www.okaoyan.com'
 name = domain.replace('.', '_')
 file_name = f'result_aizhan_{name}_{type}.txt'
+db = DBHelper(host="114.132.198.103", user="baikexueshe", pwd="mc0321..", db="baikexueshe")
 paths = ['-1']
 for path in paths:
     for k in range(0, 51):
@@ -54,9 +57,16 @@ for path in paths:
 #     result = f.readlines()
 real_arr = []
 result = list(set(result))
+real_items = []
 for item in result:
     real_item = item.strip().replace('\'', '\\\'')
-    real_arr.append(f"('{real_item}',{cate})")
+    real_items.append(real_item)
+
+
+for item in real_items:
+    count = db.fetch_one("select count(1) as num from zbp_words where word = %s", [item])
+    if count['num'] == 0:
+        real_arr.append(f"('{item}',{cate})")
 
 sql = "INSERT INTO `zbp_words`(`word`, `cate`) VALUES {0}".format(",".join(real_arr)) + ";"
 
