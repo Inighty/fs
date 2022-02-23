@@ -41,20 +41,19 @@ def process_i(type, domain, path, page, i):
             result.append(title)
 
 
-cate = 4
+cate = 3
 type = 'mobile'
-domain = 'jb51.net'
+domain = 'www.okaoyan.com'
 name = domain.replace('.', '_')
 file_name = f'result_aizhan_{name}_{type}.txt'
-paths = ['/', 'gonglue', 'softs', 'softjc', 'game', 'shouji', 'article', 'qq', 'os', 'hardware', 'diannaojichu', 'zt',
-         'office', 'photoshop', 'books', 'qiming', 'zhuanti', 'yunying', 'qqmingzi', 'dianshang', 'codes', 'fonts',
-         'dll', 'gexing', 'haoting', 'youxi', 'hack', 'qinglv', 'fuhao']
+paths = ['-1']
 for path in paths:
     for k in range(0, 51):
         process(type, domain, k, path)
 # with open(file_name) as f:
 #     result = f.readlines()
 real_arr = []
+result = list(set(result))
 for item in result:
     real_item = item.strip().replace('\'', '\\\'')
     real_arr.append(f"('{real_item}',{cate})")
