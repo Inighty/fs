@@ -247,6 +247,7 @@ class zzspider(scrapy.Spider):
             if not leap_flag:
                 content_str += str(item)
 
+        bad_imgs = []
         upload_count = 0
         for src in img_temp:
             try:
@@ -254,6 +255,7 @@ class zzspider(scrapy.Spider):
             except Exception as e:
                 logger.error("下载图片异常:" + src)
                 logger.error(traceback.format_exc())
+                bad_imgs.append(src)
                 continue
             if result and len(result) > 0:
                 temp_path = result[0]
@@ -269,6 +271,7 @@ class zzspider(scrapy.Spider):
                     suffix = '.jpg'
             else:
                 logger.error("下载图片异常:" + src)
+                bad_imgs.append(src)
                 continue
             now = datetime.datetime.now()
             full_month = str(now.month).zfill(2)
@@ -295,10 +298,18 @@ class zzspider(scrapy.Spider):
                 sftp.upload_to_dir(real_path, ConfigUtil.config['sftp']['path'] + "/" + linux_relate_path)
             upload_count += 1
             content_str = content_str.replace(src, '{#ZC_BLOG_HOST#}' + linux_relate_path + f"/{filename}")
-        self.update_upload_count(upload_count)
+
+        if len(bad_imgs) > 0:
+            so1 = BeautifulSoup(content_str, "html.parser")
+            imgs = so1.find_all('img')
+            for d in imgs:
+                d.extract()
+            content_str = "".join([str(item) for item in so1.contents])
         print("result:")
         print(content_str)
+        # exit(0)
 
+        self.update_upload_count(upload_count)
         pure_text = data.text.replace('\'', '\\\'')
         intro = pure_text[0:150]
 
