@@ -77,6 +77,8 @@ def get_start_urls(cate):
     if title in result_all.related:
         result_all.related.remove(title)
     sub_title = get_best_word(start_word, result_all.related)
+
+    dbhelper.execute(f"update zbp_words set used = 1 where id = {word['id']}")
     return [url], start_word, title, sub_title, word['id'], real_cate
 
 
