@@ -34,12 +34,11 @@ baiduspider = BaiduSpider()
 
 
 def get_start_urls(cate):
-    real_cate = cate
     sql = 'SELECT id, `word` FROM `zbp_words` WHERE `cate` = %s and `used` = 0 limit 1'
     word = dbhelper.fetch_one(sql, [cate])
     if word is None or word['word'] is None or word['word'] == '':
-        real_cate = random.choice(cates)
-        return get_start_urls(real_cate)
+        logger.error(f"{cate}该分类没关键词，结束")
+        exit(0)
     timestamp = time.time()
     word['word'] = word['word'].replace(" ", "")
     # word['word'] = "怎么选房子才是好风水"
@@ -78,8 +77,7 @@ def get_start_urls(cate):
         result_all.related.remove(title)
     sub_title = get_best_word(start_word, result_all.related)
 
-    dbhelper.execute(f"update zbp_words set used = 1 where id = {word['id']}")
-    return [url], start_word, title, sub_title, word['id'], real_cate
+    return [url], start_word, title, sub_title, word['id']
 
 
 def filter_duplicate(urlss, w):
@@ -107,7 +105,7 @@ if __name__ == '__main__':
             exit(0)
     else:
         cate = random.choice(cates)
-        start_urls, start_word, word, word_sub, word_id, cate = get_start_urls(cate)
+        start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
     process.crawl(zzspider, start_urls=start_urls, cate=cate, start_word=start_word, word=word, word_sub=word_sub,
                   word_id=word_id)
     process.start()
