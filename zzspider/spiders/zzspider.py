@@ -316,6 +316,7 @@ class zzspider(scrapy.Spider):
             dbhelper.execute(
                 f"UPDATE `zbp_post` set `log_Intro` = %s,`log_Content` = %s,`log_UpdateTime` = %s where log_ID = %s",
                 [intro, content_str, now_time, ConfigUtil.config['collect']['post_id']])
+            dbhelper.execute(f"update zbp_words set used = 1, url = '{response.url}' where id = {self.word_id}")
         else:
             if ConfigUtil.config['collect']['special_title'] == '':
                 title = response.meta['title']
