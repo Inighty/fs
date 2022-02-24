@@ -37,8 +37,8 @@ def get_start_urls(cate):
     sql = 'SELECT id, `word` FROM `zbp_words` WHERE `cate` = %s and `used` = 0 limit 1'
     word = dbhelper.fetch_one(sql, [cate])
     if word is None or word['word'] is None or word['word'] == '':
-        logger.error(f"{cate}该分类没关键词，结束")
-        exit(0)
+        return None, None, None, None, None
+    dbhelper.execute(f"update zbp_words set used = 1 where id = {word['id']}")
     timestamp = time.time()
     word['word'] = word['word'].replace(" ", "")
     # word['word'] = "怎么选房子才是好风水"
@@ -106,6 +106,9 @@ if __name__ == '__main__':
     else:
         cate = random.choice(cates)
         start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
+        while word is None:
+            cate = random.choice(cates)
+            start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
     process.crawl(zzspider, start_urls=start_urls, cate=cate, start_word=start_word, word=word, word_sub=word_sub,
                   word_id=word_id)
     process.start()
