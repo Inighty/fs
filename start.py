@@ -67,6 +67,10 @@ def get_start_urls(cate):
     # 相关搜索
     result_all = baiduspider.search_web(start_word, 1,
                                         ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
+    while len(result_all.related) == 0:
+        time.sleep(random.randint(5, 10))
+        result_all = baiduspider.search_web(start_word, 1,
+                                            ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
     logger.error("相关搜索数量：" + str(len(result_all.related)))
     if title in result_all.related:
         result_all.related.remove(title)
