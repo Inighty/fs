@@ -208,7 +208,7 @@ class zzspider(scrapy.Spider):
         data = soup.find_all('article')[0]
         imgs = data.find_all('img')
         img_temp = list(set([item.attrs['src'] for item in imgs]))
-        contents = data.find_all(['img', 'p', 'ul', 'h1', 'ol', 'table', ''])
+        contents = data.find_all(['img', 'p', 'ul', 'h1', 'ol', 'table', 'pre'])
         content_str = ''
         for item in contents:
             if item.name == 'h1':
