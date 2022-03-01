@@ -66,8 +66,15 @@ def get_start_urls(cate):
     url = f"""https://so.toutiao.com/search?dvpf=pc&source=input&keyword={title}&filter_vendor=site&index_resource=site&filter_period=all&min_time=0&max_time={timestamp}"""
 
     # 相关搜索
+    proxies = None
+    if ConfigUtil.config['proxy'] is not None:
+        proxies = [{
+            "http": 'http://' + ConfigUtil.config['proxy']['url'],
+            "https": 'https://' + ConfigUtil.config['proxy']['url']
+        }]
     result_all = baiduspider.search_web(start_word, 1,
-                                        ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
+                                        ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'],
+                                        proxies=proxies)
     while len(result_all.related) == 0:
         time.sleep(random.randint(1, 2))
         result_all = baiduspider.search_web(start_word, 1,
