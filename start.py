@@ -69,7 +69,7 @@ def get_start_urls(cate):
     result_all = baiduspider.search_web(start_word, 1,
                                         ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
     while len(result_all.related) == 0:
-        time.sleep(random.randint(5, 10))
+        time.sleep(random.randint(1, 2))
         result_all = baiduspider.search_web(start_word, 1,
                                             ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
     logger.error("相关搜索数量：" + str(len(result_all.related)))
