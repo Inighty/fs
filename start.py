@@ -8,6 +8,7 @@ from logging.handlers import TimedRotatingFileHandler
 
 import requests
 from baiduspider import BaiduSpider
+from bs4 import BeautifulSoup
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 
@@ -38,14 +39,13 @@ def get_start_urls(cate):
     word = dbhelper.fetch_one(sql, [cate])
     if word is None or word['word'] is None or word['word'] == '':
         return None, None, None, None, None
-    dbhelper.execute(f"update zbp_words set used = 1 where id = {word['id']}")
     timestamp = time.time()
     word['word'] = word['word'].replace(" ", "")
     # word['word'] = "怎么选房子才是好风水"
     start_word = word['word']
     title = word['word']
     down_words = []
-    url_word = urllib.parse.unquote(start_word)
+    url_word = urllib.parse.quote(start_word)
     res = requests.get(
         f"https://www.baidu.com/sugrec?pre=1&p=3&ie=utf-8&json=1&prod=pc&from=pc_web&wd={url_word}",
         verify=False)
@@ -65,25 +65,22 @@ def get_start_urls(cate):
 
     url = f"""https://so.toutiao.com/search?dvpf=pc&source=input&keyword={title}&filter_vendor=site&index_resource=site&filter_period=all&min_time=0&max_time={timestamp}"""
 
-    # 相关搜索
-    proxies = None
-    if ConfigUtil.config['proxy'] is not None:
-        proxies = [{
-            "http": 'http://' + ConfigUtil.config['proxy']['url'],
-            "https": 'https://' + ConfigUtil.config['proxy']['url']
-        }]
+    sub_title = None
     result_all = baiduspider.search_web(start_word, 1,
-                                        ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'],
-                                        proxies=proxies)
-    while len(result_all.related) == 0:
-        time.sleep(random.randint(1, 2))
-        result_all = baiduspider.search_web(start_word, 1,
-                                            ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
+                                        ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
     logger.error("相关搜索数量：" + str(len(result_all.related)))
-    if title in result_all.related:
-        result_all.related.remove(title)
-    sub_title = get_best_word(start_word, result_all.related)
-
+    if len(result_all.related) == 0:
+        bing_url = u'{}/search?q={}&search=&form=QBLH'.format('https://cn.bing.com', url_word)
+        result = requests.get(bing_url)
+        if result.status_code == 200:
+            tags = BeautifulSoup(result.text, "html.parser")
+            lis = [item.text for item in tags.find('div', {'class': 'b_rs'}).find_all('li')]
+            sub_title = get_best_word(start_word, lis)
+    else:
+        sub_title = get_best_word(start_word, result_all.related)
+    if sub_title is None:
+        return None, None, None, None, None
+    dbhelper.execute(f"update zbp_words set used = 1 where id = {word['id']}")
     return [url], start_word, title, sub_title, word['id']
 
 
