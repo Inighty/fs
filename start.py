@@ -41,7 +41,7 @@ def get_start_urls(cate):
         return None, None, None, None, None
     timestamp = time.time()
     word['word'] = word['word'].replace(" ", "")
-    # word['word'] = "怎么选房子才是好风水"
+    word['word'] = "雨后小故事动态张"
     start_word = word['word']
     title = word['word']
     down_words = []
@@ -73,7 +73,7 @@ def get_start_urls(cate):
         bing_url = u'{}/search?q={}&search=&form=QBLH'.format('https://cn.bing.com', url_word)
         result = requests.get(bing_url)
         if result.status_code == 200:
-            logger.debug("text:" + result.text)
+            logger.error("text:" + result.text)
             tags = BeautifulSoup(result.text, "html.parser")
             lis = [item.text for item in tags.find('div', {'class': 'b_rs'}).find_all('li')]
             sub_title = get_best_word(start_word, lis)
