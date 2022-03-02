@@ -15,6 +15,7 @@ from scrapy.utils.project import get_project_settings
 from zzspider import settings
 from zzspider.config import ConfigUtil
 from zzspider.spiders.zzspider import zzspider
+from zzspider.tools.browser import Browser
 from zzspider.tools.dbhelper import DBHelper
 from zzspider.tools.same_word import get_best_word
 
@@ -32,6 +33,36 @@ dbhelper = DBHelper()
 
 cates = ConfigUtil.config['collect']['cate'].split(',')
 baiduspider = BaiduSpider()
+browser = Browser()
+
+def baidu_relate(start_word, relate_arr):
+    if (len(relate_arr) > 0):
+        return
+    result_all = baiduspider.search_web(start_word, 1,
+                                        ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
+    if len(result_all.related) != 0:
+        relate_arr.extend(result_all.related)
+
+
+def bing_relate(start_word, relate_arr):
+    if (len(relate_arr) > 0):
+        return
+    bing_url = u'{}/search?q={}&search=&form=QBLH'.format('https://cn.bing.com', start_word)
+    result = requests.get(bing_url)
+    if result.status_code == 200:
+        logger.error("text:" + result.text)
+        tags = BeautifulSoup(result.text, "html.parser")
+        rs = tags.find('div', {'class': 'b_rs'})
+        if rs is not None:
+            relate_arr.extend([item.text for item in rs.find_all('li')])
+
+
+def process_relate(start_word):
+    relate_arr = []
+    url_word = urllib.parse.quote(start_word)
+    bing_relate(url_word, relate_arr)
+    baidu_relate(url_word, relate_arr)
+    return relate_arr
 
 
 def get_start_urls(cate):
@@ -41,7 +72,7 @@ def get_start_urls(cate):
         return None, None, None, None, None
     timestamp = time.time()
     word['word'] = word['word'].replace(" ", "")
-    word['word'] = "雨后小故事动态张"
+    # word['word'] = "雨后小故事动态张"
     start_word = word['word']
     title = word['word']
     down_words = []
@@ -65,21 +96,12 @@ def get_start_urls(cate):
 
     url = f"""https://so.toutiao.com/search?dvpf=pc&source=input&keyword={title}&filter_vendor=site&index_resource=site&filter_period=all&min_time=0&max_time={timestamp}"""
 
-    sub_title = None
-    result_all = baiduspider.search_web(start_word, 1,
-                                        ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
-    logger.error("相关搜索数量：" + str(len(result_all.related)))
-    if len(result_all.related) == 0:
-        bing_url = u'{}/search?q={}&search=&form=QBLH'.format('https://cn.bing.com', url_word)
-        result = requests.get(bing_url)
-        if result.status_code == 200:
-            logger.error("text:" + result.text)
-            tags = BeautifulSoup(result.text, "html.parser")
-            lis = [item.text for item in tags.find('div', {'class': 'b_rs'}).find_all('li')]
-            sub_title = get_best_word(start_word, lis)
+    relate_arr = process_relate(start_word)
+    if len(relate_arr) > 0:
+        sub_title = get_best_word(start_word, relate_arr)
+        if sub_title is None:
+            return None, None, None, None, None
     else:
-        sub_title = get_best_word(start_word, result_all.related)
-    if sub_title is None:
         return None, None, None, None, None
     dbhelper.execute(f"update zbp_words set used = 1 where id = {word['id']}")
     return [url], start_word, title, sub_title, word['id']
