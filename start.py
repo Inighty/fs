@@ -72,7 +72,7 @@ def get_start_urls(cate):
         return None, None, None, None, None
     timestamp = time.time()
     word['word'] = word['word'].replace(" ", "")
-    # word['word'] = "雨后小故事动态张"
+    word['word'] = "盖房子高低风水"
     start_word = word['word']
     title = word['word']
     down_words = []
@@ -98,7 +98,9 @@ def get_start_urls(cate):
 
     relate_arr = process_relate(start_word)
     if len(relate_arr) > 0:
-        sub_title = get_best_word(start_word, relate_arr)
+        if title in relate_arr:
+            relate_arr.remove(title)
+        sub_title = get_best_word(start_word, relate_arr, None)
         if sub_title is None:
             return None, None, None, None, None
     else:
