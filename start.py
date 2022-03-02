@@ -50,7 +50,6 @@ def bing_relate(start_word, relate_arr):
     bing_url = u'{}/search?q={}&search=&form=QBLH'.format('https://cn.bing.com', start_word)
     result = requests.get(bing_url)
     if result.status_code == 200:
-        logger.error("text:" + result.text)
         tags = BeautifulSoup(result.text, "html.parser")
         rs = tags.find('div', {'class': 'b_rs'})
         if rs is not None:
