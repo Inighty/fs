@@ -15,7 +15,6 @@ from scrapy.utils.project import get_project_settings
 from zzspider import settings
 from zzspider.config import ConfigUtil
 from zzspider.spiders.zzspider import zzspider
-from zzspider.tools.browser import Browser
 from zzspider.tools.dbhelper import DBHelper
 from zzspider.tools.same_word import get_best_word
 
@@ -33,7 +32,6 @@ dbhelper = DBHelper()
 
 cates = ConfigUtil.config['collect']['cate'].split(',')
 baiduspider = BaiduSpider()
-browser = Browser()
 
 def baidu_relate(start_word, relate_arr):
     if (len(relate_arr) > 0):
@@ -48,11 +46,13 @@ def bing_relate(start_word, relate_arr):
     if (len(relate_arr) > 0):
         return
     bing_url = u'{}/search?q={}&search=&form=QBLH'.format('https://cn.bing.com', start_word)
-    result = browser.get(bing_url)
-    tags = BeautifulSoup(result, "html.parser")
-    rs = tags.find('div', {'class': 'b_rs'})
-    if rs is not None:
-        relate_arr.extend([item.text for item in rs.find_all('li')])
+    result = requests.get(bing_url)
+    if result.status_code == 200:
+        logger.error("text:" + result.text)
+        tags = BeautifulSoup(result.text, "html.parser")
+        rs = tags.find('div', {'class': 'b_rs'})
+        if rs is not None:
+            relate_arr.extend([item.text for item in rs.find_all('li')])
 
 
 def process_relate(start_word):
