@@ -43,12 +43,12 @@ def process_i(type, domain, path, page, i):
             result.append(title)
 
 
-cate = 3
+mode = 'sql1'
+cate = 1
 type = 'mobile'
-domain = 'www.okaoyan.com'
+domain = 'www.400zi.com'
 name = domain.replace('.', '_')
 file_name = f'result_aizhan_{name}_{type}.txt'
-db = DBHelper(host="114.132.198.103", user="baikexueshe", pwd="mc0321..", db="baikexueshe")
 paths = ['-1']
 for path in paths:
     for k in range(0, 51):
@@ -62,13 +62,17 @@ for item in result:
     real_item = item.strip().replace('\'', '\\\'')
     real_items.append(real_item)
 
+if mode == 'sql':
+    db = DBHelper(host="114.132.198.103", user="baikexueshe", pwd="mc0321..", db="baikexueshe")
+    for item in real_items:
+        count = db.fetch_one("select count(1) as num from zbp_words where word = %s", [item])
+        if count['num'] == 0:
+            real_arr.append(f"('{item}',{cate})")
 
-for item in real_items:
-    count = db.fetch_one("select count(1) as num from zbp_words where word = %s", [item])
-    if count['num'] == 0:
-        real_arr.append(f"('{item}',{cate})")
+    sql = "INSERT INTO `zbp_words`(`word`, `cate`) VALUES {0}".format(",".join(real_arr)) + ";"
 
-sql = "INSERT INTO `zbp_words`(`word`, `cate`) VALUES {0}".format(",".join(real_arr)) + ";"
-
-with open(file_name, mode='w') as f:
-    f.write(sql)
+    with open(file_name, mode='w') as f:
+        f.write(sql)
+else:
+    with open(file_name, mode='w') as f:
+        f.write("\n".join(real_items))
