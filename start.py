@@ -45,7 +45,8 @@ def baidu_relate(start_word, relate_arr):
 def bing_relate(start_word, relate_arr):
     if (len(relate_arr) > 0):
         return
-    bing_url = u'{}/search?q={}&search=&form=QBLH'.format('https://cn.bing.com', start_word)
+    url_word = urllib.parse.quote(start_word)
+    bing_url = u'{}/search?q={}&search=&form=QBLH'.format('https://cn.bing.com', url_word)
     result = requests.get(bing_url)
     if result.status_code == 200:
         logger.error("text:" + result.text)
@@ -57,9 +58,8 @@ def bing_relate(start_word, relate_arr):
 
 def process_relate(start_word):
     relate_arr = []
-    url_word = urllib.parse.quote(start_word)
-    baidu_relate(url_word, relate_arr)
-    bing_relate(url_word, relate_arr)
+    baidu_relate(start_word, relate_arr)
+    bing_relate(start_word, relate_arr)
     return relate_arr
 
 
@@ -112,7 +112,7 @@ def get_start_urls(cate):
 def filter_duplicate(urlss, w):
     res = dbhelper.fetch_one(
         "select count(*) as num from zbp_words where url = '" + urlss[0] + "'")
-    if res['num'] == 0:
+    if res['num'] == 1:
         dbhelper.execute(f"insert into zbp_words (`word`) values ('{w}')")
         return_id = dbhelper.cur.lastrowid
         return urlss, return_id
