@@ -102,8 +102,10 @@ def get_start_urls(cate):
             relate_arr.remove(title)
         sub_title = get_best_word(start_word, relate_arr, None)
         if sub_title is None:
+            logger.error("sub_title none.")
             return None, None, None, None, None
     else:
+        logger.error("relate none.")
         return None, None, None, None, None
     dbhelper.execute(f"update zbp_words set used = 1 where id = {word['id']}")
     return [url], start_word, title, sub_title, word['id']
