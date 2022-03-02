@@ -49,11 +49,10 @@ def bing_relate(start_word, relate_arr):
         return
     bing_url = u'{}/search?q={}&search=&form=QBLH'.format('https://cn.bing.com', start_word)
     result = browser.get(bing_url)
-    if result.status_code == 200:
-        tags = BeautifulSoup(result.text, "html.parser")
-        rs = tags.find('div', {'class': 'b_rs'})
-        if rs is not None:
-            relate_arr.extend([item.text for item in rs.find_all('li')])
+    tags = BeautifulSoup(result, "html.parser")
+    rs = tags.find('div', {'class': 'b_rs'})
+    if rs is not None:
+        relate_arr.extend([item.text for item in rs.find_all('li')])
 
 
 def process_relate(start_word):
