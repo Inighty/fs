@@ -72,7 +72,7 @@ def get_start_urls(cate):
         return None, None, None, None, None
     timestamp = time.time()
     word['word'] = word['word'].replace(" ", "")
-    word['word'] = "盖房子高低风水"
+    # word['word'] = "盖房子高低风水"
     start_word = word['word']
     title = word['word']
     down_words = []
