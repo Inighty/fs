@@ -58,8 +58,8 @@ def bing_relate(start_word, relate_arr):
 def process_relate(start_word):
     relate_arr = []
     url_word = urllib.parse.quote(start_word)
-    bing_relate(url_word, relate_arr)
     baidu_relate(url_word, relate_arr)
+    bing_relate(url_word, relate_arr)
     return relate_arr
 
 
