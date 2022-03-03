@@ -51,8 +51,8 @@ name = domain.replace('.', '_')
 file_name = f'result_aizhan_{name}_{type}.txt'
 paths = ['-1']
 for path in paths:
-    for k in range(0, 51):
-        process(type, domain, k, path)
+    for k in range(1, 51):
+        process(type, domain, path, k)
 # with open(file_name) as f:
 #     result = f.readlines()
 real_arr = []
