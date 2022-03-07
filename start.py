@@ -67,6 +67,7 @@ def get_start_urls(cate):
     word = dbhelper.fetch_one(sql, [cate])
     if word is None or word['word'] is None or word['word'] == '':
         return None, None, None, None, None
+    dbhelper.execute(f"update zbp_words set used = 1 where id = {word['id']}")
     timestamp = time.time()
     word['word'] = word['word'].replace(" ", "")
     # word['word'] = "盖房子高低风水"
@@ -100,11 +101,10 @@ def get_start_urls(cate):
         sub_title = get_best_word(start_word, relate_arr, None)
         if sub_title is None:
             logger.error("sub_title none.")
-            return None, None, None, None, None
+            return None, None, None, None, word['id']
     else:
         logger.error("relate none.")
-        return None, None, None, None, None
-    dbhelper.execute(f"update zbp_words set used = 1 where id = {word['id']}")
+        return None, None, None, None, word['id']
     return [url], start_word, title, sub_title, word['id']
 
 
@@ -135,6 +135,8 @@ if __name__ == '__main__':
         cate = random.choice(cates)
         start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
         while word is None:
+            if word_id is not None:
+                dbhelper.execute(f"update zbp_words set used = 0 where id = {word['id']}")
             cate = random.choice(cates)
             start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
     process.crawl(zzspider, start_urls=start_urls, cate=cate, start_word=start_word, word=word, word_sub=word_sub,
