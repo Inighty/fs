@@ -83,8 +83,10 @@ def after_insert_post(word_id, author, cate, url, title, post_id):
     if len(tag_sql) > 0:
         tag_sql_str = ",".join(tag_sql)
         dbhelper.execute(f"update zbp_post set log_Tag = '{tag_sql_str}' where log_ID = {post_id}")
-    if os.path.exists(sitemap_path):
+    now = datetime.datetime.now()
+    if now.hour == 1 and os.path.exists(sitemap_path):
         os.remove(sitemap_path)
+        requests.get("https://www.baikexueshe.com/sitemap/map.xml")
     baidu_push()
 
 
