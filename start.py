@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 import os
@@ -32,6 +33,8 @@ logHandler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s
 logging.getLogger().handlers = [logHandler]
 dbhelper = DBHelper()
 sleep_time = int(ConfigUtil.config['main']['sleep'])
+start_hour = ConfigUtil.config['main']['start_hour'].split(',').sort()
+end_hour = ConfigUtil.config['main']['end_hour'].split(',').sort()
 cates = ConfigUtil.config['collect']['cate'].split(',')
 baiduspider = BaiduSpider()
 
@@ -141,7 +144,27 @@ def _crawl(result, spider):
     deferred = process.crawl(zzspider, start_urls=start_urls, cate=cate, start_word=start_word, word=word,
                              word_sub=word_sub,
                              word_id=word_id)
-    deferred.addCallback(sleep, seconds=sleep_time)
+    range_seconds = sleep_time
+    now = datetime.datetime.now()
+    if now.hour in end_hour:
+        logger.error("当前时间：" + str(now.hour))
+        # 计算距离下次执行时间
+        nextFlag = True
+        for st in start_hour:
+            if st > now.hour:
+                # 找到下次开启的时间
+                nextFlag = False
+                diff = now.hour - st
+                range_seconds = diff * 3600
+                logger.error("找到下次开启的时间：" + str(range_seconds) + "秒")
+                break
+        if nextFlag:
+            # 跨天
+            st = start_hour[0]
+            diff = 24 - now.hour + st
+            range_seconds = diff * 3600
+            logger.error("找到下次跨天开启的时间：" + str(range_seconds) + "秒")
+    deferred.addCallback(sleep, seconds=range_seconds)
     deferred.addCallback(_crawl, spider)
     return deferred
 
