@@ -11,6 +11,8 @@ from baiduspider import BaiduSpider
 from bs4 import BeautifulSoup
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
+from twisted.internet import reactor
+from twisted.internet.task import deferLater
 
 from zzspider import settings
 from zzspider.config import ConfigUtil
@@ -29,9 +31,10 @@ logHandler.setLevel(settings.LOG_LEVEL)
 logHandler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
 logging.getLogger().handlers = [logHandler]
 dbhelper = DBHelper()
-
+sleep_time = int(ConfigUtil.config['main']['sleep'])
 cates = ConfigUtil.config['collect']['cate'].split(',')
 baiduspider = BaiduSpider()
+
 
 def baidu_relate(start_word, relate_arr):
     if (len(relate_arr) > 0):
@@ -57,8 +60,12 @@ def bing_relate(start_word, relate_arr):
 
 def process_relate(start_word):
     relate_arr = []
-    baidu_relate(start_word, relate_arr)
-    bing_relate(start_word, relate_arr)
+    if random.random() < .5:
+        baidu_relate(start_word, relate_arr)
+        bing_relate(start_word, relate_arr)
+    else:
+        bing_relate(start_word, relate_arr)
+        baidu_relate(start_word, relate_arr)
     return relate_arr
 
 
@@ -118,6 +125,27 @@ def filter_duplicate(urlss, w):
     return None, None
 
 
+def sleep(self, *args, seconds):
+    """Non blocking sleep callback"""
+    return deferLater(reactor, seconds, lambda: None)
+
+
+def _crawl(result, spider):
+    cate = random.choice(cates)
+    start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
+    while word is None:
+        if word_id is not None:
+            dbhelper.execute(f"update zbp_words set used = 0 where id = {word_id}")
+        cate = random.choice(cates)
+        start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
+    deferred = process.crawl(zzspider, start_urls=start_urls, cate=cate, start_word=start_word, word=word,
+                             word_sub=word_sub,
+                             word_id=word_id)
+    deferred.addCallback(sleep, seconds=sleep_time)
+    deferred.addCallback(_crawl, spider)
+    return deferred
+
+
 if __name__ == '__main__':
     process = CrawlerProcess(install_root_handler=False, settings=get_project_settings())
     if ConfigUtil.config['collect']['special_url']:
@@ -132,13 +160,6 @@ if __name__ == '__main__':
         if start_urls is None:
             exit(0)
     else:
-        cate = random.choice(cates)
-        start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
-        while word is None:
-            if word_id is not None:
-                dbhelper.execute(f"update zbp_words set used = 0 where id = {word_id}")
-            cate = random.choice(cates)
-            start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
-    process.crawl(zzspider, start_urls=start_urls, cate=cate, start_word=start_word, word=word, word_sub=word_sub,
-                  word_id=word_id)
+
+        _crawl(None, zzspider)
     process.start()

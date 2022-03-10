@@ -1,6 +1,7 @@
 # ！/usr/bin/env python
 # -*- coding: UTF-8 -*-
 import logging
+import traceback
 
 import pymysql
 
@@ -24,20 +25,22 @@ class DBHelper(metaclass=Singleton):
 
     # 连接数据库
     def connect_database(self):
-        try:
-            self.conn = pymysql.connect(self.host, self.user,
-                                        self.pwd, self.db, charset='utf8mb4')
-        except:
-            logger.error("connectDatabase failed")
-            return False
-        self.cur = self.conn.cursor(pymysql.cursors.DictCursor)
+        if self.conn is None:
+            try:
+                self.conn = pymysql.connect(self.host, self.user,
+                                            self.pwd, self.db, charset='utf8mb4', connect_timeout=60)
+            except:
+                logger.error("connectDatabase failed")
+                return False
+            self.cur = self.conn.cursor(pymysql.cursors.DictCursor)
         return True
 
     # 关闭数据库
     def close(self):
         # 如果数据打开，则关闭；否则没有操作
-        if self.conn and self.cur:
+        if self.cur:
             self.cur.close()
+        if self.conn:
             self.conn.close()
         return True
 
@@ -50,10 +53,7 @@ class DBHelper(metaclass=Singleton):
                 self.conn.commit()
         except Exception as e:
             logger.error("execute failed: " + sql)
-            logger.error("params: " + ' '.join(params))
-            logger.error(e)
-            self.close()
-            return False
+            logger.error("error detail:" + traceback.format_exc())
         return True
 
     # 用来查询表数据
