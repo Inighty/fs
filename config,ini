@@ -1,7 +1,7 @@
 [main]
 sleep = 15
 start_hour = 8,13
-end_hour = 12,21
+end_hour = 12,22
 
 [collect]
 title_filter = 天华易学,易学圣手
