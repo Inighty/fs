@@ -140,11 +140,17 @@ def sleep(self, *args, seconds):
 def _crawl(result, spider):
     cate = random.choice(cates)
     start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
+    time = 0
     while word is None:
-        if word_id is not None:
-            dbhelper.execute(f"update zbp_words set used = 0 where id = {word_id}")
-        cate = random.choice(cates)
-        start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
+        time += 1
+        if time < 20:
+            if word_id is not None:
+                dbhelper.execute(f"update zbp_words set used = 0 where id = {word_id}")
+            cate = random.choice(cates)
+            start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
+        else:
+            word = start_word
+            word_sub = None
     deferred = process.crawl(zzspider, start_urls=start_urls, cate=cate, start_word=start_word, word=word,
                              word_sub=word_sub,
                              word_id=word_id)
