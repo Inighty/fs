@@ -94,11 +94,12 @@ def get_start_urls(cate):
         if res.ok:
             logger.error("baidu drop:" + res.text)
             res_json = json.loads(res.text)
-            for item in res_json['g']:
-                down_words.append(item['q'])
-            best_word = get_best_word(start_word, down_words)
-            if best_word is not None:
-                title = best_word
+            if 'g' in res_json:
+                for item in res_json['g']:
+                    down_words.append(item['q'])
+                best_word = get_best_word(start_word, down_words)
+                if best_word is not None:
+                    title = best_word
     except Exception as e:
         logger.error(e)
         pass
