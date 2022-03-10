@@ -193,7 +193,7 @@ class zzspider(scrapy.Spider):
         if self.word_sub is not None:
             title = f"{self.word}({self.word_sub})"
         else:
-            title = f"{self.word}({title})"
+            title = f"{self.word}"
         print("real title:" + title)
         # return
         # article_url = 'http://www.toutiao.com/a6696692803763700232/?channel=&source=search_tab'
