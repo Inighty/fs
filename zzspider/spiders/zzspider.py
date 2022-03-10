@@ -127,7 +127,7 @@ class zzspider(scrapy.Spider):
     start_urls = []
 
     def __init__(self, start_urls, cate, start_word, word, word_sub, word_id):
-        self.start_urls.extend(start_urls)
+        self.start_urls = start_urls
         self.cate = cate
         self.start_word = start_word
         self.word = word
