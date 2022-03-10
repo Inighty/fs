@@ -100,10 +100,10 @@ def get_start_urls(cate):
             relate_arr.remove(title)
         sub_title = get_best_word(start_word, relate_arr, None)
         if sub_title is None:
-            logger.error("sub_title none.")
+            logger.error(start_word + ",sub_title none.")
             return None, None, None, None, word['id']
     else:
-        logger.error("relate none.")
+        logger.error(start_word + ",relate none.")
         return None, None, None, None, word['id']
     return [url], start_word, title, sub_title, word['id']
 
