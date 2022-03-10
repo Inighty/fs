@@ -107,8 +107,12 @@ def get_start_urls(cate):
         res.close()
 
     url = f"""https://so.toutiao.com/search?dvpf=pc&source=input&keyword={title}&filter_vendor=site&index_resource=site&filter_period=all&min_time=0&max_time={timestamp}"""
-
+    
     relate_arr = process_relate(start_word)
+    time = 0
+    while len(relate_arr) == 0 and time < 15:
+        relate_arr = process_relate(start_word)
+        time += 1
     if len(relate_arr) > 0:
         if title in relate_arr:
             relate_arr.remove(title)
@@ -117,8 +121,8 @@ def get_start_urls(cate):
             logger.error(start_word + ",sub_title none.")
             return None, None, None, None, word['id']
     else:
-        logger.error(start_word + ",relate none.")
-        return None, None, None, None, word['id']
+        logger.error(start_word + ",relate none than 15.")
+        return [url], start_word, title, None, word['id']
     return [url], start_word, title, sub_title, word['id']
 
 
@@ -142,15 +146,10 @@ def _crawl(result, spider):
     start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
     time = 0
     while word is None:
-        time += 1
-        if time < 20:
-            if word_id is not None:
-                dbhelper.execute(f"update zbp_words set used = 0 where id = {word_id}")
-            cate = random.choice(cates)
-            start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
-        else:
-            word = start_word
-            word_sub = None
+        if word_id is not None:
+            dbhelper.execute(f"update zbp_words set used = 0 where id = {word_id}")
+        cate = random.choice(cates)
+        start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
     deferred = process.crawl(zzspider, start_urls=start_urls, cate=cate, start_word=start_word, word=word,
                              word_sub=word_sub,
                              word_id=word_id)
