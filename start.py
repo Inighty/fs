@@ -136,7 +136,7 @@ if __name__ == '__main__':
         start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
         while word is None:
             if word_id is not None:
-                dbhelper.execute(f"update zbp_words set used = 0 where id = {word['id']}")
+                dbhelper.execute(f"update zbp_words set used = 0 where id = {word_id}")
             cate = random.choice(cates)
             start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
     process.crawl(zzspider, start_urls=start_urls, cate=cate, start_word=start_word, word=word, word_sub=word_sub,
