@@ -148,11 +148,12 @@ def _crawl(result, spider):
                              word_id=word_id)
     range_seconds = sleep_time
     now = datetime.datetime.now()
-    if now.hour in end_hour:
+    if str(now.hour) in end_hour:
         logger.error("当前时间：" + str(now.hour))
         # 计算距离下次执行时间
         nextFlag = True
         for st in start_hour:
+            st = int(st)
             if st > now.hour:
                 # 找到下次开启的时间
                 nextFlag = False
@@ -162,7 +163,7 @@ def _crawl(result, spider):
                 break
         if nextFlag:
             # 跨天
-            st = start_hour[0]
+            st = int(start_hour[0])
             diff = 24 - now.hour + st
             range_seconds = diff * 3600
             logger.error("找到下次跨天开启的时间：" + str(range_seconds) + "秒")
