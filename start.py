@@ -92,6 +92,7 @@ def get_start_urls(cate):
         verify=False)
     try:
         if res.ok:
+            logger.error("baidu drop:" + res.text)
             res_json = json.loads(res.text)
             for item in res_json['g']:
                 down_words.append(item['q'])
