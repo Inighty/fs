@@ -33,8 +33,10 @@ logHandler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s
 logging.getLogger().handlers = [logHandler]
 dbhelper = DBHelper()
 sleep_time = int(ConfigUtil.config['main']['sleep'])
-start_hour = ConfigUtil.config['main']['start_hour'].split(',').sort()
-end_hour = ConfigUtil.config['main']['end_hour'].split(',').sort()
+start_hour = ConfigUtil.config['main']['start_hour'].split(',')
+start_hour.sort()
+end_hour = ConfigUtil.config['main']['end_hour'].split(',')
+end_hour.sort()
 cates = ConfigUtil.config['collect']['cate'].split(',')
 baiduspider = BaiduSpider()
 
