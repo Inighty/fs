@@ -109,10 +109,10 @@ def get_start_urls(cate):
     url = f"""https://so.toutiao.com/search?dvpf=pc&source=input&keyword={title}&filter_vendor=site&index_resource=site&filter_period=all&min_time=0&max_time={timestamp}"""
     
     relate_arr = process_relate(start_word)
-    time = 0
-    while len(relate_arr) == 0 and time < 15:
+    time_num = 0
+    while len(relate_arr) == 0 and time_num < 15:
         relate_arr = process_relate(start_word)
-        time += 1
+        time_num += 1
     if len(relate_arr) > 0:
         if title in relate_arr:
             relate_arr.remove(title)
