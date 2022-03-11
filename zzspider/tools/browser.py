@@ -31,7 +31,7 @@ class Browser(metaclass=Singleton):
         options.add_argument("--window-size=1920x1080")
         options.add_argument("--lang=zh")
         options.ignore_local_proxy_environment_variables()
-        self.driver = uc.Chrome(options=options, headless=False)
+        self.driver = uc.Chrome(options=options, headless=True)
         return self.driver
 
     # 关闭标签
