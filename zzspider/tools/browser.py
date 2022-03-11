@@ -5,6 +5,7 @@ import os
 import time
 
 from selenium import webdriver
+from selenium.webdriver import DesiredCapabilities
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -34,7 +35,11 @@ class Browser(metaclass=Singleton):
         self.chrome_options.add_argument('--no-sandbox')
         self.chrome_options.add_argument("--disable-extensions")
         self.chrome_options.add_argument("disable-blink-features=AutomationControlled")
-
+        self.chrome_options.add_argument('--ignore-certificate-errors-spki-list')  # 屏蔽ssl error
+        self.chrome_options.add_argument('-ignore -ssl-errors')  # 屏蔽ssl error
+        No_Image_loading = {"profile.managed_default_content_settings.images": 2}
+        self.chrome_options.add_experimental_option("prefs", No_Image_loading)
+        self.chrome_options.add_argument('--disable-dev-shm-usage')
         # self.chrome_options.add_argument(f'user-agent={settings.USER_AGENT}')
         # comment out the following two lines to setup ProxyMesh service
         # make sure you add the IP of the machine running this script to you ProxyMesh account for IP authentication
@@ -46,11 +51,19 @@ class Browser(metaclass=Singleton):
     def start_driver(self):
         if self.driver is not None:
             return self.driver
-        chrome_driver_path = os.path.join(basedir, 'chromedriver')
-        self.driver = webdriver.Chrome(chrome_options=self.chrome_options)
+        caps = DesiredCapabilities.CHROME
+        caps['acceptSslCerts'] = False  # 屏蔽ssl error
+        self.driver = webdriver.Chrome(chrome_options=self.chrome_options, desired_capabilities=caps)
 
         self.driver.execute_cdp_cmd('Network.setUserAgentOverride', {
             "userAgent": f'{settings.USER_AGENT}'})
+        self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+            "source": """
+    Object.defineProperty(navigator, 'webdriver', {
+      get: () => undefined
+    })
+  """
+        })
         self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
         return self.driver
 
