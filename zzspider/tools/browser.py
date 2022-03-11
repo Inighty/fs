@@ -37,7 +37,7 @@ class Browser(metaclass=Singleton):
         capabilities = options.to_capabilities()
         capabilities['acceptInsecureCerts'] = True
 
-        self.driver = uc.Chrome(headless=True, desired_capabilities=capabilities)
+        self.driver = uc.Chrome(options=options, headless=True, desired_capabilities=capabilities)
         return self.driver
 
     # 关闭标签
