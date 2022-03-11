@@ -32,6 +32,7 @@ class Browser(metaclass=Singleton):
         options.ignore_local_proxy_environment_variables()
         if os.name != 'nt':
             ex_path = os.path.join(basedir, 'chromedriver')
+            os.chmod(ex_path, 0o777)
             self.driver = uc.Chrome(browser_executable_path=ex_path, options=options)
         else:
             self.driver = uc.Chrome(options=options)
