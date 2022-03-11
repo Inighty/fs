@@ -18,6 +18,7 @@ from twisted.internet.task import deferLater
 from zzspider import settings
 from zzspider.config import ConfigUtil
 from zzspider.spiders.zzspider import zzspider
+from zzspider.tools.browser import Browser
 from zzspider.tools.dbhelper import DBHelper
 from zzspider.tools.same_word import get_best_word
 
@@ -46,7 +47,15 @@ def baidu_relate(start_word, relate_arr):
         return
     result_all = baiduspider.search_web(start_word, 1,
                                         ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
-    if len(result_all.related) != 0:
+    if len(result_all.related) == 0:
+        text = urllib.parse.quote(start_word, "utf-8")
+        url = f"https://www.baidu.com/s?wd={text}&pn=0&inputT={random.randint(500, 4000)}"
+        res = Browser().get(url)
+        soup = BeautifulSoup(res, "html.parser")
+        _related = soup.findAll("table")[-1].findAll("td")
+        if len(_related) != 0:
+            relate_arr.extend([item.text.strip() for item in _related])
+    else:
         relate_arr.extend(result_all.related)
 
 
@@ -107,12 +116,13 @@ def get_start_urls(cate):
         res.close()
 
     url = f"""https://so.toutiao.com/search?dvpf=pc&source=input&keyword={title}&filter_vendor=site&index_resource=site&filter_period=all&min_time=0&max_time={timestamp}"""
-    
+
     relate_arr = process_relate(start_word)
     time_num = 0
     while len(relate_arr) == 0 and time_num < 15:
         relate_arr = process_relate(start_word)
         time_num += 1
+        time.sleep(1)
     if len(relate_arr) > 0:
         if title in relate_arr:
             relate_arr.remove(title)
@@ -144,7 +154,6 @@ def sleep(self, *args, seconds):
 def _crawl(result, spider):
     cate = random.choice(cates)
     start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
-    time = 0
     while word is None:
         if word_id is not None:
             dbhelper.execute(f"update zbp_words set used = 0 where id = {word_id}")
@@ -193,6 +202,5 @@ if __name__ == '__main__':
         if start_urls is None:
             exit(0)
     else:
-
         _crawl(None, zzspider)
     process.start()
