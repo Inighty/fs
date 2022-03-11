@@ -133,7 +133,8 @@ class zzspider(scrapy.Spider):
         self.word = word
         self.word_sub = word_sub
         self.word_id = word_id
-
+        self.toutiao_title = ""
+        self.my_title = ""
         if ConfigUtil.config['collect']['post_id']:
             author = dbhelper.fetch_one("select `log_AuthorID` from zbp_post where log_ID = %s",
                                         [ConfigUtil.config['collect']['post_id']])
@@ -190,11 +191,13 @@ class zzspider(scrapy.Spider):
             return
         article_url = item['source_url']
         title = item['title']
+        self.toutiao_title = item['title']
         if self.word_sub is not None:
             title = f"{self.word}({self.word_sub})"
         else:
             title = f"{self.word}"
         print("real title:" + title)
+        self.my_title = title
         # return
         # article_url = 'http://www.toutiao.com/a6696692803763700232/?channel=&source=search_tab'
         # title = '家有阳台看过来，注意这个小细节，锦上添花！'
@@ -297,6 +300,7 @@ class zzspider(scrapy.Spider):
                 sftp.upload_to_dir(real_path, ConfigUtil.config['sftp']['path'] + "/" + linux_relate_path)
             upload_count += 1
             content_str = content_str.replace(src, '{#ZC_BLOG_HOST#}' + linux_relate_path + f"/{filename}")
+            content_str = content_str.replace(f"alt=\"{self.toutiao_title}\"", f"alt=\"{self.my_title}\"")
 
         if len(bad_imgs) > 0:
             so1 = BeautifulSoup(content_str, "html.parser")
