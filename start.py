@@ -48,7 +48,6 @@ def baidu_relate(start_word, relate_arr):
     text = urllib.parse.quote(start_word, "utf-8")
     url = f"https://www.baidu.com/s?wd={text}&pn=0&inputT={random.randint(500, 4000)}"
     res = Browser().get(url, 5)
-    logger.error("browser res:" + res)
     soup = BeautifulSoup(res, "html.parser")
     _related = soup.findAll("table")[-1].findAll("td")
     if len(_related) != 0:
