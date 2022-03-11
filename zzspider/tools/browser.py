@@ -29,12 +29,12 @@ class Browser(metaclass=Singleton):
         # comment out the following line if you don't want to actually show Chrome instance
         # but you can still see that the crawling is working via output in console
 
-        self.chrome_options.add_argument("--headless")
+        # self.chrome_options.add_argument("--headless")
         self.chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
         self.chrome_options.add_argument('--start-maximized')
         self.chrome_options.add_argument('--no-sandbox')
         self.chrome_options.add_argument("--disable-extensions")
-        self.chrome_options.add_argument("disable-blink-features=AutomationControlled")
+        self.chrome_options.add_argument("--disable-blink-features=AutomationControlled")
         self.chrome_options.add_argument('--ignore-certificate-errors-spki-list')  # 屏蔽ssl error
         self.chrome_options.add_argument('-ignore -ssl-errors')  # 屏蔽ssl error
         No_Image_loading = {"profile.managed_default_content_settings.images": 2}
@@ -57,13 +57,11 @@ class Browser(metaclass=Singleton):
 
         self.driver.execute_cdp_cmd('Network.setUserAgentOverride', {
             "userAgent": f'{settings.USER_AGENT}'})
-        self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-            "source": """
-    Object.defineProperty(navigator, 'webdriver', {
-      get: () => undefined
-    })
-  """
-        })
+        with open(os.path.dirname(os.path.abspath(__file__)) + '/stealth.min.js') as f:
+            js = f.read()
+            self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+                "source": js
+            })
         self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
         return self.driver
 
