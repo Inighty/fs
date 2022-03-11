@@ -28,9 +28,13 @@ class Browser(metaclass=Singleton):
             return self.driver
         options = ChromeOptions()
         options.add_argument("--window-size=1920x1080")
-        options.add_argument("--headless")
+        # options.add_argument("--headless")
         options.ignore_local_proxy_environment_variables()
-        self.driver = uc.Chrome(browser_executable_path=basedir + '/chromedriver', options=options)
+        if os.name != 'nt':
+            ex_path = os.path.join(basedir, 'chromedriver')
+            self.driver = uc.Chrome(browser_executable_path=ex_path, options=options)
+        else:
+            self.driver = uc.Chrome(options=options)
         return self.driver
 
     # 关闭标签
