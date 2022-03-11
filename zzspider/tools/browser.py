@@ -30,6 +30,7 @@ class Browser(metaclass=Singleton):
         options = ChromeOptions()
         options.add_argument("--window-size=1920x1080")
         options.add_argument("--lang=zh")
+        options.add_argument('--ignore-certificate-errors')
         options.ignore_local_proxy_environment_variables()
         self.driver = uc.Chrome(options=options, headless=True)
         return self.driver
