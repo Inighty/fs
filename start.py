@@ -45,7 +45,6 @@ baiduspider = BaiduSpider()
 def baidu_relate(start_word, relate_arr):
     if (len(relate_arr) > 0):
         return
-    Browser().get("https://www.baidu.com", 5)
     text = urllib.parse.quote(start_word, "utf-8")
     url = f"https://www.baidu.com/s?wd={text}&pn=0&inputT={random.randint(500, 4000)}"
     res = Browser().get(url, 5)

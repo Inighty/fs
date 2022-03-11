@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 import logging
 import os
+import random
 import time
 
 import undetected_chromedriver as uc
@@ -28,9 +29,9 @@ class Browser(metaclass=Singleton):
             return self.driver
         options = ChromeOptions()
         options.add_argument("--window-size=1920x1080")
-        options.add_argument("--headless")
+        options.add_argument("--lang=zh")
         options.ignore_local_proxy_environment_variables()
-        self.driver = uc.Chrome(options=options)
+        self.driver = uc.Chrome(options=options, headless=False)
         return self.driver
 
     # 关闭标签
