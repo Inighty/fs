@@ -2,7 +2,7 @@ requests
 Pillow
 Twisted==21.7.0
 beautifulsoup4~=4.6.3
-selenium~=3.141.0
+selenium~=4.0.0
 Scrapy~=2.1.0
 PyMySQL~=0.8.0
 watchdog~=2.1.3
