@@ -313,7 +313,7 @@ class zzspider(scrapy.Spider):
         # exit(0)
 
         self.update_upload_count(upload_count)
-        pure_text = data.text.replace('\'', '\\\'')
+        pure_text = BeautifulSoup(content_str, "html.parser").text.replace('\'', '\\\'')
         intro = pure_text[0:150]
 
         now_time = int(round(time.time()))
