@@ -29,7 +29,7 @@ class Browser(metaclass=Singleton):
         # comment out the following line if you don't want to actually show Chrome instance
         # but you can still see that the crawling is working via output in console
 
-        # self.chrome_options.add_argument("--headless")
+        self.chrome_options.add_argument("--headless")
         self.chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
         self.chrome_options.add_argument('--start-maximized')
         self.chrome_options.add_argument('--no-sandbox')
