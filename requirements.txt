@@ -11,3 +11,4 @@ filetype~=1.0.9
 bs4~=0.0.1
 tencentcloud-sdk-python
 baiduspider
+undetected_chromedriver
