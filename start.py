@@ -45,18 +45,17 @@ baiduspider = BaiduSpider()
 def baidu_relate(start_word, relate_arr):
     if (len(relate_arr) > 0):
         return
-    result_all = baiduspider.search_web(start_word, 1,
-                                        ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
-    if len(result_all.related) == 0:
-        text = urllib.parse.quote(start_word, "utf-8")
-        url = f"https://www.baidu.com/s?wd={text}&pn=0&inputT={random.randint(500, 4000)}"
-        res = Browser().get(url)
-        logger.error("browser res:" + res)
-        soup = BeautifulSoup(res, "html.parser")
-        _related = soup.findAll("table")[-1].findAll("td")
-        if len(_related) != 0:
-            relate_arr.extend([item.text.strip() for item in _related])
+    text = urllib.parse.quote(start_word, "utf-8")
+    url = f"https://www.baidu.com/s?wd={text}&pn=0&inputT={random.randint(500, 4000)}"
+    res = Browser().get(url, 5)
+    logger.error("browser res:" + res)
+    soup = BeautifulSoup(res, "html.parser")
+    _related = soup.findAll("table")[-1].findAll("td")
+    if len(_related) != 0:
+        relate_arr.extend([item.text.strip() for item in _related])
     else:
+        result_all = baiduspider.search_web(start_word, 1,
+                                            ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
         relate_arr.extend(result_all.related)
 
 
