@@ -31,8 +31,13 @@ class Browser(metaclass=Singleton):
         options.add_argument("--window-size=1920x1080")
         options.add_argument("--lang=zh")
         options.add_argument('--ignore-certificate-errors')
+        options.add_argument('--allow-insecure-localhost')
         options.ignore_local_proxy_environment_variables()
-        self.driver = uc.Chrome(options=options, headless=True)
+
+        capabilities = options.to_capabilities()
+        capabilities['acceptInsecureCerts'] = True
+
+        self.driver = uc.Chrome(headless=True, desired_capabilities=capabilities)
         return self.driver
 
     # 关闭标签
