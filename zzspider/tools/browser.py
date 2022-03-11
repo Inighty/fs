@@ -26,7 +26,6 @@ class Browser(metaclass=Singleton):
     def start_driver(self):
         if self.driver is not None:
             return self.driver
-        uc.TARGET_VERSION = 91
         options = ChromeOptions()
         options.add_argument("--window-size=1920x1080")
         options.add_argument("--headless")
