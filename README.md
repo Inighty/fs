@@ -1,5 +1,5 @@
-yum -y install https://dl.google.com/linux/chrome/rpm/stable/x86_64/google-chrome-stable-62.0.3202.62-1-1.x86_64.rpm
-
+yum -y install https://dl.google.com/linux/chrome/rpm/stable/x86_64/google-chrome-stable-99.0.4844.17-1.x86_64.rpm
+wget https://chromedriver.storage.googleapis.com/99.0.4844.17/chromedriver_linux64.zip
 https://chromedriver.storage.googleapis.com/index.html
 
 ##查询版本
