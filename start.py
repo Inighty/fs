@@ -45,6 +45,15 @@ baiduspider = BaiduSpider()
 def baidu_relate(start_word, relate_arr):
     if (len(relate_arr) > 0):
         return
+    time_num = 0
+    while len(relate_arr) == 0 and time_num < 20:
+        result_all = baiduspider.search_web(start_word, 1,
+                                                ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
+        if len(result_all.related) > 0:
+            relate_arr.extend(result_all.related)
+            return
+        time_num += 1
+        time.sleep(1)
     text = urllib.parse.quote(start_word, "utf-8")
     url = f"https://www.baidu.com/s?wd={text}&pn=0&inputT={random.randint(500, 4000)}"
     res = Browser().get(url, 5)
@@ -57,10 +66,6 @@ def baidu_relate(start_word, relate_arr):
 
     if len(_related) != 0:
         relate_arr.extend([item.text.strip() for item in _related])
-    else:
-        result_all = baiduspider.search_web(start_word, 1,
-                                            ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
-        relate_arr.extend(result_all.related)
 
 
 def bing_relate(start_word, relate_arr):
