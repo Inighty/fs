@@ -136,7 +136,7 @@ def get_start_urls(cate):
 def filter_duplicate(urlss, w):
     res = dbhelper.fetch_one(
         "select count(*) as num from zbp_words where url = '" + urlss[0] + "'")
-    if res['num'] == 1:
+    if res['num'] == 0:
         dbhelper.execute(f"insert into zbp_words (`word`) values ('{w}')")
         return_id = dbhelper.cur.lastrowid
         return urlss, return_id
@@ -197,6 +197,9 @@ if __name__ == '__main__':
         start_urls, word_id = filter_duplicate(start_urls, start_word)
         if start_urls is None:
             exit(0)
+        process.crawl(zzspider, start_urls=start_urls, cate=cate, start_word=start_word, word=word,
+                      word_sub=word_sub,
+                      word_id=word_id)
     else:
         _crawl(None, zzspider)
     process.start()
