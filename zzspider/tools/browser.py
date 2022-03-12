@@ -32,6 +32,7 @@ class Browser(metaclass=Singleton):
         options.add_argument("--lang=zh")
         options.add_argument('--ignore-certificate-errors')
         options.add_argument('--allow-insecure-localhost')
+        options.add_argument('--allow-running-insecure-content')
         options.ignore_local_proxy_environment_variables()
 
         capabilities = options.to_capabilities()
