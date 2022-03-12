@@ -35,8 +35,10 @@ logging.getLogger().handlers = [logHandler]
 dbhelper = DBHelper()
 sleep_time = int(ConfigUtil.config['main']['sleep'])
 start_hour = ConfigUtil.config['main']['start_hour'].split(',')
+start_hour = [int(numeric_string) for numeric_string in start_hour]
 start_hour.sort()
 end_hour = ConfigUtil.config['main']['end_hour'].split(',')
+end_hour = [int(numeric_string) for numeric_string in end_hour]
 end_hour.sort()
 cates = ConfigUtil.config['collect']['cate'].split(',')
 baiduspider = BaiduSpider()
@@ -159,12 +161,11 @@ def _crawl(result, spider):
                              word_id=word_id)
     range_seconds = sleep_time
     now = datetime.datetime.now()
-    if str(now.hour) in end_hour:
+    if now.hour in end_hour:
         logger.error("当前时间：" + str(now.hour))
         # 计算距离下次执行时间
         nextFlag = True
         for st in start_hour:
-            st = int(st)
             if st > now.hour:
                 # 找到下次开启的时间
                 nextFlag = False
@@ -174,7 +175,7 @@ def _crawl(result, spider):
                 break
         if nextFlag:
             # 跨天
-            st = int(start_hour[0])
+            st = start_hour[0]
             diff = abs(24 - now.hour + st)
             range_seconds = diff * 3600
             logger.error("找到下次跨天开启的时间：" + str(range_seconds) + "秒")
