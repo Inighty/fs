@@ -8,4 +8,4 @@ title_filter = 天华易学,易学圣手
 filter = 关注我们,敬请关注,我是华丽丽的分割线,推荐阅读,联系我,微信公众号,查看更多,期待你的关注,微信号,关注我,未经授权,微信,必究,来源：,了解更多,欢迎大家,观点仅代表作者本人,投稿邮箱,图源,邮箱：,投稿邮箱
 
 [proxy]
-url = 42.193.22.183:31280
+url = https://proxy.yunkv.com/extract?Key=4FD7D75C&Num=1&AreaId=&Isp=&DataFormat=txt&DataSeparator=%%5Cr%%5Cn&Detail=0

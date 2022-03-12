@@ -18,8 +18,8 @@ from twisted.internet.task import deferLater
 from zzspider import settings
 from zzspider.config import ConfigUtil
 from zzspider.spiders.zzspider import zzspider
-from zzspider.tools.browser import Browser
 from zzspider.tools.dbhelper import DBHelper
+from zzspider.tools.proxyip import ProxyIp
 from zzspider.tools.same_word import get_best_word
 
 logger = logging.getLogger(__name__)
@@ -40,40 +40,33 @@ end_hour = ConfigUtil.config['main']['end_hour'].split(',')
 end_hour.sort()
 cates = ConfigUtil.config['collect']['cate'].split(',')
 baiduspider = BaiduSpider()
+proxy_util = ProxyIp()
 
 
 def baidu_relate(start_word, relate_arr):
     if (len(relate_arr) > 0):
         return
-    time_num = 0
-    while len(relate_arr) == 0 and time_num < 20:
-        result_all = baiduspider.search_web(start_word, 1,
-                                                ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'])
-        if len(result_all.related) > 0:
-            relate_arr.extend(result_all.related)
-            return
-        time_num += 1
-        time.sleep(1)
-    text = urllib.parse.quote(start_word, "utf-8")
-    url = f"https://www.baidu.com/s?wd={text}&pn=0&inputT={random.randint(500, 4000)}"
-    res = Browser().get(url, 5)
-    soup = BeautifulSoup(res, "html.parser")
-    _related = []
-    try:
-        _related = soup.findAll("table")[-1].findAll("td")
-    except Exception as e:
-        logger.error("query:" + soup.text)
-
-    if len(_related) != 0:
-        relate_arr.extend([item.text.strip() for item in _related])
+    proxy_ip = {
+        "http": "http://" + proxy_util.get(),  # HTTP代理
+        "https": "http://" + proxy_util.get()  # HTTPS代理
+    }
+    result_all = baiduspider.search_web(start_word, 1,
+                                        ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'],
+                                        proxies=proxy_ip)
+    if len(result_all.related) > 0:
+        relate_arr.extend(result_all.related)
 
 
 def bing_relate(start_word, relate_arr):
     if (len(relate_arr) > 0):
         return
+    proxy_ip = {
+        "http": "http://" + proxy_util.get(),  # HTTP代理
+        "https": "http://" + proxy_util.get()  # HTTPS代理
+    }
     url_word = urllib.parse.quote(start_word)
     bing_url = u'{}/search?q={}&search=&form=QBLH'.format('https://cn.bing.com', url_word)
-    result = requests.get(bing_url)
+    result = requests.get(bing_url, proxies=proxy_ip)
     if result.status_code == 200:
         tags = BeautifulSoup(result.text, "html.parser")
         rs = tags.find('div', {'class': 'b_rs'})
