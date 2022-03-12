@@ -15,7 +15,7 @@ class PostPipeline:
         return item
 
     def close_spider(self, spider):
-        pass
-        # browser.close()
+        # pass
+        browser.close()
         # browser.close()
         # sftp.close()
