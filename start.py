@@ -64,7 +64,7 @@ def bing_relate(start_word, relate_arr):
         return
     proxy_ip = {
         "http": "http://" + proxy_util.get(),  # HTTP代理
-        "https": "http://" + proxy_util.get()  # HTTPS代理
+        "https": "https://" + proxy_util.get()  # HTTPS代理
     }
     url_word = urllib.parse.quote(start_word)
     bing_url = u'{}/search?q={}&search=&form=QBLH'.format('https://cn.bing.com', url_word)
