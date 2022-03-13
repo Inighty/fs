@@ -52,12 +52,17 @@ def baidu_relate(start_word, relate_arr):
         "http": "http://" + proxy_util.get(),  # HTTP代理
         "https": "http://" + proxy_util.get()  # HTTPS代理
     }
+    time_num = 0
     try:
-        result_all = baiduspider.search_web(start_word, 1,
+        while len(relate_arr) == 0 and time_num < 10:
+            result_all = baiduspider.search_web(start_word, 1,
                                         ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'],
                                         proxies=proxy_ip)
-        if len(result_all.related) > 0:
-            relate_arr.extend(result_all.related)
+            if len(result_all.related) > 0:
+                relate_arr.extend(result_all.related)
+            else:
+                time_num += 1
+                time.sleep(1)
     except:
         pass
 
