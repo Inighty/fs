@@ -1,8 +1,6 @@
 # ！/usr/bin/env python
 # -*- coding: UTF-8 -*-
 import logging
-import telnetlib
-import time
 
 import requests
 
@@ -21,22 +19,34 @@ class ProxyIp(metaclass=Singleton):
         self.last_time = None
 
     def get(self):
-        if not self.check_time():
+        if not self.check():
             return self.get_new()
         return self.ip
+
+    def get_proxy(self):
+        return {
+            "http": "http://" + self.get()
+        }
 
     def get_new(self):
         res = requests.get(proxy_url)
         self.ip = res.text
         return self.ip
 
-    def check_time(self):
-        now = time.time()
-        if self.last_time is None:
-            self.last_time = now
+    def check(self):
+        if self.ip is None:
             return False
-        else:
-            difference = int(now - self.last_time)
-            if difference >= 60:
+        proxies = {
+            "http": "http://" + self.ip
+        }
+        r = None
+        try:
+            r = requests.get("http://www.baidu.com/", proxies=proxies)
+            if r.status_code == 407:
                 return False
-        return True
+        except:
+            pass
+        if r:
+            return True
+        else:
+            return False
