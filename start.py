@@ -94,6 +94,7 @@ def process_relate(start_word):
 def get_start_urls(cate):
     sql = 'SELECT id, `word` FROM `zbp_words` WHERE `cate` = %s and `used` = 0 limit 1'
     word = dbhelper.fetch_one(sql, [cate])
+    print(word)
     if word is None or word['word'] is None or word['word'] == '':
         return None, None, None, None, None
     dbhelper.execute(f"update zbp_words set used = 1 where id = {word['id']}")
