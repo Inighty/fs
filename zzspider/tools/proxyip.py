@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 import logging
 import telnetlib
+import time
 
 import requests
 
@@ -20,16 +21,22 @@ class ProxyIp(metaclass=Singleton):
         self.last_time = None
 
     def get(self):
-        if self.ip is None:
+        if not self.check_time():
             return self.get_new()
-        else:
-            try:
-                telnetlib.Telnet(self.ip.split(':')[0], self.ip.split(':')[1], timeout=2)
-            except:
-                return self.get_new()
         return self.ip
 
     def get_new(self):
         res = requests.get(proxy_url)
         self.ip = res.text
         return self.ip
+
+    def check_time(self):
+        now = time.time()
+        if self.last_time is None:
+            self.last_time = now
+            return False
+        else:
+            difference = int(now - self.last_time)
+            if difference >= 60:
+                return False
+        return True
