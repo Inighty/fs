@@ -46,6 +46,7 @@ proxy_util = ProxyIp()
 
 
 def baidu_relate(start_word, relate_arr):
+    logger.error("baidu relate start")
     if (len(relate_arr) > 0):
         return
     proxy_ip = {
@@ -65,9 +66,11 @@ def baidu_relate(start_word, relate_arr):
     except Exception as e:
         logger.error(e)
         pass
+    logger.error("baidu relate end")
 
 
 def bing_relate(start_word, relate_arr):
+    logger.error("bing relate start")
     if (len(relate_arr) > 0):
         return
     url_word = urllib.parse.quote(start_word)
@@ -78,6 +81,7 @@ def bing_relate(start_word, relate_arr):
         rs = tags.find('div', {'class': 'b_rs'})
         if rs is not None:
             relate_arr.extend([item.text for item in rs.find_all('li')])
+    logger.error("bing relate end")
 
 
 def process_relate(start_word):
