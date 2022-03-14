@@ -40,13 +40,16 @@ class DBHelper(metaclass=Singleton):
         # 如果数据打开，则关闭；否则没有操作
         if self.cur:
             self.cur.close()
+            self.cur = None
         if self.conn:
             self.conn.close()
+            self.conn = None
         return True
 
     # 执行数据库的sq语句,主要用来做插入操作
     def execute(self, sql, params=None):
         try:
+            self.connect_database()
             if self.conn and self.cur:
                 # 正常逻辑，执行sql，提交操作
                 self.cur.execute(sql, params)
