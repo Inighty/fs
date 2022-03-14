@@ -155,6 +155,7 @@ def sleep(self, *args, seconds):
 
 def _crawl(result, spider):
     cate = random.choice(cates)
+    print("cate" + str(cate))
     start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
     while word is None:
         if word_id is not None:
@@ -184,6 +185,7 @@ def _crawl(result, spider):
             diff = abs(24 - now.hour + st)
             range_seconds = diff * 3600
             logger.error("找到下次跨天开启的时间：" + str(range_seconds) + "秒")
+    print("sleep time: " + str(range_seconds) + "s")
     deferred.addCallback(sleep, seconds=range_seconds)
     deferred.addCallback(_crawl, spider)
     return deferred
