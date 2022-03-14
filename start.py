@@ -150,6 +150,7 @@ def filter_duplicate(urlss, w):
 
 def sleep(self, *args, seconds):
     """Non blocking sleep callback"""
+    print("sleep time: " + str(seconds) + "s")
     return deferLater(reactor, seconds, lambda: None)
 
 
@@ -185,7 +186,6 @@ def _crawl(result, spider):
             diff = abs(24 - now.hour + st)
             range_seconds = diff * 3600
             logger.error("找到下次跨天开启的时间：" + str(range_seconds) + "秒")
-    print("sleep time: " + str(range_seconds) + "s")
     deferred.addCallback(sleep, seconds=range_seconds)
     deferred.addCallback(_crawl, spider)
     return deferred
