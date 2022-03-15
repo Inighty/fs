@@ -42,11 +42,12 @@ class ProxyIp(metaclass=Singleton):
         }
         r = None
         try:
-            r = requests.get("http://www.baidu.com/", proxies=proxies)
+            r = requests.get("http://www.baidu.com/", proxies=proxies, timeout=10)
             logger.error("status return :" + str(r.status_code))
             if r.status_code == 407:
                 return False
-        except:
+        except Exception as e:
+            logger.error("check ip error:" + e)
             pass
         if r:
             return True
