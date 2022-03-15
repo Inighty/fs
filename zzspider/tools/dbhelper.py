@@ -33,6 +33,8 @@ class DBHelper(metaclass=Singleton):
                 logger.error("connectDatabase failed")
                 return False
             self.cur = self.conn.cursor(pymysql.cursors.DictCursor)
+        else:
+            self.conn.ping(reconnect=True)
         return True
 
     # 关闭数据库
