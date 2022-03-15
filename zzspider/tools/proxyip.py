@@ -34,6 +34,7 @@ class ProxyIp(metaclass=Singleton):
         return self.ip
 
     def check(self):
+        logger.error("start check!")
         if self.ip is None:
             return False
         proxies = {
@@ -42,6 +43,7 @@ class ProxyIp(metaclass=Singleton):
         r = None
         try:
             r = requests.get("http://www.baidu.com/", proxies=proxies)
+            logger.error("status return :" + str(r.status_code))
             if r.status_code == 407:
                 return False
         except:
