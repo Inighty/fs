@@ -86,12 +86,12 @@ def bing_relate(start_word, relate_arr):
 
 def process_relate(start_word):
     relate_arr = []
-    if random.random() < .5:
-        baidu_relate(start_word, relate_arr)
-        bing_relate(start_word, relate_arr)
-    else:
-        bing_relate(start_word, relate_arr)
-        baidu_relate(start_word, relate_arr)
+    # if random.random() < .5:
+    baidu_relate(start_word, relate_arr)
+    bing_relate(start_word, relate_arr)
+    # else:
+    #     bing_relate(start_word, relate_arr)
+    #     baidu_relate(start_word, relate_arr)
     return relate_arr
 
 
