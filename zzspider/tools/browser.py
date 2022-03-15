@@ -66,7 +66,7 @@ class Browser(metaclass=Singleton):
             self.driver = None
 
     # 执行数据库的sq语句,主要用来做插入操作
-    def get(self, url, sleep=10):
+    def get(self, url, sleep=5):
         driver = self.start_driver()
         driver.get(url)
         time.sleep(sleep)
