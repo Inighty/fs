@@ -49,17 +49,16 @@ def baidu_relate(start_word, relate_arr):
     logger.error("baidu relate start")
     if (len(relate_arr) > 0):
         return
-    proxy_ip = {
-        "http": "http://" + proxy_util.get(),  # HTTP代理
-        "https": "http://" + proxy_util.get()  # HTTPS代理
-    }
     time_num = 0
     try:
         while len(relate_arr) == 0 and time_num < 100:
             logger.error("baidu relate time:" + str(time_num))
             result_all = baiduspider.search_web(start_word, 1,
                                                 ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'],
-                                                proxies=proxy_ip)
+                                                proxies={
+                                                    "http": "http://" + proxy_util.get(),
+                                                    "https": "http://" + proxy_util.get()
+                                                })
             if len(result_all.related) > 0:
                 relate_arr.extend(result_all.related)
             else:
