@@ -50,8 +50,8 @@ def baidu_relate(start_word, relate_arr):
     if (len(relate_arr) > 0):
         return
     time_num = 0
-    try:
-        while len(relate_arr) == 0 and time_num < 100:
+    while len(relate_arr) == 0 and time_num < 100:
+        try:
             proxy_ip = {
                 "http": "http://" + proxy_util.get(),  # HTTP代理
                 "https": "http://" + proxy_util.get()  # HTTPS代理
@@ -65,9 +65,9 @@ def baidu_relate(start_word, relate_arr):
                 relate_arr.extend(result_all.related)
             else:
                 time_num += 1
-    except Exception as e:
-        logger.error(e)
-        pass
+        except Exception as e:
+            logger.error(e)
+            pass
     logger.error("baidu relate end")
 
 
