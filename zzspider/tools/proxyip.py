@@ -1,6 +1,7 @@
 # ！/usr/bin/env python
 # -*- coding: UTF-8 -*-
 import logging
+import traceback
 
 import requests
 
@@ -47,7 +48,7 @@ class ProxyIp(metaclass=Singleton):
             if r.status_code == 407:
                 return False
         except Exception as e:
-            logger.error("check ip error:" + e)
+            logger.error("check ip error:" + traceback.format_exc())
             pass
         if r:
             return True
