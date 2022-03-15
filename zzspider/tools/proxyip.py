@@ -43,7 +43,7 @@ class ProxyIp(metaclass=Singleton):
         }
         r = None
         try:
-            r = requests.get("http://www.baidu.com/", proxies=proxies, timeout=10)
+            r = requests.get("http://www.baidu.com/", proxies=proxies, timeout=5)
             logger.error("status return :" + str(r.status_code))
             if r.status_code == 407:
                 return False
