@@ -56,6 +56,7 @@ def baidu_relate(start_word, relate_arr):
     time_num = 0
     try:
         while len(relate_arr) == 0 and time_num < 100:
+            logger.error("baidu relate time:" + str(time_num))
             result_all = baiduspider.search_web(start_word, 1,
                                                 ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'],
                                                 proxies=proxy_ip)
