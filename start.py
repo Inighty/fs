@@ -96,7 +96,7 @@ def process_relate(start_word):
 
 
 def get_start_urls(cate):
-    sql = 'SELECT id, `word` FROM `zbp_words` WHERE `cate` = %s and `used` = 0 limit 1'
+    sql = 'SELECT id, `word` FROM `zbp_words` WHERE `cate` = %s and `used` = 0 order by id desc limit 1'
     word = dbhelper.fetch_one(sql, [cate])
     print(word)
     if word is None or word['word'] is None or word['word'] == '':
