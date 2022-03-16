@@ -2,6 +2,7 @@ import datetime
 import json
 import logging
 import os
+import platform
 import random
 import time
 import urllib.parse
@@ -58,11 +59,17 @@ def baidu_relate(start_word, relate_arr):
                 "https": "http://" + proxy_util.get()  # HTTPS代理
             }
             logger.error("baidu relate time:" + str(time_num))
-            with timeout_error(seconds=10):
+            if platform.system() == 'Windows':
                 result_all = baiduspider.search_web(start_word, 1,
                                                     ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc',
                                                      'music'],
                                                     proxies=proxy_ip)
+            else:
+                with timeout_error(seconds=10):
+                    result_all = baiduspider.search_web(start_word, 1,
+                                                        ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc',
+                                                         'music'],
+                                                        proxies=proxy_ip)
             logger.error("baidu relate search done:")
             if len(result_all.related) > 0:
                 relate_arr.extend(result_all.related)
