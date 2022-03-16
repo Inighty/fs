@@ -15,7 +15,9 @@ class Sftp(metaclass=Singleton):
         self.t = paramiko.Transport(host, 22)
         self.t.banner_timeout = 10
         self.t.connect(username=user, password=pwd)
+        self.t.set_keepalive(60)
         self.sftp = paramiko.SFTPClient.from_transport(self.t)
+        self.sftp.set_keepalive(60)
         self.ssh = paramiko.SSHClient()
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         self.ssh.connect(hostname=host, port=22, username=user, password=pwd)
