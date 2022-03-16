@@ -21,6 +21,7 @@ from zzspider.spiders.zzspider import zzspider
 from zzspider.tools.dbhelper import DBHelper
 from zzspider.tools.proxyip import ProxyIp
 from zzspider.tools.same_word import get_best_word
+from zzspider.tools.timeout_err import timeout_error
 
 logger = logging.getLogger(__name__)
 
@@ -57,9 +58,11 @@ def baidu_relate(start_word, relate_arr):
                 "https": "http://" + proxy_util.get()  # HTTPS代理
             }
             logger.error("baidu relate time:" + str(time_num))
-            result_all = baiduspider.search_web(start_word, 1,
-                                                ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc', 'music'],
-                                                proxies=proxy_ip)
+            with timeout_error(seconds=10):
+                result_all = baiduspider.search_web(start_word, 1,
+                                                    ['news', 'video', 'baike', 'tieba', 'blog', 'gitee', 'calc',
+                                                     'music'],
+                                                    proxies=proxy_ip)
             logger.error("baidu relate search done:")
             if len(result_all.related) > 0:
                 relate_arr.extend(result_all.related)
