@@ -21,7 +21,7 @@ from zzspider.config import ConfigUtil
 from zzspider.spiders.zzspider import zzspider
 from zzspider.tools.dbhelper import DBHelper
 from zzspider.tools.proxyip import ProxyIp
-from zzspider.tools.same_word import get_best_word
+from zzspider.tools.same_word import get_best_word, get_real_arr
 from zzspider.tools.timeout_err import timeout_error
 
 logger = logging.getLogger(__name__)
@@ -146,7 +146,8 @@ def get_start_urls(cate):
     if len(relate_arr) > 0:
         if title in relate_arr:
             relate_arr.remove(title)
-        sub_title = get_best_word(start_word, relate_arr, None)
+        real_relate = get_real_arr(title, relate_arr)
+        sub_title = get_best_word(start_word, real_relate, None)
         if sub_title is None:
             return None, None, None, None, word['id']
     else:
