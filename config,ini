@@ -1,4 +1,5 @@
 [main]
+thread_size = 3
 sleep = 2
 start_hour = 8,13
 end_hour = 12,23

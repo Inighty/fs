@@ -43,6 +43,7 @@ end_hour = ConfigUtil.config['main']['end_hour'].split(',')
 end_hour = [int(numeric_string) for numeric_string in end_hour]
 end_hour.sort()
 cates = ConfigUtil.config['collect']['cate'].split(',')
+thread_size = int(ConfigUtil.config['main']['thread_size'])
 baiduspider = BaiduSpider()
 proxy_util = ProxyIp()
 
@@ -171,7 +172,7 @@ def sleep(self, *args, seconds):
     return deferLater(reactor, seconds, lambda: None)
 
 
-def _crawl(result, spider):
+def _crawl(result, spider, name=None):
     cate = random.choice(cates)
     print("cate" + str(cate))
     start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
@@ -182,7 +183,8 @@ def _crawl(result, spider):
         start_urls, start_word, word, word_sub, word_id = get_start_urls(cate)
     deferred = process.crawl(zzspider, start_urls=start_urls, cate=cate, start_word=start_word, word=word,
                              word_sub=word_sub,
-                             word_id=word_id)
+                             word_id=word_id,
+                             name=name)
     range_seconds = sleep_time
     now = datetime.datetime.now()
     if now.hour in end_hour:
@@ -204,7 +206,7 @@ def _crawl(result, spider):
             range_seconds = diff * 3600
             logger.error("找到下次跨天开启的时间：" + str(range_seconds) + "秒")
     deferred.addCallback(sleep, seconds=range_seconds)
-    deferred.addCallback(_crawl, spider)
+    deferred.addCallback(_crawl, spider, name)
     return deferred
 
 
@@ -225,5 +227,6 @@ if __name__ == '__main__':
                       word_sub=word_sub,
                       word_id=word_id)
     else:
-        _crawl(None, zzspider)
+        for item in range(1, thread_size):
+            _crawl(None, zzspider, "spider" + str(item))
     process.start()

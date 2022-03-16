@@ -126,7 +126,7 @@ class zzspider(scrapy.Spider):
     # allowed_domains = ['toutiao.com']
     start_urls = []
 
-    def __init__(self, start_urls, cate, start_word, word, word_sub, word_id):
+    def __init__(self, start_urls, cate, start_word, word, word_sub, word_id, name=None):
         self.start_urls = start_urls
         self.cate = cate
         self.start_word = start_word
@@ -135,6 +135,8 @@ class zzspider(scrapy.Spider):
         self.word_id = word_id
         self.toutiao_title = ""
         self.my_title = ""
+        if name is not None:
+            self.name = name
         if ConfigUtil.config['collect']['post_id']:
             author = dbhelper.fetch_one("select `log_AuthorID` from zbp_post where log_ID = %s",
                                         [ConfigUtil.config['collect']['post_id']])
