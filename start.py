@@ -73,8 +73,8 @@ def baidu_relate(start_word, relate_arr):
                                                         proxies=proxy_ip)
             logger.error("baidu relate search done:")
             if len(result_all.related) > 0:
-                if len(result_all.related) == 1 and len(result_all.related[0]) > 300 and len(
-                        result_all.related[0]) == 0:
+                if len(result_all.related) == 1 and (
+                        len(result_all.related[0]) > 300 or len(result_all.related[0]) == 0):
                     break
                 else:
                     relate_arr.extend(result_all.related)
