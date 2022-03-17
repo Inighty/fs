@@ -29,7 +29,7 @@ sentence_pattern = r',|\.|/|;|\'|`|\[|\]|<|>|\?|:|：|"|\{|\}|\~|!|@|#|\$|%|\^|&
 sitemap_path = ConfigUtil.config['main']['sitemap_path']
 
 
-def baidu_push():
+def baidu_push(post_id):
     if ConfigUtil.config['main']['baidu_push_switch'] != '1':
         return
     basedir = os.path.dirname(os.path.realpath('__file__'))
@@ -49,11 +49,9 @@ def baidu_push():
     else:
         remain = 3000
     if remain > 0:
-        id = dbhelper.fetch_one(f"select log_ID from zbp_post order by log_ID desc limit 1")
-        id = id['log_ID']
         push_url = 'http://data.zz.baidu.com/urls?site=' + ConfigUtil.config['main']['url'] + '&token=' + \
                    ConfigUtil.config['main']['baidu_push_token']
-        url = ConfigUtil.config['main']['url'] + f"/s/{id}.html"
+        url = ConfigUtil.config['main']['url'] + f"/s/{post_id}.html"
         response = requests.post(push_url, data=url)
         res_dict = json.loads(response.text)
 
@@ -87,7 +85,7 @@ def after_insert_post(word_id, author, cate, url, title, post_id):
     if now.hour == 1 and os.path.exists(sitemap_path):
         os.remove(sitemap_path)
         requests.get("https://www.baikexueshe.com/sitemap/map.xml")
-    baidu_push()
+    baidu_push(post_id)
 
 
 def duplicate_title(word, result):
