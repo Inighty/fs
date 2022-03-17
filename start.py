@@ -73,7 +73,8 @@ def baidu_relate(start_word, relate_arr):
                                                         proxies=proxy_ip)
             logger.error("baidu relate search done:")
             if len(result_all.related) > 0:
-                if len(result_all.related) == 1 and len(result_all.related[0]) > 300:
+                if len(result_all.related) == 1 and len(result_all.related[0]) > 300 and len(
+                        result_all.related[0]) == 0:
                     break
                 else:
                     relate_arr.extend(result_all.related)
@@ -120,7 +121,7 @@ def get_start_urls(cate):
     dbhelper.execute(f"update zbp_words set used = 1 where id = {word['id']}")
     timestamp = time.time()
     word['word'] = word['word'].replace(" ", "")
-    # word['word'] = "高三文科学习方法"
+    # word['word'] = "办理学位证书"
     start_word = word['word']
     title = word['word']
     down_words = []
