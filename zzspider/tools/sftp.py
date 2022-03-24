@@ -25,17 +25,33 @@ class Sftp(metaclass=Singleton):
         self.t.close()
         self.ssh.close()
 
+    def reconn(self):
+        self.__init__(host=settings.SFTP_HOST, user=settings.SFTP_USER,
+                      pwd=settings.SFTP_PASSWD)
+
     def upload(self, local_path, remote_path):
+        if not self.t.is_active() or not self.t.is_alive():
+            self.close()
+            self.__init__(host=settings.SFTP_HOST, user=settings.SFTP_USER,
+                          pwd=settings.SFTP_PASSWD)
         self.sftp.put(local_path, remote_path)
         return True
 
     def upload_to_dir(self, local_path, remote_path):
+        if not self.t.is_active() or not self.t.is_alive():
+            self.close()
+            self.__init__(host=settings.SFTP_HOST, user=settings.SFTP_USER,
+                          pwd=settings.SFTP_PASSWD)
         self.ssh.exec_command("mkdir -p " + remote_path)
         head, tail = os.path.split(local_path)
         self.sftp.put(local_path, remote_path + '/' + tail)
         return True
 
     def upload_batch_to_dir(self, local_paths, remote_path):
+        if not self.t.is_active() or not self.t.is_alive():
+            self.close()
+            self.__init__(host=settings.SFTP_HOST, user=settings.SFTP_USER,
+                          pwd=settings.SFTP_PASSWD)
         self.ssh.exec_command("mkdir -p " + remote_path)
         for path in local_paths:
             head, tail = os.path.split(path)
