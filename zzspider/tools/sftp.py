@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 # coding: utf-8
+import logging
 import os
 
 import paramiko
+from paramiko import SSHException
 
 from zzspider import settings
 from zzspider.tools.singleton_type import Singleton
+
+logger = logging.getLogger(__name__)
 
 
 class Sftp(metaclass=Singleton):
@@ -26,33 +30,30 @@ class Sftp(metaclass=Singleton):
         self.ssh.close()
 
     def reconn(self):
+        self.close()
         self.__init__(host=settings.SFTP_HOST, user=settings.SFTP_USER,
                       pwd=settings.SFTP_PASSWD)
 
     def upload(self, local_path, remote_path):
-        if not self.t.is_active() or not self.t.is_alive():
-            self.close()
-            self.__init__(host=settings.SFTP_HOST, user=settings.SFTP_USER,
-                          pwd=settings.SFTP_PASSWD)
         self.sftp.put(local_path, remote_path)
         return True
 
     def upload_to_dir(self, local_path, remote_path):
-        if not self.t.is_active() or not self.t.is_alive():
-            self.close()
-            self.__init__(host=settings.SFTP_HOST, user=settings.SFTP_USER,
-                          pwd=settings.SFTP_PASSWD)
-        self.ssh.exec_command("mkdir -p " + remote_path)
+        try:
+            self.ssh.exec_command("mkdir -p " + remote_path)
+        except SSHException as e:
+            logger.error(e)
+            self.reconn()
         head, tail = os.path.split(local_path)
         self.sftp.put(local_path, remote_path + '/' + tail)
         return True
 
     def upload_batch_to_dir(self, local_paths, remote_path):
-        if not self.t.is_active() or not self.t.is_alive():
-            self.close()
-            self.__init__(host=settings.SFTP_HOST, user=settings.SFTP_USER,
-                          pwd=settings.SFTP_PASSWD)
-        self.ssh.exec_command("mkdir -p " + remote_path)
+        try:
+            self.ssh.exec_command("mkdir -p " + remote_path)
+        except SSHException as e:
+            logger.error(e)
+            self.reconn()
         for path in local_paths:
             head, tail = os.path.split(path)
             self.sftp.put(path, remote_path + '/' + tail)
