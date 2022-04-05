@@ -298,6 +298,7 @@ class zzspider(scrapy.Spider):
             if ConfigUtil.config['sftp']['enable'] == '1':
                 sftp = Sftp()
                 sftp.upload_to_dir(real_path, ConfigUtil.config['sftp']['path'] + "/" + linux_relate_path)
+                os.remove(real_path)
             upload_count += 1
             content_str = content_str.replace(src, '{#ZC_BLOG_HOST#}' + linux_relate_path + f"/{filename}")
             content_str = content_str.replace(f"alt=\"{self.toutiao_title}\"", f"alt=\"{self.my_title}\"")
