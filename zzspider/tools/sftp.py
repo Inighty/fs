@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 class Sftp(metaclass=Singleton):
     # 构造函数
     def __init__(self, host=settings.SFTP_HOST, user=settings.SFTP_USER,
-                 pwd=settings.SFTP_PASSWD):
-        self.t = paramiko.Transport(host, 22)
+                 pwd=settings.SFTP_PASSWD, port=settings.SFTP_PORT):
+        self.t = paramiko.Transport(host, port)
         self.t.banner_timeout = 10
         self.t.connect(username=user, password=pwd)
         self.t.set_keepalive(60)
