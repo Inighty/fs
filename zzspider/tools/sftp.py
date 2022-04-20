@@ -23,7 +23,7 @@ class Sftp(metaclass=Singleton):
         self.sftp = paramiko.SFTPClient.from_transport(self.t)
         self.ssh = paramiko.SSHClient()
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        self.ssh.connect(hostname=host, port=22, username=user, password=pwd)
+        self.ssh.connect(hostname=host, port=port, username=user, password=pwd)
 
     def close(self):
         self.t.close()
@@ -32,7 +32,7 @@ class Sftp(metaclass=Singleton):
     def reconn(self):
         self.close()
         self.__init__(host=settings.SFTP_HOST, user=settings.SFTP_USER,
-                      pwd=settings.SFTP_PASSWD)
+                      pwd=settings.SFTP_PASSWD, port=settings.SFTP_PORT)
 
     def upload(self, local_path, remote_path):
         self.sftp.put(local_path, remote_path)
