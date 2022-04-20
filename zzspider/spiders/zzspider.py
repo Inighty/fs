@@ -211,7 +211,7 @@ class zzspider(scrapy.Spider):
             for attribute in ["class", "style"]:
                 del tag[attribute]
         data = soup.find_all('article')[0]
-        imgs = data.find_all('img')
+        imgs = data.find_all('img', attrs={'src': True})
         img_temp = list(set([item.attrs['src'] for item in imgs]))
         contents = data.find_all(['img', 'p', 'ul', 'h1', 'ol', 'table', 'pre'])
         content_str = ''
