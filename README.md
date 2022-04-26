@@ -17,3 +17,8 @@ pip3 install wheel
 pip3 install cryptography --only-binary=:all:
 
 yum install -y python3-devel
+
+
+
+crontab:
+0 8 * * * cd /home/fs; /usr/bin/python3 /home/fs/start.py

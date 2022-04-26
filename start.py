@@ -205,10 +205,11 @@ def _crawl(result, spider, name=None):
                 break
         if nextFlag:
             # 跨天
-            st = start_hour[0]
-            diff = abs(24 - now.hour + st)
-            range_seconds = diff * 3600
-            logger.error("找到下次跨天开启的时间：" + str(range_seconds) + "秒")
+            # st = start_hour[0]
+            # diff = abs(24 - now.hour + st)
+            # range_seconds = diff * 3600
+            # logger.error("找到下次跨天开启的时间：" + str(range_seconds) + "秒")
+            spider.close("close")
     deferred.addCallback(sleep, seconds=range_seconds)
     deferred.addCallback(_crawl, spider, name)
     return deferred
