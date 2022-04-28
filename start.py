@@ -209,7 +209,7 @@ def _crawl(result, spider, name=None):
             # diff = abs(24 - now.hour + st)
             # range_seconds = diff * 3600
             # logger.error("找到下次跨天开启的时间：" + str(range_seconds) + "秒")
-            spider.close("close")
+            exit(0)
     deferred.addCallback(sleep, seconds=range_seconds)
     deferred.addCallback(_crawl, spider, name)
     return deferred
