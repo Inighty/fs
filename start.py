@@ -126,10 +126,11 @@ def get_start_urls(cate):
     title = word['word']
     down_words = []
     url_word = urllib.parse.quote(start_word)
-    res = requests.get(
-        f"https://www.baidu.com/sugrec?pre=1&p=3&ie=utf-8&json=1&prod=pc&from=pc_web&wd={url_word}",
-        verify=False)
+    res = None
     try:
+        res = requests.get(
+            f"https://www.baidu.com/sugrec?pre=1&p=3&ie=utf-8&json=1&prod=pc&from=pc_web&wd={url_word}",
+            verify=False)
         if res.ok:
             logger.error("baidu drop:" + res.text)
             res_json = json.loads(res.text)
@@ -143,7 +144,8 @@ def get_start_urls(cate):
         logger.error(e)
         pass
     finally:
-        res.close()
+        if res is not None:
+            res.close()
 
     url = f"""https://so.toutiao.com/search?dvpf=pc&source=input&keyword={title}&filter_vendor=site&index_resource=site&filter_period=all&min_time=0&max_time={timestamp}"""
 
