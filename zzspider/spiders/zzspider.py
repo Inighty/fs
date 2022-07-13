@@ -249,6 +249,10 @@ class zzspider(scrapy.Spider):
             if not leap_flag:
                 content_str += str(item)
 
+        for f in ConfigUtil.config['collect']['content_filter'].split(','):
+            if content_str.__contains__(f):
+                return
+
         bad_imgs = []
         upload_count = 0
         for src in img_temp:
