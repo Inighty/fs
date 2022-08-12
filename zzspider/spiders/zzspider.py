@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
+import html
 import json
 import logging
 import os
@@ -216,6 +217,7 @@ class zzspider(scrapy.Spider):
         contents = data.find_all(['img', 'p', 'ul', 'h1', 'ol', 'table', 'pre'])
         content_str = ''
         for item in contents:
+            item_str = html.unescape(str(item))
             if item.name == 'h1':
                 item.name = 'h3'
             # 去除不要的tag 不保留内容
@@ -230,24 +232,24 @@ class zzspider(scrapy.Spider):
                 for match in item.findAll(tag):
                     match.replaceWithChildren()
 
-            if item.name == 'img':
-                item['class'] = 'syl-page-img aligncenter j-lazy'
-                content_str += '<p>' + str(item) + '</p>'
-                continue
-
             # 去除不要的attr
-            invalid_attrs = ['class', 'data-track', 'toutiao-origin', 'start']
+            invalid_attrs = ['class', 'data-track', 'toutiao-origin', 'start', 'web_uri']
             for attr in invalid_attrs:
                 if attr in item.attrs:
                     del item[attr]
 
+            if item.name == 'img':
+                item['class'] = 'syl-page-img aligncenter j-lazy'
+                content_str += '<p>' + item_str + '</p>'
+                continue
+
             leap_flag = False
             for f in ConfigUtil.config['collect']['filter'].split(','):
-                if str(item).__contains__(f):
+                if item_str.__contains__(f):
                     leap_flag = True
                     break
             if not leap_flag:
-                content_str += str(item)
+                content_str += item_str
 
         for f in ConfigUtil.config['collect']['content_filter'].split(','):
             if content_str.__contains__(f):
