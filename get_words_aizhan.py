@@ -4,6 +4,7 @@ from time import sleep
 
 import requests
 from bs4 import BeautifulSoup
+from cffi.backend_ctypes import xrange
 
 from zzspider.tools.dbhelper import DBHelper
 
@@ -53,34 +54,51 @@ def process_i(type, domain, path, page, i):
 
 
 mode = 'sql'
-cate = 3
+cate = 1
 type = 'mobile'
-domain = '400zi.com'
+domain = 'www.haoyunbb.com'
 name = domain.replace('.', '_')
-file_name = f'result_aizhan_{name}_{type}.txt'
-file_name = 'temp.txt'
-paths = ["-1", "books", "vps20210412", "vps2021-04-13", "vps2021-04-12", "vps20210413", "vps20210416", "books41",
-         "books_64476", "books29", "books14", "books_92510", "books00", "books_74727", "books_45894", "books89",
-         "books99", "books_72176", "books_94436", "books_10779", "books_40260", "books_71016", "books_13341",
-         "books_49374", "books_98516", "books07", "tag", "books_88887", "books_69227"]
+file_name = f'result_aizhan_{name}_{type}.sql'
+# paths = ["-1", "books", "vps20210412", "vps2021-04-13", "vps2021-04-12", "vps20210413", "vps20210416", "books41",
+#          "books_64476", "books29", "books14", "books_92510", "books00", "books_74727", "books_45894", "books89",
+#          "books99", "books_72176", "books_94436", "books_10779", "books_40260", "books_71016", "books_13341",
+#          "books_49374", "books_98516", "books07", "tag", "books_88887", "books_69227"]
 # for path in paths:
 #     for k in range(1, 51):
 #         process(type, domain, path, k)
 #         sleep(1)
-with open('D:/desktop/cate3.txt', encoding="utf-8") as f:
+with open('E:/desktop/cate3.txt', encoding="utf-8") as f:
     result = f.readlines()
 real_arr = []
 real_items = []
+
 for item in result:
     real_item = item.strip().replace('\'', '\\\'')
+    if not real_item:
+        continue
     real_items.append(real_item)
-real_items = list(set(real_items))
 if mode == 'sql':
     db = DBHelper(host="114.132.198.103", user="baikexueshe", pwd="mc0321..", db="baikexueshe")
-    for item in real_items:
-        count = db.fetch_one("select count(1) as num from zbp_words where word = %s", [item])
-        if count['num'] == 0:
-            real_arr.append(item)
+
+    # i = 0
+    # a = '(' + '),('.join([str(random.randint(1, 2)) for _ in xrange(18888)]) + ')'
+    # # 1418963
+    # # 1400075
+    # while i < 1:
+    #     db.execute("INSERT INTO `rrr`(`tt`) VALUES " + a)
+    #     i += 1
+    # exit(0)
+    arrs = [real_items[i:i + 5000] for i in range(0, len(real_items), 5000)]
+    for items in arrs:
+        ab = '("' + '","'.join(items) + '")'
+        # for item in real_items:
+        count = db.fetch_all("select word from zbp_words where word in " + ab)
+        lower_exist_words = [it['word'].lower() for it in count]
+        lower_items = [it.lower() for it in items]
+
+        final = list(set(lower_items) - set(lower_exist_words))
+        real_arr.extend(final)
+    real_arr = set(real_arr)
     sql_arr = []
     for item in real_arr:
         sql_arr.append(
@@ -88,8 +106,8 @@ if mode == 'sql':
         # new_path = ''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(6))
         # sql_arr.append(
         #     f"INSERT INTO `jieqi_artile_seword`(`kw`, 'path') VALUES ('{item}', '{new_path}') on duplicate key update kw = kw;")
-    with open(file_name, mode='w') as f:
+    with open(file_name, encoding="utf-8", mode='w') as f:
         f.write("\n".join(sql_arr))
 else:
-    with open(file_name, mode='w') as f:
+    with open(file_name, encoding="utf-8", mode='w') as f:
         f.write("\n".join(real_items))
