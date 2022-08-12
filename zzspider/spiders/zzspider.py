@@ -217,7 +217,6 @@ class zzspider(scrapy.Spider):
         contents = data.find_all(['img', 'p', 'ul', 'h1', 'ol', 'table', 'pre'])
         content_str = ''
         for item in contents:
-            item_str = html.unescape(str(item))
             if item.name == 'h1':
                 item.name = 'h3'
             # 去除不要的tag 不保留内容
@@ -238,6 +237,7 @@ class zzspider(scrapy.Spider):
                 if attr in item.attrs:
                     del item[attr]
 
+            item_str = html.unescape(str(item))
             if item.name == 'img':
                 item['class'] = 'syl-page-img aligncenter j-lazy'
                 content_str += '<p>' + item_str + '</p>'
