@@ -15,12 +15,16 @@ def img_to_progressive(path):
         rt = os.system(cmd)
         if rt == 0:
             print(path.split('/')[-1:][0], '转换完毕')
-            print('开始重命名文件')
-            os.remove(path)
-            os.rename(destination, path)
-            new_img_size = int(os.path.getsize(path))
-            print('图片大小：' + str(img_size) + '--->' + str(new_img_size))
-            return
+            new_img_size = int(os.path.getsize(destination))
+            if new_img_size >= img_size:
+                os.remove(destination)
+                print('图片变大了，不做处理：' + str(img_size) + '--->' + str(new_img_size))
+            else:
+                print('开始重命名文件')
+                os.remove(path)
+                os.rename(destination, path)
+                print('图片大小：' + str(img_size) + '--->' + str(new_img_size))
+                return
 
     if img_size < 500000:
         return
@@ -35,8 +39,13 @@ def img_to_progressive(path):
     print(path.split('/')[-1:][0], '开始转换图片')
     img.save(destination, "PNG", quality=60, optimize=True, progressive=True)
     print(path.split('/')[-1:][0], '转换完毕')
-    print('开始重命名文件')
-    os.remove(path)
-    os.rename(destination, path)
-    new_img_size = int(os.path.getsize(path))
-    print('图片大小：' + str(img_size) + '--->' + str(new_img_size))
+    new_img_size = int(os.path.getsize(destination))
+    if new_img_size >= img_size:
+        os.remove(destination)
+        print('图片变大了，不做处理：' + str(img_size) + '--->' + str(new_img_size))
+    else:
+        print('开始重命名文件')
+        os.remove(path)
+        os.rename(destination, path)
+        print('图片大小：' + str(img_size) + '--->' + str(new_img_size))
+        return
