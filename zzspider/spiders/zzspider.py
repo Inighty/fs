@@ -301,7 +301,6 @@ class zzspider(scrapy.Spider):
             img_to_progressive(real_path)
 
             linux_relate_path = f"zb_users/upload/{str(now.year)}/{full_month}"
-            self.insert_upload(real_path, content_type)
 
             real_image_url = '{#ZC_BLOG_HOST#}' + linux_relate_path + f"/{filename}"
             if ConfigUtil.config['sftp']['enable'] == '1':
@@ -310,9 +309,7 @@ class zzspider(scrapy.Spider):
                 os.remove(real_path)
             elif ConfigUtil.config['sftp']['enable'] == 'jd':
                 real_image_url = upload_to_JD(real_path)
-                dbhelper.execute(
-                    f"INSERT INTO `zbp_image_jd`(`path`, `jd_path`) VALUES (%s,%s)",
-                    [linux_relate_path + f"/{filename}", real_image_url])
+            self.insert_upload(real_path, content_type, real_image_url)
             upload_count += 1
             content_str = content_str.replace(src, real_image_url)
             content_str = content_str.replace(f"alt=\"{self.toutiao_title}\"", f"alt=\"{self.my_title}\"")
@@ -353,12 +350,12 @@ class zzspider(scrapy.Spider):
                 return_id = dbhelper.cur.lastrowid
                 after_insert_post(self.word_id, self.author, self.cate, response.url, title, return_id)
 
-    def insert_upload(self, real_path, content_type):
+    def insert_upload(self, real_path, content_type, real_image_url):
         head, tail = os.path.split(real_path)
         dbhelper.execute(
-            f"INSERT INTO `zbp_upload`(`ul_AuthorID`, `ul_Size`, `ul_Name`, `ul_SourceName`, `ul_MimeType`, `ul_PostTime`, `ul_DownNums`, `ul_LogID`, `ul_Intro`, `ul_Meta`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+            f"INSERT INTO `zbp_upload`(`ul_AuthorID`, `ul_Size`, `ul_Name`, `ul_SourceName`, `ul_MimeType`, `ul_PostTime`, `ul_DownNums`, `ul_LogID`, `ul_Intro`, `ul_Meta`, `ul_TcPath`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
             [self.author, int(os.path.getsize(real_path)), tail, tail, content_type, int(round(time.time())), 0, 0,
-             '', ''])
+             '', '', real_image_url])
 
     def update_upload_count(self, upload_count):
         dbhelper.execute(
