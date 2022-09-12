@@ -221,10 +221,10 @@ def _crawl(result, spider, name=None):
 
 def process_upload():
     dbhelper = DBHelper()
-    if True:
+    while True:
         posts = dbhelper.fetch_all(
-            "select log_ID,log_Content from zbp_post where log_Content like '%src=\"{#ZC_BLOG_HOST#}%' limit 1")
-        if posts is not None:
+            "select log_ID,log_Content from zbp_post where log_Content like '%src=\"{#ZC_BLOG_HOST#}%' limit 20")
+        if posts is not None and len(posts) != 0:
             for post in posts:
                 content = post['log_Content']
                 searches = re.findall('src=\"{#ZC_BLOG_HOST#}(.*?)\"', content)
@@ -240,11 +240,13 @@ def process_upload():
                         f"UPDATE `zbp_upload` set `ul_TcPath` = %s,`ul_LogID` = %s where ul_SourceName = %s and ul_TcPath is null",
                         [new_url, post['log_ID'], filename])
                     content = content.replace('{#ZC_BLOG_HOST#}' + old_url, new_url)
-                    time.sleep(5)
+                    time.sleep(random.randint(5, 10))
                 dbhelper.execute(
                     f"UPDATE `zbp_post` set `log_Content` = %s where log_ID = %s",
                     [content, post['log_ID']])
                 logger.info("update complete! post_id:" + str(post['log_ID']))
+        else:
+            break
 
 
 if __name__ == '__main__':
