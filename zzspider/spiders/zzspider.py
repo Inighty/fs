@@ -310,6 +310,9 @@ class zzspider(scrapy.Spider):
                 os.remove(real_path)
             elif ConfigUtil.config['sftp']['enable'] == 'jd':
                 real_image_url = upload_to_JD(real_path)
+                dbhelper.execute(
+                    f"INSERT INTO `zbp_image_jd`(`path`, `jd_path`) VALUES (%s,%s)",
+                    [linux_relate_path + f"/{filename}", real_image_url])
             upload_count += 1
             content_str = content_str.replace(src, real_image_url)
             content_str = content_str.replace(f"alt=\"{self.toutiao_title}\"", f"alt=\"{self.my_title}\"")
