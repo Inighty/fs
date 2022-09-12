@@ -235,6 +235,10 @@ def process_upload():
                         logger.error("image not found,real_path:" + real_path)
                         continue
                     new_url = upload_to_JD(real_path)
+                    filename = os.path.basename(real_path)
+                    dbhelper.execute(
+                        f"UPDATE `zbp_upload` set `ul_TcPath` = %s where ul_SourceName = %s and ul_TcPath is null",
+                        [new_url, filename])
                     content = content.replaceAll(old_url, new_url)
                     time.sleep(5)
                 dbhelper.execute(
