@@ -331,6 +331,7 @@ class zzspider(scrapy.Spider):
 
         now_time = int(round(time.time()))
         content_str = content_str.replace('\'', '\\\'')
+        real_post_id = 0
         if ConfigUtil.config['collect']['post_id'] != '':
             real_post_id = int(ConfigUtil.config['collect']['post_id'])
             dbhelper.execute(
