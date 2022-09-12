@@ -4,6 +4,7 @@ import logging
 import os
 import platform
 import random
+import re
 import time
 import urllib.parse
 from logging.handlers import TimedRotatingFileHandler
@@ -20,6 +21,7 @@ from zzspider import settings
 from zzspider.config import ConfigUtil
 from zzspider.spiders.zzspider import zzspider
 from zzspider.tools.dbhelper import DBHelper
+from zzspider.tools.image_bed import upload_to_JD
 from zzspider.tools.proxyip import ProxyIp
 from zzspider.tools.same_word import get_best_word, get_real_arr
 from zzspider.tools.timeout_err import timeout_error
@@ -217,7 +219,34 @@ def _crawl(result, spider, name=None):
     return deferred
 
 
+def process_upload():
+    dbhelper = DBHelper()
+    while True:
+        posts = dbhelper.fetch_all(
+            "select log_ID,log_Content from zbp_post where log_Content like '%src=\"{#ZC_BLOG_HOST#}%' limit 20")
+        if posts is not None:
+            for post in posts:
+                content = post['log_Content']
+                searches = re.findall('src=\"{#ZC_BLOG_HOST#}(.*?)\"', content)
+                searches = set(searches)
+                for old_url in searches:
+                    real_path = ConfigUtil.config['main']['path'] + '/' + old_url
+                    if not os.path.exists(real_path):
+                        logger.error("image not found,real_path:" + real_path)
+                        continue
+                    new_url = upload_to_JD(real_path)
+                    content = content.replaceAll(old_url, new_url)
+                    time.sleep(5)
+                dbhelper.execute(
+                    f"UPDATE `zbp_post` set `log_Content` = %s where log_ID = %s",
+                    [content, post['log_ID']])
+                logger.info("update complete! post_id:" + post['log_ID'])
+
+
 if __name__ == '__main__':
+    if ConfigUtil.config['collect']['cate'] == 'upload':
+        process_upload()
+        exit(0)
     process = CrawlerProcess(install_root_handler=False, settings=get_project_settings())
     if ConfigUtil.config['collect']['special_url']:
         cate = int(ConfigUtil.config['collect']['special_cate'])
