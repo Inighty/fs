@@ -239,7 +239,7 @@ def process_upload():
                     dbhelper.execute(
                         f"UPDATE `zbp_upload` set `ul_TcPath` = %s where ul_SourceName = %s and ul_TcPath is null",
                         [new_url, filename])
-                    content = content.replaceAll(old_url, new_url)
+                    content = content.replace(old_url, new_url)
                     time.sleep(5)
                 dbhelper.execute(
                     f"UPDATE `zbp_post` set `log_Content` = %s where log_ID = %s",
