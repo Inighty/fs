@@ -217,6 +217,7 @@ class zzspider(scrapy.Spider):
         img_temp = list(set([item.attrs['src'] for item in imgs]))
         contents = data.find_all(['img', 'p', 'ul', 'h1', 'ol', 'table', 'pre'])
         content_str = ''
+        images = []
         for item in contents:
             if item.name == 'h1':
                 item.name = 'h3'
@@ -309,7 +310,7 @@ class zzspider(scrapy.Spider):
                 os.remove(real_path)
             elif ConfigUtil.config['sftp']['enable'] == 'jd':
                 real_image_url = upload_to_JD(real_path)
-            self.insert_upload(real_path, content_type, real_image_url)
+            images.append({"real_path": real_path, "content_type": content_type, "real_image_url": real_image_url})
             upload_count += 1
             content_str = content_str.replace(src, real_image_url)
             content_str = content_str.replace(f"alt=\"{self.toutiao_title}\"", f"alt=\"{self.my_title}\"")
@@ -331,6 +332,7 @@ class zzspider(scrapy.Spider):
         now_time = int(round(time.time()))
         content_str = content_str.replace('\'', '\\\'')
         if ConfigUtil.config['collect']['post_id'] != '':
+            real_post_id = int(ConfigUtil.config['collect']['post_id'])
             dbhelper.execute(
                 f"UPDATE `zbp_post` set `log_Intro` = %s,`log_Content` = %s,`log_UpdateTime` = %s where log_ID = %s",
                 [intro, content_str, now_time, ConfigUtil.config['collect']['post_id']])
@@ -347,14 +349,17 @@ class zzspider(scrapy.Spider):
                  now_time, 0,
                  0, '', ''])
             if result:
-                return_id = dbhelper.cur.lastrowid
-                after_insert_post(self.word_id, self.author, self.cate, response.url, title, return_id)
+                real_post_id = dbhelper.cur.lastrowid
+                after_insert_post(self.word_id, self.author, self.cate, response.url, title, real_post_id)
+        for img in images:
+            self.insert_upload(real_post_id, img['real_path'], img['content_type'], img['real_image_url'])
 
-    def insert_upload(self, real_path, content_type, real_image_url):
+    def insert_upload(self, real_post_id, real_path, content_type, real_image_url):
         head, tail = os.path.split(real_path)
         dbhelper.execute(
             f"INSERT INTO `zbp_upload`(`ul_AuthorID`, `ul_Size`, `ul_Name`, `ul_SourceName`, `ul_MimeType`, `ul_PostTime`, `ul_DownNums`, `ul_LogID`, `ul_Intro`, `ul_Meta`, `ul_TcPath`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-            [self.author, int(os.path.getsize(real_path)), tail, tail, content_type, int(round(time.time())), 0, 0,
+            [self.author, int(os.path.getsize(real_path)), tail, tail, content_type, int(round(time.time())), 0,
+             real_post_id,
              '', '', real_image_url])
 
     def update_upload_count(self, upload_count):
