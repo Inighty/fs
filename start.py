@@ -221,9 +221,9 @@ def _crawl(result, spider, name=None):
 
 def process_upload():
     dbhelper = DBHelper()
-    while True:
+    if True:
         posts = dbhelper.fetch_all(
-            "select log_ID,log_Content from zbp_post where log_Content like '%src=\"{#ZC_BLOG_HOST#}%' limit 20")
+            "select log_ID,log_Content from zbp_post where log_Content like '%src=\"{#ZC_BLOG_HOST#}%' limit 1")
         if posts is not None:
             for post in posts:
                 content = post['log_Content']
