@@ -19,6 +19,7 @@ from zzspider.config import ConfigUtil
 from zzspider.tools.browser import Browser
 from zzspider.tools.dbhelper import DBHelper
 from zzspider.tools.format import format_txt
+from zzspider.tools.image_bed import upload_to_JD
 from zzspider.tools.img import img_to_progressive
 from zzspider.tools.same_word import get_best_word
 from zzspider.tools.sftp import Sftp
@@ -301,12 +302,16 @@ class zzspider(scrapy.Spider):
 
             linux_relate_path = f"zb_users/upload/{str(now.year)}/{full_month}"
             self.insert_upload(real_path, content_type)
+
+            real_image_url = '{#ZC_BLOG_HOST#}' + linux_relate_path + f"/{filename}"
             if ConfigUtil.config['sftp']['enable'] == '1':
                 sftp = Sftp()
                 sftp.upload_to_dir(real_path, ConfigUtil.config['sftp']['path'] + "/" + linux_relate_path)
                 os.remove(real_path)
+            elif ConfigUtil.config['sftp']['enable'] == 'jd':
+                real_image_url = upload_to_JD(real_path)
             upload_count += 1
-            content_str = content_str.replace(src, '{#ZC_BLOG_HOST#}' + linux_relate_path + f"/{filename}")
+            content_str = content_str.replace(src, real_image_url)
             content_str = content_str.replace(f"alt=\"{self.toutiao_title}\"", f"alt=\"{self.my_title}\"")
 
         if len(bad_imgs) > 0:

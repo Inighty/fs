@@ -1,4 +1,6 @@
+lxml
 requests
+requests_toolbelt
 Pillow
 Twisted==21.7.0
 beautifulsoup4~=4.6.3
