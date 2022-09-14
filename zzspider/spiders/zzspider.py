@@ -21,6 +21,7 @@ from zzspider.tools.dbhelper import DBHelper
 from zzspider.tools.format import format_txt
 from zzspider.tools.image_bed import upload_to_JD
 from zzspider.tools.img import img_to_progressive
+from zzspider.tools.proxyip import ProxyIp
 from zzspider.tools.same_word import get_best_word
 from zzspider.tools.sftp import Sftp
 
@@ -29,6 +30,7 @@ dbhelper = DBHelper()
 logger = logging.getLogger(__name__)
 sentence_pattern = r',|\.|/|;|\'|`|\[|\]|<|>|\?|:|：|"|\{|\}|\~|!|@|#|\$|%|\^|&|？|\(|\)|-|=|\_|\+|，|。|、|；|‘|’|【|】|·|！| |…|（|）'
 sitemap_path = ConfigUtil.config['main']['sitemap_path']
+proxy_util = ProxyIp()
 
 
 def baidu_push(post_id):
@@ -54,7 +56,11 @@ def baidu_push(post_id):
         push_url = 'http://data.zz.baidu.com/urls?site=' + ConfigUtil.config['main']['url'] + '&token=' + \
                    ConfigUtil.config['main']['baidu_push_token']
         url = ConfigUtil.config['main']['url'] + f"/s/{post_id}.html"
-        response = requests.post(push_url, data=url)
+        proxy_ip = {
+            "http": "http://" + proxy_util.get(),  # HTTP代理
+            "https": "http://" + proxy_util.get()  # HTTPS代理
+        }
+        response = requests.post(push_url, data=url, proxies=proxy_ip)
         res_dict = json.loads(response.text)
 
         if response.status_code == 400:
