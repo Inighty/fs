@@ -53,3 +53,4 @@ def upload_to_JD(imagefile):
             logger.error("上传图片失败：" + imagefile + "返回：" + json_obj)
     except Exception as e:
         logger.error('遇到错误:', e, '图片文件：', '')
+    return None
