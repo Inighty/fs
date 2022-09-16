@@ -187,8 +187,8 @@ def upload_to_JD(imagefile):
     headers['Content-Type'] = m.content_type
     # 使用 data 上传文件
     proxy_ip = {
-        "http": "http://" + proxy_util.get(),  # HTTP代理
-        "https": "http://" + proxy_util.get()  # HTTPS代理
+        "http": "http://" + proxy_util.get("https://imio.jd.com/uploadfile/file/post.do"),  # HTTP代理
+        "https": "http://" + proxy_util.get("https://imio.jd.com/uploadfile/file/post.do")  # HTTPS代理
     }
     r = requests.post(url, headers=headers, data=m, proxies=proxy_ip, timeout=10)
     json_strs = lxml.html.document_fromstring(r.text).find('body').text

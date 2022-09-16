@@ -24,6 +24,11 @@ class ProxyIp(metaclass=Singleton):
             return self.get_new()
         return self.ip
 
+    def get(self, host):
+        if not self.check(host):
+            return self.get_new()
+        return self.ip
+
     def get_proxy(self):
         return {
             "http": "http://" + self.get()
@@ -34,7 +39,7 @@ class ProxyIp(metaclass=Singleton):
         self.ip = res.text
         return self.ip
 
-    def check(self):
+    def check(self, host="http://www.baidu.com/"):
         logger.error("start check!")
         if self.ip is None:
             return False
@@ -43,7 +48,7 @@ class ProxyIp(metaclass=Singleton):
         }
         r = None
         try:
-            r = requests.get("http://www.baidu.com/", proxies=proxies, timeout=5)
+            r = requests.get(host, proxies=proxies, timeout=5)
             logger.error("status return :" + str(r.status_code))
             if r.status_code == 407:
                 return False
