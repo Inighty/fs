@@ -190,7 +190,7 @@ def upload_to_JD(imagefile):
         "http": "http://" + proxy_util.get(),  # HTTP代理
         "https": "http://" + proxy_util.get()  # HTTPS代理
     }
-    r = requests.post(url, headers=headers, data=m, proxies=proxy_ip)
+    r = requests.post(url, headers=headers, data=m, proxies=proxy_ip, timeout=10)
     json_strs = lxml.html.document_fromstring(r.text).find('body').text
     try:
         json_obj = json.loads(json_strs)
