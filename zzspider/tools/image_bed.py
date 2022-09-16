@@ -152,6 +152,7 @@ def img_to_base64(imagefile):
 
 
 def upload_to_JD(imagefile):
+    print("localfile:" + imagefile)
     url = 'https://imio.jd.com/uploadfile/file/post.do'
     ip = get_ip()
     headers = {
