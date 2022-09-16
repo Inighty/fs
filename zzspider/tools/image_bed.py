@@ -1,6 +1,7 @@
 import base64
 import json
 import logging
+import os
 import random
 
 import lxml.html
@@ -152,6 +153,9 @@ def img_to_base64(imagefile):
 
 
 def upload_to_JD(imagefile):
+    if os.path.getsize(imagefile) > (10 * 1024 * 1024):
+        logger.error("the file is too large: " + imagefile)
+        return None
     print("localfile:" + imagefile)
     url = 'https://imio.jd.com/uploadfile/file/post.do'
     ip = get_ip()
