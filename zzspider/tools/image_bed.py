@@ -7,6 +7,10 @@ import lxml.html
 import requests
 from requests_toolbelt import MultipartEncoder
 
+from zzspider.tools.proxyip import ProxyIp
+
+proxy_util = ProxyIp()
+
 logger = logging.getLogger(__name__)
 ips = ['58.14.0.0', '58.16.0.0', '58.24.0.0', '58.30.0.0', '58.32.0.0', '58.66.0.0', '58.68.128.0', '58.82.0.0',
        '58.87.64.0', '58.99.128.0', '58.100.0.0', '58.116.0.0', '58.128.0.0', '58.144.0.0', '58.154.0.0', '58.192.0.0',
@@ -182,7 +186,11 @@ def upload_to_JD(imagefile):
     # 自动生成 Content-Type 类型和随机码
     headers['Content-Type'] = m.content_type
     # 使用 data 上传文件
-    r = requests.post(url, headers=headers, data=m)
+    proxy_ip = {
+        "http": "http://" + proxy_util.get(),  # HTTP代理
+        "https": "http://" + proxy_util.get()  # HTTPS代理
+    }
+    r = requests.post(url, headers=headers, data=m, proxies=proxy_ip)
     json_strs = lxml.html.document_fromstring(r.text).find('body').text
     try:
         json_obj = json.loads(json_strs)
