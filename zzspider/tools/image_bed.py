@@ -190,7 +190,7 @@ def upload_to_JD(imagefile):
         "http": "http://" + proxy_util.get("https://imio.jd.com/uploadfile/file/post.do"),  # HTTP代理
         "https": "http://" + proxy_util.get("https://imio.jd.com/uploadfile/file/post.do")  # HTTPS代理
     }
-    r = requests.post(url, headers=headers, data=m, proxies=proxy_ip, timeout=10)
+    r = requests.post(url, headers=headers, data=m)
     json_strs = lxml.html.document_fromstring(r.text).find('body').text
     try:
         json_obj = json.loads(json_strs)
@@ -202,3 +202,7 @@ def upload_to_JD(imagefile):
     except Exception as e:
         logger.error('遇到错误:', e, '图片文件：', '')
     return None
+
+
+if __name__ == '__main__':
+    upload_to_JD("/data/py/fs_img/123.png")
