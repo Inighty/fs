@@ -57,7 +57,6 @@ def shrink_image(file_path):
         response = requests.get(url)
         with open(output_path, 'wb') as file:
             file.write(response.content)
-        print(output_path)
         os.remove(file_path)
         os.rename(output_path, file_path)
         print('%s %d=>%d(%f)' % (
