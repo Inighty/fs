@@ -3,7 +3,7 @@ import os
 import random
 
 import requests
-from PIL.Image import Image
+from PIL import Image
 from pygifsicle import optimize
 from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPM
