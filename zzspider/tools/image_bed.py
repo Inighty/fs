@@ -11,6 +11,8 @@ from requests_toolbelt import MultipartEncoder
 from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPM
 
+from zzspider.tools.img import img_to_progressive
+
 logger = logging.getLogger(__name__)
 ips = ['58.14.0.0', '58.16.0.0', '58.24.0.0', '58.30.0.0', '58.32.0.0', '58.66.0.0', '58.68.128.0', '58.82.0.0',
        '58.87.64.0', '58.99.128.0', '58.100.0.0', '58.116.0.0', '58.128.0.0', '58.144.0.0', '58.154.0.0', '58.192.0.0',
@@ -156,17 +158,12 @@ def img_to_base64(imagefile):
 
 
 def upload_to_jd(imagefile):
-    if os.path.getsize(imagefile) > (20 * 1024 * 1024):
-        logger.error("the file is too large: " + imagefile)
-        return None
     print("localfile:" + imagefile)
-
-    ext = imagefile.split('.')[-1:][0]
-    if ext == 'svg':
-        pic = svg2rlg(imagefile)
-        imagefile = imagefile.replace('.svg', '.png')
-        renderPM.drawToFile(pic, imagefile)
-
+    if os.path.getsize(imagefile) > (20 * 1024 * 1024):
+        img_to_progressive(imagefile)
+        if os.path.getsize(imagefile) > (20 * 1024 * 1024):
+            logger.error("the file is too large: " + imagefile)
+            return None
     url = 'https://imio.jd.com/uploadfile/file/post.do'
     ip = get_ip()
     headers = {
@@ -209,3 +206,6 @@ def upload_to_jd(imagefile):
     except Exception as e:
         logger.error('遇到错误:', e, '图片文件：', imagefile)
     return None
+
+if __name__ == '__main__':
+    upload_to_jd("E:/桌面/202202141644839683098.gif")
