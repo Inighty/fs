@@ -1,6 +1,6 @@
 import os
 
-from PIL import Image
+from PIL import Image, ImageSequence
 
 
 def img_to_progressive(path):
@@ -58,7 +58,7 @@ def img_to_progressive(path):
 def compress_gif(path):
     gif = Image.open(path)  # 读取文件
     indexnum = getIndex(gif)
-    mergeGif(indexnum)
+    mergeGif(indexnum, path)
     removeImg(indexnum)
 
 
@@ -92,11 +92,11 @@ def pressImg(ImgName):
 
 
 # 合并gif
-def mergeGif(indexnum):
+def mergeGif(indexnum, path):
     images = []
     for i in range(1, indexnum):
         images.append(imageio.imread('press-index%d.jpg' % i))
-    imageio.mimsave(r'C:\Users\Evaron\Desktop\QRTEST.gif', images)
+    imageio.mimsave(path, images)
 
 
 # 删除中间产生的图片
