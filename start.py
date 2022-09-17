@@ -252,9 +252,34 @@ def process_upload():
             break
 
 
+def process_upload_ys():
+    dbhelper = DBHelper()
+    while True:
+        posts = dbhelper.fetch_all(
+            "select vod_id,vod_pic from mac_vod where vod_pic like 'upload%' limit 20")
+        if posts is not None and len(posts) != 0:
+            for post in posts:
+                real_path = '/home/wwwroot/www.ysys.tv/' + post['vod_pic']
+                if not os.path.exists(real_path):
+                    logger.error("image not found,real_path:" + real_path)
+                    continue
+                new_url = upload_to_jd(real_path)
+                if new_url is None:
+                    continue
+                new_url = new_url.replace("https://", "mac://")
+                dbhelper.execute(
+                    f"UPDATE `mac_vod` set `vod_pic` = %s where vod_id = %s",
+                    [new_url, post['vod_id']])
+                time.sleep(random.randint(1, 5))
+        else:
+            break
+
 if __name__ == '__main__':
     if ConfigUtil.config['collect']['cate'] == 'upload':
         process_upload()
+        exit(0)
+    if ConfigUtil.config['collect']['cate'] == 'uploadys':
+        process_upload_ys()
         exit(0)
     process = CrawlerProcess(install_root_handler=False, settings=get_project_settings())
     if ConfigUtil.config['collect']['special_url']:
