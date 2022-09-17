@@ -1,7 +1,9 @@
+import json
 import os
+import random
 
-import imageio
-from PIL import Image, ImageSequence
+import requests
+from pygifsicle import optimize
 
 
 def img_to_progressive(path):
@@ -13,68 +15,76 @@ def img_to_progressive(path):
         return
     if ext not in ['png', 'jpg', 'jpeg']:
         return
-    destination = os.path.splitext(path)[0] + '_destination.' + os.path.splitext(path)[1]
-    img_size = int(os.path.getsize(path))
-    if os.path.isfile(path) and os.path.splitext(path)[1] == '.png':
-        cmd = 'pngquant --force --skip-if-larger --output {} --quality 50-80 --verbose {}'.format(destination, path)
-        rt = os.system(cmd)
-        if rt == 0:
-            print(path.split('/')[-1:][0], '转换完毕')
-            new_img_size = int(os.path.getsize(destination))
-            if new_img_size >= img_size:
-                os.remove(destination)
-                print('图片变大了，不做处理：' + str(img_size) + '--->' + str(new_img_size))
-            else:
-                print('开始重命名文件')
-                os.remove(path)
-                os.rename(destination, path)
-                print('图片大小：' + str(img_size) + '--->' + str(new_img_size))
-                return
-
-    if img_size < 500000:
-        return
-    img = Image.open(path)
-
-    if img.mode == "CMYK":
-        img = img.convert('RGB')
-    new_width = 600
-    if img.size[0] > new_width:
-        new_height = int(new_width * img.size[1] * 1.0 / img.size[0])
-        img = img.resize((new_width, new_height))
-    print(path.split('/')[-1:][0], '开始转换图片')
-    img.save(destination, "PNG", quality=60, optimize=True, progressive=True)
-    print(path.split('/')[-1:][0], '转换完毕')
-    new_img_size = int(os.path.getsize(destination))
-    if new_img_size >= img_size:
-        os.remove(destination)
-        print('图片变大了，不做处理：' + str(img_size) + '--->' + str(new_img_size))
-    else:
-        print('开始重命名文件')
-        os.remove(path)
-        os.rename(destination, path)
-        print('图片大小：' + str(img_size) + '--->' + str(new_img_size))
-        return
+    shrink_image(path)
 
 
 def compress_gif(filename):
-    # Picture cache space
-    image_list = []
-    # Read gif picture
-    im = Image.open(filename)
-    # Extract each frame , And compress it , Deposit in image_list
-    i = 0
-    for frame in ImageSequence.Iterator(im):
-        i += 1
-        if i % 2 != 0:
-            continue
-        frame = frame.convert('RGB')
-        frame.thumbnail((frame.size[0], frame.size[1]))
-        image_list.append(frame)
-    # Calculate the frequency between frames , Interval milliseconds
-    duration = im.info['duration'] / 1000
-    # Read image_list Merge into gif
-    destination = os.path.splitext(filename)[0] + '_destination' + os.path.splitext(filename)[1]
-    imageio.mimsave(destination, image_list, duration=duration)
+    optimize(filename, options=['--lossy=90', '--no-extensions', '--no-comments'])
 
-    os.remove(filename)
-    os.rename(destination, filename)
+
+def list_images(path):
+    images = None
+    try:
+        if path:
+            os.chdir(path)
+        full_path = os.getcwd()
+        files = os.listdir(full_path)
+        images = []
+        for file in files:
+            ext = os.path.splitext(file)[1].lower()
+            if ext in ('.jpg', '.jpeg', '.png'):
+                images.append(os.path.join(full_path, file))
+    except:
+        pass
+    return images
+
+
+def shrink_image(file_path):
+    print(file_path)
+    result = shrink(file_path)
+    if result:
+        output_path = os.path.splitext(file_path)[0] + '_destination' + os.path.splitext(file_path)[1]
+        url = result['output']['url']
+        response = requests.get(url)
+        with open(output_path, 'wb') as file:
+            file.write(response.content)
+        print(output_path)
+        os.remove(file_path)
+        os.rename(output_path, file_path)
+        print('%s %d=>%d(%f)' % (
+            result['input']['type'],
+            result['input']['size'],
+            result['output']['size'],
+            result['output']['ratio']
+        ))
+    else:
+        print('压缩失败')
+
+
+def shrink(file_path):
+    url = 'https://tinypng.com/web/shrink'
+    headers = {
+        'Cache-Control': 'no-cache',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36',
+        'X-Forwarded-For': get_random_ip()
+    }
+    result = None
+    try:
+        file = open(file_path, 'rb')
+        response = requests.post(url, headers=headers, data=file)
+        result = json.loads(response.text)
+    except:
+        if file:
+            file.close()
+    if result and result['input'] and result['output']:
+        return result
+    else:
+        return None
+
+
+def get_random_ip():
+    ip = []
+    for i in range(4):
+        ip.append(str(random.randint(0 if i in (2, 3) else 1, 254)))
+    return '.'.join(ip)

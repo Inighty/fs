@@ -1,3 +1,4 @@
+pygifsicle
 reportlab
 lxml
 requests
@@ -15,4 +16,3 @@ bs4~=0.0.1
 tencentcloud-sdk-python
 baiduspider
 svglib
-imageio

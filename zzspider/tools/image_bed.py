@@ -208,4 +208,4 @@ def upload_to_jd(imagefile):
     return None
 
 if __name__ == '__main__':
-    upload_to_jd("E:/桌面/202202141644839683098.gif")
+    upload_to_jd("E:/桌面/63259125cc46e_63259125e8513.gif")
