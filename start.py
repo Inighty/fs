@@ -226,6 +226,7 @@ def process_upload():
             "select log_ID,log_Content from zbp_post where log_Content like '%src=\"{#ZC_BLOG_HOST#}%' limit 20")
         if posts is not None and len(posts) != 0:
             for post in posts:
+                logger.error("start upload! post_id:" + str(post['log_ID']))
                 content = post['log_Content']
                 searches = re.findall('src=\"{#ZC_BLOG_HOST#}(.*?)\"', content)
                 searches = set(searches)
@@ -246,7 +247,7 @@ def process_upload():
                 dbhelper.execute(
                     f"UPDATE `zbp_post` set `log_Content` = %s where log_ID = %s",
                     [content, post['log_ID']])
-                logger.info("update complete! post_id:" + str(post['log_ID']))
+                logger.error("update complete! post_id:" + str(post['log_ID']))
         else:
             break
 
