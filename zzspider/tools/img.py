@@ -4,9 +4,10 @@ from PIL import Image
 
 
 def img_to_progressive(path):
-    if not path.split('.')[-1:][0] in ['png', 'jpg', 'jpeg']:
-        return
     if os.path.isdir(path):
+        return
+    ext = path.split('.')[-1:][0]
+    if ext not in ['png', 'jpg', 'jpeg']:
         return
     destination = os.path.splitext(path)[0] + '_destination.' + os.path.splitext(path)[1]
     img_size = int(os.path.getsize(path))

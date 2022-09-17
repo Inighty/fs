@@ -19,11 +19,14 @@ from zzspider.config import ConfigUtil
 from zzspider.tools.browser import Browser
 from zzspider.tools.dbhelper import DBHelper
 from zzspider.tools.format import format_txt
-from zzspider.tools.image_bed import upload_to_JD
+from zzspider.tools.image_bed import upload_to_jd
 from zzspider.tools.img import img_to_progressive
 from zzspider.tools.proxyip import ProxyIp
 from zzspider.tools.same_word import get_best_word
 from zzspider.tools.sftp import Sftp
+
+from svglib.svglib import svg2rlg
+from reportlab.graphics import renderPM
 
 browser = Browser()
 dbhelper = DBHelper()
@@ -305,6 +308,12 @@ class zzspider(scrapy.Spider):
                     new_file.write(file + b'\0')
             os.remove(temp_path)
 
+            ext = real_path.split('.')[-1:][0]
+            if ext == 'svg':
+                pic = svg2rlg(real_path)
+                real_path = real_path.replace('.svg', '.png')
+                renderPM.drawToFile(pic, real_path)
+
             img_to_progressive(real_path)
 
             linux_relate_path = f"zb_users/upload/{str(now.year)}/{full_month}"
@@ -315,7 +324,7 @@ class zzspider(scrapy.Spider):
                 sftp.upload_to_dir(real_path, ConfigUtil.config['sftp']['path'] + "/" + linux_relate_path)
                 os.remove(real_path)
             elif ConfigUtil.config['sftp']['enable'] == 'jd':
-                real_image_url = upload_to_JD(real_path)
+                real_image_url = upload_to_jd(real_path)
             images.append({"real_path": real_path, "content_type": content_type, "real_image_url": real_image_url})
             upload_count += 1
             content_str = content_str.replace(src, real_image_url)

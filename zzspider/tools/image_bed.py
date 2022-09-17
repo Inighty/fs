@@ -8,6 +8,9 @@ import lxml.html
 import requests
 from requests_toolbelt import MultipartEncoder
 
+from svglib.svglib import svg2rlg
+from reportlab.graphics import renderPM
+
 logger = logging.getLogger(__name__)
 ips = ['58.14.0.0', '58.16.0.0', '58.24.0.0', '58.30.0.0', '58.32.0.0', '58.66.0.0', '58.68.128.0', '58.82.0.0',
        '58.87.64.0', '58.99.128.0', '58.100.0.0', '58.116.0.0', '58.128.0.0', '58.144.0.0', '58.154.0.0', '58.192.0.0',
@@ -152,11 +155,18 @@ def img_to_base64(imagefile):
     return base64.b64encode(image_data)
 
 
-def upload_to_JD(imagefile):
+def upload_to_jd(imagefile):
     if os.path.getsize(imagefile) > (10 * 1024 * 1024):
         logger.error("the file is too large: " + imagefile)
         return None
     print("localfile:" + imagefile)
+
+    ext = imagefile.split('.')[-1:][0]
+    if ext == 'svg':
+        pic = svg2rlg(imagefile)
+        imagefile = imagefile.replace('.svg', '.png')
+        renderPM.drawToFile(pic, imagefile)
+
     url = 'https://imio.jd.com/uploadfile/file/post.do'
     ip = get_ip()
     headers = {
