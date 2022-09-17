@@ -159,6 +159,13 @@ def img_to_base64(imagefile):
 
 def upload_to_jd(imagefile):
     print("localfile:" + imagefile)
+
+    ext = imagefile.split('.')[-1:][0]
+    if ext == 'svg':
+        pic = svg2rlg(imagefile)
+        imagefile = imagefile.replace('.svg', '.png')
+        renderPM.drawToFile(pic, imagefile)
+
     if os.path.getsize(imagefile) > (20 * 1024 * 1024):
         img_to_progressive(imagefile)
         if os.path.getsize(imagefile) > (20 * 1024 * 1024):
@@ -206,6 +213,7 @@ def upload_to_jd(imagefile):
     except Exception as e:
         logger.error('遇到错误:', e, '图片文件：', imagefile)
     return None
+
 
 if __name__ == '__main__':
     upload_to_jd("E:/桌面/63259125cc46e_63259125e8513.gif")

@@ -1,4 +1,5 @@
 pygifsicle
+IPython
 reportlab
 lxml
 requests
