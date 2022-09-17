@@ -4,18 +4,27 @@ import random
 
 import requests
 from pygifsicle import optimize
+from svglib.svglib import svg2rlg
+from reportlab.graphics import renderPM
 
 
 def img_to_progressive(path):
     if os.path.isdir(path):
-        return
+        return path
+    ext = path.split('.')[-1:][0]
+    if ext == 'svg':
+        pic = svg2rlg(path)
+        path = path.replace('.svg', '.png')
+        renderPM.drawToFile(pic, path)
+        return path
     ext = path.split('.')[-1:][0]
     if ext == 'gif':
         compress_gif(path)
-        return
+        return path
     if ext not in ['png', 'jpg', 'jpeg']:
-        return
+        return path
     shrink_image(path)
+    return path
 
 
 def compress_gif(filename):

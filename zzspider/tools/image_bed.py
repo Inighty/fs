@@ -159,18 +159,10 @@ def img_to_base64(imagefile):
 
 def upload_to_jd(imagefile):
     print("localfile:" + imagefile)
-
-    ext = imagefile.split('.')[-1:][0]
-    if ext == 'svg':
-        pic = svg2rlg(imagefile)
-        imagefile = imagefile.replace('.svg', '.png')
-        renderPM.drawToFile(pic, imagefile)
-
+    imagefile = img_to_progressive(imagefile)
     if os.path.getsize(imagefile) > (20 * 1024 * 1024):
-        img_to_progressive(imagefile)
-        if os.path.getsize(imagefile) > (20 * 1024 * 1024):
-            logger.error("the file is too large: " + imagefile)
-            return None
+        logger.error("the file is too large: " + imagefile)
+        return None
     url = 'https://imio.jd.com/uploadfile/file/post.do'
     ip = get_ip()
     headers = {

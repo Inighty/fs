@@ -25,9 +25,6 @@ from zzspider.tools.proxyip import ProxyIp
 from zzspider.tools.same_word import get_best_word
 from zzspider.tools.sftp import Sftp
 
-from svglib.svglib import svg2rlg
-from reportlab.graphics import renderPM
-
 browser = Browser()
 dbhelper = DBHelper()
 logger = logging.getLogger(__name__)
@@ -308,13 +305,7 @@ class zzspider(scrapy.Spider):
                     new_file.write(file + b'\0')
             os.remove(temp_path)
 
-            ext = real_path.split('.')[-1:][0]
-            if ext == 'svg':
-                pic = svg2rlg(real_path)
-                real_path = real_path.replace('.svg', '.png')
-                renderPM.drawToFile(pic, real_path)
-
-            img_to_progressive(real_path)
+            real_path = img_to_progressive(real_path)
 
             linux_relate_path = f"zb_users/upload/{str(now.year)}/{full_month}"
 
