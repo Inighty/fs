@@ -62,3 +62,5 @@ def compress_gif(filename):
         return False
     imageio.mimsave('compress-' + filename, [frame.convert('RGB') for frame in ImageSequence.Iterator(gif)],
                     duration=gif.info['duration'] / 2000)
+    os.remove(filename)
+    os.rename('compress-' + filename, filename)
