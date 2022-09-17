@@ -186,10 +186,10 @@ def upload_to_JD(imagefile):
     m = MultipartEncoder(form_data)
     # 自动生成 Content-Type 类型和随机码
     headers['Content-Type'] = m.content_type
-    # 使用 data 上传文件
-    r = requests.post(url, headers=headers, data=m)
-    json_strs = lxml.html.document_fromstring(r.text).find('body').text
     try:
+        # 使用 data 上传文件
+        r = requests.post(url, headers=headers, data=m)
+        json_strs = lxml.html.document_fromstring(r.text).find('body').text
         json_obj = json.loads(json_strs)
         if json_obj['desc'] == "上传成功":
             print(json_obj['path'])
@@ -197,5 +197,5 @@ def upload_to_JD(imagefile):
         else:
             logger.error("上传图片失败：" + imagefile + "返回：" + json_strs)
     except Exception as e:
-        logger.error('遇到错误:', e, '图片文件：', '')
+        logger.error('遇到错误:', e, '图片文件：', imagefile)
     return None
