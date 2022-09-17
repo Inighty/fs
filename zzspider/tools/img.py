@@ -3,6 +3,7 @@ import os
 import random
 
 import requests
+from PIL.Image import Image
 from pygifsicle import optimize
 from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPM
@@ -48,25 +49,72 @@ def list_images(path):
     return images
 
 
+def local_compress_image(path):
+    destination = os.path.splitext(path)[0] + '_destination' + os.path.splitext(path)[1]
+    img_size = int(os.path.getsize(path))
+    if os.path.isfile(path) and os.path.splitext(path)[1] == '.png':
+        cmd = 'pngquant --force --skip-if-larger --output {} --quality 50-80 --verbose {}'.format(destination, path)
+        rt = os.system(cmd)
+        if rt == 0:
+            print(path.split('/')[-1:][0], '转换完毕')
+            new_img_size = int(os.path.getsize(destination))
+            if new_img_size >= img_size:
+                os.remove(destination)
+                print('图片变大了，不做处理：' + str(img_size) + '--->' + str(new_img_size))
+            else:
+                print('开始重命名文件')
+                os.remove(path)
+                os.rename(destination, path)
+                print('图片大小：' + str(img_size) + '--->' + str(new_img_size))
+                return
+
+    if img_size < 500000:
+        return
+    img = Image.open(path)
+
+    if img.mode == "CMYK":
+        img = img.convert('RGB')
+    new_width = 600
+    if img.size[0] > new_width:
+        new_height = int(new_width * img.size[1] * 1.0 / img.size[0])
+        img = img.resize((new_width, new_height))
+    print(path.split('/')[-1:][0], '开始转换图片')
+    img.save(destination, "PNG", quality=60, optimize=True, progressive=True)
+    print(path.split('/')[-1:][0], '转换完毕')
+    new_img_size = int(os.path.getsize(destination))
+    if new_img_size >= img_size:
+        os.remove(destination)
+        print('图片变大了，不做处理：' + str(img_size) + '--->' + str(new_img_size))
+    else:
+        print('开始重命名文件')
+        os.remove(path)
+        os.rename(destination, path)
+        print('图片大小：' + str(img_size) + '--->' + str(new_img_size))
+        return
+
+
 def shrink_image(file_path):
     print(file_path)
-    result = shrink(file_path)
-    if result:
-        output_path = os.path.splitext(file_path)[0] + '_destination' + os.path.splitext(file_path)[1]
-        url = result['output']['url']
-        response = requests.get(url)
-        with open(output_path, 'wb') as file:
-            file.write(response.content)
-        os.remove(file_path)
-        os.rename(output_path, file_path)
-        print('%s %d=>%d(%f)' % (
-            result['input']['type'],
-            result['input']['size'],
-            result['output']['size'],
-            result['output']['ratio']
-        ))
-    else:
-        print('压缩失败')
+    try:
+        result = shrink(file_path)
+        if result:
+            output_path = os.path.splitext(file_path)[0] + '_destination' + os.path.splitext(file_path)[1]
+            url = result['output']['url']
+            response = requests.get(url)
+            with open(output_path, 'wb') as file:
+                file.write(response.content)
+            os.remove(file_path)
+            os.rename(output_path, file_path)
+            print('%s %d=>%d(%f)' % (
+                result['input']['type'],
+                result['input']['size'],
+                result['output']['size'],
+                result['output']['ratio']
+            ))
+        else:
+            print('压缩失败')
+    except:
+        local_compress_image(file_path)
 
 
 def shrink(file_path):
