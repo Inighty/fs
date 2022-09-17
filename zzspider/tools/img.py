@@ -57,11 +57,24 @@ def img_to_progressive(path):
 
 
 def compress_gif(filename):
-    gif = Image.open(filename)
-    if not gif.is_animated:
-        return False
-    destination = os.path.splitext(filename)[0] + '_destination.' + os.path.splitext(filename)[1]
-    imageio.mimsave(destination, [frame.convert('RGB') for frame in ImageSequence.Iterator(gif)],
-                    duration=gif.info['duration'] / 2000)
+    # Picture cache space
+    image_list = []
+    # Read gif picture
+    im = Image.open(filename)
+    # Extract each frame , And compress it , Deposit in image_list
+    i = 0
+    for frame in ImageSequence.Iterator(im):
+        i += 1
+        if i % 2 != 0:
+            continue
+        frame = frame.convert('RGB')
+        frame.thumbnail((frame.size[0], frame.size[1]))
+        image_list.append(frame)
+    # Calculate the frequency between frames , Interval milliseconds
+    duration = im.info['duration'] / 1000
+    # Read image_list Merge into gif
+    destination = os.path.splitext(filename)[0] + '_destination' + os.path.splitext(filename)[1]
+    imageio.mimsave(destination, image_list, duration=duration)
+
     os.remove(filename)
     os.rename(destination, filename)
