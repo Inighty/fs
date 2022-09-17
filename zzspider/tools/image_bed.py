@@ -156,7 +156,7 @@ def img_to_base64(imagefile):
 
 
 def upload_to_jd(imagefile):
-    if os.path.getsize(imagefile) > (10 * 1024 * 1024):
+    if os.path.getsize(imagefile) > (20 * 1024 * 1024):
         logger.error("the file is too large: " + imagefile)
         return None
     print("localfile:" + imagefile)
