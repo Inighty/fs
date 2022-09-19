@@ -1,12 +1,16 @@
 import json
 import os
+import platform
 import random
 import subprocess
+import traceback
 
 import requests
 from PIL import Image as pilImage
 from reportlab.graphics import renderPM
 from svglib.svglib import svg2rlg
+
+plat = platform.system().lower()
 
 
 def img_to_progressive(path):
@@ -31,11 +35,16 @@ def img_to_progressive(path):
 def compress_gif(filename):
     destination = os.path.splitext(filename)[0] + '_destination' + os.path.splitext(filename)[1]
     try:
-        subprocess.call(["convert", filename, "-layers", "Optimize", destination])
+        if plat == 'windows':
+            program = 'E:\\Program Files\\ImageMagick-7.1.0-Q16-HDRI\\magick.exe'
+            subprocess.call(["convert", filename, "-layers", "Optimize", destination], executable=program)
+        else:
+            program = '/usr/bin/convert'
+            subprocess.call([filename, "-layers", "Optimize", destination], executable=program)
         os.remove(filename)
         os.rename(destination, filename)
     except Exception as e:
-        pass
+        print(traceback.format_exc())
 
 
 def list_images(path):
@@ -153,4 +162,4 @@ def get_random_ip():
 
 
 if __name__ == '__main__':
-    compress_gif("E:/桌面/202202231645593812053.gif")
+    compress_gif("E:/Desktop/202202231645593812053.gif")

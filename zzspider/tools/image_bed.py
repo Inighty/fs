@@ -207,6 +207,3 @@ def upload_to_jd(imagefile):
         logger.error('遇到错误:', e, '图片文件：', imagefile)
     return None
 
-
-if __name__ == '__main__':
-    upload_to_jd("E:/桌面/63259125cc46e_63259125e8513.gif")
