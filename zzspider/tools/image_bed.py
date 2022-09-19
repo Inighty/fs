@@ -199,7 +199,7 @@ def upload_to_jd(imagefile):
         json_obj = json.loads(json_strs)
         if json_obj['desc'] == "上传成功":
             print(json_obj['path'])
-            os.remove(imagefile)
+            # os.remove(imagefile)
             return json_obj['path']
         else:
             logger.error("上传图片失败：" + imagefile + "返回：" + json_strs)
