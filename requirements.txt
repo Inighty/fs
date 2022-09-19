@@ -1,10 +1,10 @@
 pygifsicle
 IPython
-reportlab~=3.6.11
-lxml~=4.8.0
-requests~=2.27.1
+reportlab
+lxml
+requests
 requests_toolbelt
-Pillow~=9.2.0
+Pillow
 Twisted==21.7.0
 beautifulsoup4~=4.6.3
 selenium~=3.141.0
@@ -15,8 +15,6 @@ paramiko~=2.9.1
 filetype~=1.0.9
 bs4~=0.0.1
 tencentcloud-sdk-python
-baiduspider~=1.0.2.6
-svglib~=1.4.1
+baiduspider
+svglib
 Wand~=0.6.10
-pandas~=1.4.2
-cffi~=1.15.0
