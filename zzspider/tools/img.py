@@ -37,10 +37,10 @@ def compress_gif(filename):
     try:
         if plat == 'windows':
             program = 'E:\\Program Files\\ImageMagick-7.1.0-Q16-HDRI\\magick.exe'
-            subprocess.call(["convert", filename, "-layers", "Optimize", destination], executable=program)
+            subprocess.call(["convert", filename, "-layers", "Optimize", destination], executable=program, timeout=20)
         else:
             program = '/usr/bin/convert'
-            subprocess.call([filename, "-layers", "Optimize", destination], executable=program)
+            subprocess.call([filename, "-layers", "Optimize", destination], executable=program, timeout=20)
         os.remove(filename)
         os.rename(destination, filename)
     except Exception as e:
