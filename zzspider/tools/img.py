@@ -29,10 +29,9 @@ def img_to_progressive(path):
 
 
 def compress_gif(filename):
-    destination = os.path.splitext(filename)[0] + '_destination' + os.path.splitext(filename)[1]
     with Image(filename=filename) as img:
-        img.fuzz = img.quantum_range * 0.05
-        img.optimize_layers = True
+        img.optimize_layers()
+        destination = os.path.splitext(filename)[0] + '_destination' + os.path.splitext(filename)[1]
         img.save(filename=destination)
     os.remove(filename)
     os.rename(destination, filename)
@@ -150,3 +149,7 @@ def get_random_ip():
     for i in range(4):
         ip.append(str(random.randint(0 if i in (2, 3) else 1, 254)))
     return '.'.join(ip)
+
+
+if __name__ == '__main__':
+    compress_gif("E:/桌面/202202231645593812053.gif")
