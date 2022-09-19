@@ -19,12 +19,7 @@ class ProxyIp(metaclass=Singleton):
         self.ip = None
         self.last_time = None
 
-    def get(self):
-        if not self.check():
-            return self.get_new()
-        return self.ip
-
-    def get(self, host):
+    def get(self, host="http://www.baidu.com/"):
         if not self.check(host):
             return self.get_new()
         return self.ip
@@ -39,7 +34,7 @@ class ProxyIp(metaclass=Singleton):
         self.ip = res.text
         return self.ip
 
-    def check(self, host="http://www.baidu.com/"):
+    def check(self, host):
         logger.error("start check!")
         if self.ip is None:
             return False
