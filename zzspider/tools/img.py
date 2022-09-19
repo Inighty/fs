@@ -3,10 +3,10 @@ import os
 import random
 
 import requests
-from PIL import Image
-from pygifsicle import optimize
-from svglib.svglib import svg2rlg
+from PIL import Image as pilImage
+from wand.image import Image
 from reportlab.graphics import renderPM
+from svglib.svglib import svg2rlg
 
 
 def img_to_progressive(path):
@@ -29,7 +29,13 @@ def img_to_progressive(path):
 
 
 def compress_gif(filename):
-    optimize(filename, options=['--lossy=90', '--no-extensions', '--no-comments'])
+    destination = os.path.splitext(filename)[0] + '_destination' + os.path.splitext(filename)[1]
+    with Image(filename=filename) as img:
+        img.fuzz = img.quantum_range * 0.05
+        img.optimize_layers = True
+        img.save(filename=destination)
+    os.remove(filename)
+    os.rename(destination, filename)
 
 
 def list_images(path):
@@ -70,7 +76,7 @@ def local_compress_image(path):
 
     if img_size < 500000:
         return
-    img = Image.open(path)
+    img = pilImage.open(path)
 
     if img.mode == "CMYK":
         img = img.convert('RGB')
