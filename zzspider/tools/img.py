@@ -23,9 +23,9 @@ def img_to_progressive(path):
         renderPM.drawToFile(pic, path)
         return path
     ext = path.split('.')[-1:][0]
-    if ext == 'gif':
-        compress_gif(path)
-        return path
+    #if ext == 'gif':
+    #    compress_gif(path)
+    #    return path
     if ext not in ['png', 'jpg', 'jpeg']:
         return path
     shrink_image(path)
