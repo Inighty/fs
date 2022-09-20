@@ -10,6 +10,9 @@ from PIL import Image as pilImage
 from reportlab.graphics import renderPM
 from svglib.svglib import svg2rlg
 
+# Do work as before
+from wand.image import Image
+
 plat = platform.system().lower()
 
 
@@ -23,9 +26,9 @@ def img_to_progressive(path):
         renderPM.drawToFile(pic, path)
         return path
     ext = path.split('.')[-1:][0]
-    #if ext == 'gif':
-    #    compress_gif(path)
-    #    return path
+    if ext == 'gif':
+        compress_gif(path)
+        return path
     if ext not in ['png', 'jpg', 'jpeg']:
         return path
     shrink_image(path)
@@ -34,18 +37,14 @@ def img_to_progressive(path):
 
 def compress_gif(filename):
     destination = os.path.splitext(filename)[0] + '_destination' + os.path.splitext(filename)[1]
-    try:
-        if plat == 'windows':
-            program = 'E:\\Program Files\\ImageMagick-7.1.0-Q16-HDRI\\magick.exe'
-            process = subprocess.Popen([program, "convert", filename, "-layers", "Optimize", destination])
-        else:
-            program = '/usr/bin/convert'
-            process = subprocess.Popen([program, filename, "-layers", "Optimize", destination])
-        process.wait()
-        os.remove(filename)
-        os.rename(destination, filename)
-    except Exception as e:
-        print(traceback.format_exc())
+    with Image(filename=filename) as img:
+        img.fuzz = img.quantum_range * 0.05
+        img.optimize_layers()
+        img.save(filename=destination)
+        print("des: " + destination)
+    exit(0)
+    # os.remove(filename)
+    # os.rename(destination, filename)
 
 
 def list_images(path):
@@ -163,4 +162,4 @@ def get_random_ip():
 
 
 if __name__ == '__main__':
-    compress_gif("E:/Desktop/202202231645593812053.gif")
+    compress_gif("E:/Desktop/123.gif")
