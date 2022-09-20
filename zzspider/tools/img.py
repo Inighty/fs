@@ -44,9 +44,9 @@ def compress_gif(filename):
         img.optimize_layers()
         img.save(filename=destination)
         print("des: " + destination)
-    exit(0)
-    # os.remove(filename)
-    # os.rename(destination, filename)
+    #exit(0)
+    os.remove(filename)
+    os.rename(destination, filename)
 
 
 def list_images(path):
