@@ -36,13 +36,14 @@ def img_to_progressive(path):
 
 
 def compress_gif(filename):
-    destination = os.path.splitext(filename)[0] + '_destination' + os.path.splitext(filename)[1]
-    with Image(filename=filename) as img:
-        img.fuzz = img.quantum_range * 0.05
-        img.optimize_layers()
-        img.save(filename=destination)
-        print("des: " + destination)
-    exit(0)
+    pass
+    # destination = os.path.splitext(filename)[0] + '_destination' + os.path.splitext(filename)[1]
+    # with Image(filename=filename) as img:
+    #     img.fuzz = img.quantum_range * 0.05
+    #     img.optimize_layers()
+    #     img.save(filename=destination)
+    #     print("des: " + destination)
+    # exit(0)
     # os.remove(filename)
     # os.rename(destination, filename)
 
