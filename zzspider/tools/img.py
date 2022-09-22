@@ -17,6 +17,8 @@ plat = platform.system().lower()
 
 
 def img_to_progressive(path):
+    if not os.path.exists(path):
+        return path
     if os.path.isdir(path):
         return path
     ext = path.split('.')[-1:][0]
