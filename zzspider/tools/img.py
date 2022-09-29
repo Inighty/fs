@@ -2,16 +2,13 @@ import json
 import os
 import platform
 import random
-import subprocess
-import traceback
 
 import requests
 from PIL import Image as pilImage
+from pygifsicle import optimize
 from reportlab.graphics import renderPM
 from svglib.svglib import svg2rlg
 
-# Do work as before
-from wand.image import Image
 
 plat = platform.system().lower()
 
@@ -38,16 +35,17 @@ def img_to_progressive(path):
 
 
 def compress_gif(filename):
-    pass
-    # destination = os.path.splitext(filename)[0] + '_destination' + os.path.splitext(filename)[1]
+    destination = os.path.splitext(filename)[0] + '_destination' + os.path.splitext(filename)[1]
+    optimize(source=filename, destination=destination,
+             options=['-O3', '--lossy=90', '--no-extensions', '--no-comments'], colors=256)
+    os.remove(filename)
+    os.rename(destination, filename)
     # with Image(filename=filename) as img:
     #     img.fuzz = img.quantum_range * 0.05
     #     img.optimize_layers()
     #     img.save(filename=destination)
     #     print("des: " + destination)
     # exit(0)
-    # os.remove(filename)
-    # os.rename(destination, filename)
 
 
 def list_images(path):
