@@ -21,14 +21,17 @@ def img_to_progressive(path):
     ext = path.split('.')[-1:][0]
     if ext == 'svg':
         pic = svg2rlg(path)
-        path = path.replace('.svg', '.png')
-        renderPM.drawToFile(pic, path)
-        return path
+        final_path = path.replace('.svg', '.png')
+        renderPM.drawToFile(pic, final_path)
+        os.remove(path)
+        return final_path
     if ext == 'tif':
         im = pilImage.open(path)
         out = im.convert("RGB")
-        path = path.replace('.tif', '.jpeg')
-        out.save(path, "JPEG", quality=90)
+        final_path = path.replace('.tif', '.jpeg')
+        out.save(final_path, "JPEG", quality=90)
+        os.remove(path)
+        path = final_path
 
     ext = path.split('.')[-1:][0]
     if ext == 'gif':
