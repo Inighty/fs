@@ -24,6 +24,12 @@ def img_to_progressive(path):
         path = path.replace('.svg', '.png')
         renderPM.drawToFile(pic, path)
         return path
+    if ext == 'tif':
+        im = pilImage.open(path)
+        out = im.convert("RGB")
+        path = path.replace('.tif', '.jpeg')
+        out.save(path, "JPEG", quality=90)
+
     ext = path.split('.')[-1:][0]
     if ext == 'gif':
         compress_gif(path)
