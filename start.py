@@ -243,7 +243,6 @@ def process_upload():
                         f"UPDATE `zbp_upload` set `ul_TcPath` = %s,`ul_LogID` = %s where ul_SourceName = %s and ul_TcPath is null",
                         [new_url, post['log_ID'], filename])
                     content = content.replace('{#ZC_BLOG_HOST#}' + old_url, new_url)
-                    time.sleep(random.randint(1, 3))
                 dbhelper.execute(
                     f"UPDATE `zbp_post` set `log_Content` = %s where log_ID = %s",
                     [content, post['log_ID']])
