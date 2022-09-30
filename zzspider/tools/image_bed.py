@@ -197,7 +197,7 @@ def upload_to_jd(imagefile):
         r = requests.post(url, headers=headers, data=m)
         json_strs = lxml.html.document_fromstring(r.text).find('body').text
         json_obj = json.loads(json_strs)
-        if json_obj['desc'] == "上传成功":
+        if "desc" in json_obj and json_obj['desc'] == "上传成功":
             print(json_obj['path'])
             # os.remove(imagefile)
             return json_obj['path']
@@ -206,4 +206,3 @@ def upload_to_jd(imagefile):
     except Exception as e:
         logger.error('遇到错误:', e, '图片文件：', imagefile)
     return None
-
