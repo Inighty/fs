@@ -47,10 +47,10 @@ def img_to_progressive(path):
 def compress_gif(filename):
     destination = os.path.splitext(filename)[0] + '_destination' + os.path.splitext(filename)[1]
     optimize(source=filename, destination=destination,
-             options=['-O3', '--lossy=90', '--no-extensions', '--no-comments', '--use-col=web', '--scale 0.8'],
+             options=['-O3', '--lossy=90', '--no-extensions', '--no-comments', '--use-col=web', '--scale=0.8'],
              colors=256)
-    os.remove(filename)
-    os.rename(destination, filename)
+    # os.remove(filename)
+    # os.rename(destination, filename)
     # with Image(filename=filename) as img:
     #     img.fuzz = img.quantum_range * 0.05
     #     img.optimize_layers()
