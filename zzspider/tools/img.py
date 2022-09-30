@@ -24,7 +24,7 @@ def img_to_progressive(path):
         final_path = path.replace('.svg', '.png')
         renderPM.drawToFile(pic, final_path)
         os.remove(path)
-        return final_path
+        path = final_path
     if ext == 'tif':
         im = pilImage.open(path)
         out = im.convert("RGB")
@@ -39,7 +39,9 @@ def img_to_progressive(path):
         return path
     if ext not in ['png', 'jpg', 'jpeg']:
         return path
-    shrink_image(path)
+
+    if os.path.getsize(path) > (5 * 1024 * 1024):
+        shrink_image(path)
     return path
 
 
