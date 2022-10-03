@@ -58,8 +58,8 @@ def baidu_relate(start_word, relate_arr):
     while len(relate_arr) == 0 and time_num < 100:
         try:
             proxy_ip = {
-                "http": "http://" + proxy_util.get(),  # HTTP代理
-                "https": "http://" + proxy_util.get()  # HTTPS代理
+                "http": "socks5://" + proxy_util.get(),  # HTTP代理
+                "https": "socks5://" + proxy_util.get()  # HTTPS代理
             }
             logger.error("baidu relate time:" + str(time_num))
             if platform.system() == 'Windows':

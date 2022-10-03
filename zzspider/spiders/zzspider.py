@@ -57,8 +57,8 @@ def baidu_push(post_id):
                    ConfigUtil.config['main']['baidu_push_token']
         url = ConfigUtil.config['main']['url'] + f"/s/{post_id}.html"
         proxy_ip = {
-            "http": "http://" + proxy_util.get(),  # HTTP代理
-            "https": "http://" + proxy_util.get()  # HTTPS代理
+            "http": "socks5://" + proxy_util.get(),  # HTTP代理
+            "https": "socks5://" + proxy_util.get()  # HTTPS代理
         }
         response = requests.post(push_url, data=url, proxies=proxy_ip)
         res_dict = json.loads(response.text)
@@ -131,6 +131,12 @@ class zzspider(scrapy.Spider):
     name = 'zzspider'
     # allowed_domains = ['toutiao.com']
     start_urls = []
+    custom_settings = {
+        "DOWNLOAD_HANDLERS": {
+            'http': 'zzspider.tools.s5downloader.Socks5DownloadHandler',
+            'https': 'zzspider.tools.s5downloader.Socks5DownloadHandler',
+        },
+    }
 
     def __init__(self, start_urls, cate, start_word, word, word_sub, word_id, name=None):
         self.start_urls = start_urls

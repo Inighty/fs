@@ -10,8 +10,6 @@ from zzspider.tools.singleton_type import Singleton
 
 logger = logging.getLogger(__name__)
 
-proxy_url = ConfigUtil.config['proxy']['url']
-
 
 class ProxyIp(metaclass=Singleton):
     # 构造函数
@@ -19,36 +17,34 @@ class ProxyIp(metaclass=Singleton):
         self.ip = None
         self.last_time = None
 
-    def get(self, host="http://www.baidu.com/"):
-        if not self.check(host):
-            return self.get_new()
-        return self.ip
+    def get(self, host="https://www.douban.com/"):
+        return self.get_new()
 
     def get_proxy(self):
         return {
-            "http": "http://" + self.get()
+            "http": "socks5://" + self.get()
         }
 
     def get_new(self):
-        res = requests.get(proxy_url)
+        res = requests.get(ConfigUtil.config['proxy']['url'])
         self.ip = res.text
         return self.ip
 
     def check(self, host):
-        logger.error("start check!")
         if self.ip is None:
             return False
+        logger.error("ip:" + self.ip)
         proxies = {
-            "http": "http://" + self.ip
+            "http": "socks5://" + self.ip,
+            "https": "socks5://" + self.ip
         }
         r = None
         try:
-            r = requests.get(host, proxies=proxies, timeout=5)
-            logger.error("status return :" + str(r.status_code))
+            r = requests.get(host, proxies=proxies, timeout=10)
             if r.status_code == 407:
                 return False
         except Exception as e:
-            logger.error("check ip error:" + traceback.format_exc())
+            logger.error("check ip error:" + self.ip + "," + traceback.format_exc())
             pass
         if r:
             return True
