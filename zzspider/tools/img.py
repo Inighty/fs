@@ -9,7 +9,6 @@ from pygifsicle import optimize
 from reportlab.graphics import renderPM
 from svglib.svglib import svg2rlg
 
-
 plat = platform.system().lower()
 
 
@@ -24,7 +23,7 @@ def img_to_progressive(path):
         final_path = path.replace('.svg', '.png')
         renderPM.drawToFile(pic, final_path)
         os.remove(path)
-        return final_path
+        path = final_path
     if ext == 'tif':
         im = pilImage.open(path)
         out = im.convert("RGB")
@@ -39,14 +38,17 @@ def img_to_progressive(path):
         return path
     if ext not in ['png', 'jpg', 'jpeg']:
         return path
-    shrink_image(path)
+
+    if os.path.getsize(path) > (5 * 1024 * 1024):
+        shrink_image(path)
     return path
 
 
 def compress_gif(filename):
     destination = os.path.splitext(filename)[0] + '_destination' + os.path.splitext(filename)[1]
     optimize(source=filename, destination=destination,
-             options=['-O3', '--lossy=90', '--no-extensions', '--no-comments'], colors=256)
+             options=['-O3', '--lossy=90', '--no-extensions', '--no-comments', '--use-col=web', '--scale=0.8'],
+             colors=256)
     os.remove(filename)
     os.rename(destination, filename)
     # with Image(filename=filename) as img:
