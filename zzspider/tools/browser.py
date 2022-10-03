@@ -11,6 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from zzspider import settings
+from zzspider.tools.proxyip import ProxyIp
 from zzspider.tools.singleton_type import Singleton
 
 logger = logging.getLogger(__name__)
@@ -34,6 +35,7 @@ class Browser(metaclass=Singleton):
         self.chrome_options.add_argument('--no-sandbox')
         self.chrome_options.add_argument("--disable-extensions")
         self.chrome_options.add_argument("disable-blink-features=AutomationControlled")
+        self.chrome_options.add_argument('--proxy-server=socks5://' + ProxyIp().get())
 
         # self.chrome_options.add_argument(f'user-agent={settings.USER_AGENT}')
         # comment out the following two lines to setup ProxyMesh service
