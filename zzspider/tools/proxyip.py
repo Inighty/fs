@@ -17,8 +17,10 @@ class ProxyIp(metaclass=Singleton):
         self.ip = None
         self.last_time = None
 
-    def get(self, host="https://www.douban.com/"):
-        return self.get_new()
+    def get(self, host="https://www.baidu.com/"):
+        if not check(host):
+            return self.get_new()
+        return self.ip
 
     def get_proxy(self):
         return {
