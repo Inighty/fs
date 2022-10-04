@@ -18,7 +18,7 @@ class ProxyIp(metaclass=Singleton):
         self.last_time = None
 
     def get(self, host="https://www.baidu.com/"):
-        if not check(host):
+        if not self.check(host):
             return self.get_new()
         return self.ip
 
