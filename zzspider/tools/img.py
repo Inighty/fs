@@ -39,7 +39,7 @@ def img_to_progressive(path):
     if ext not in ['png', 'jpg', 'jpeg']:
         return path
 
-    if os.path.getsize(path) > (5 * 1024 * 1024):
+    if os.path.getsize(path) > (1 * 1024 * 1024):
         shrink_image(path)
     return path
 
