@@ -56,11 +56,11 @@ def baidu_push(post_id):
         push_url = 'http://data.zz.baidu.com/urls?site=' + ConfigUtil.config['main']['url'] + '&token=' + \
                    ConfigUtil.config['main']['baidu_push_token']
         url = ConfigUtil.config['main']['url'] + f"/s/{post_id}.html"
-        proxy_ip = {
-            "http": "socks5://" + proxy_util.get(),  # HTTP代理
-            "https": "socks5://" + proxy_util.get()  # HTTPS代理
-        }
-        response = requests.post(push_url, data=url, proxies=proxy_ip)
+        #proxy_ip = {
+        #    "http": "socks5://" + proxy_util.get(),  # HTTP代理
+        #    "https": "socks5://" + proxy_util.get()  # HTTPS代理
+        #}
+        response = requests.post(push_url, data=url)
         res_dict = json.loads(response.text)
 
         if response.status_code == 400:
