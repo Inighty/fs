@@ -233,7 +233,7 @@ def g404():
     lists = [all_url[i:i + 50000] for i in range(0, len(all_url), 50000)]
     index = 0
     for list in lists:
-        with open(str(index) + '.txt', 'w', encoding='utf-8') as f:
+        with open(str(index) + '-404.txt', 'w', encoding='utf-8') as f:
             f.write("\n".join(list))
         index += 1
 
