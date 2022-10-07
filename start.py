@@ -219,6 +219,25 @@ def _crawl(result, spider, name=None):
     return deferred
 
 
+def g404():
+    base_url = "https://www.baikexueshe.com/zb_users/upload/"
+    dbhelper = DBHelper()
+    images = dbhelper.fetch_all("select `ul_Name` from zbp_upload")
+    all_url = []
+    for item in images:
+        name = item['url_Name']
+        year = name[:4]
+        month = name[4:6]
+        url = base_url + year + '/' + month + '/' + name
+        all_url.append(url)
+    lists = [all_url[i:i + 50000] for i in range(0, len(all_url), 50000)]
+    index = 0
+    for list in lists:
+        with open(str(index) + '.txt', 'r', encoding='utf-8') as f:
+            f.write("\n".join(list))
+        index += 1
+
+
 def process_upload():
     dbhelper = DBHelper()
     while True:
@@ -273,7 +292,11 @@ def process_upload_ys():
         else:
             break
 
+
 if __name__ == '__main__':
+    if ConfigUtil.config['collect']['cate'] == '404':
+        g404()
+        exit(0)
     if ConfigUtil.config['collect']['cate'] == 'upload':
         process_upload()
         exit(0)
