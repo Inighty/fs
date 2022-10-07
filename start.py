@@ -225,7 +225,7 @@ def g404():
     images = dbhelper.fetch_all("select `ul_Name` from zbp_upload")
     all_url = []
     for item in images:
-        name = item['url_Name']
+        name = item['ul_Name']
         year = name[:4]
         month = name[4:6]
         url = base_url + year + '/' + month + '/' + name
