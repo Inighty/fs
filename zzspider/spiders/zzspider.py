@@ -254,7 +254,7 @@ class zzspider(scrapy.Spider):
             item_str = html.unescape(str(item))
             if item.name == 'img':
                 item['class'] = 'syl-page-img aligncenter j-lazy'
-                item['referrerpolicy'] = 'no-referrer'
+                item.attrs['referrerpolicy'] = 'no-referrer'
                 content_str += '<p>' + item_str + '</p>'
                 continue
 
