@@ -131,12 +131,12 @@ class zzspider(scrapy.Spider):
     name = 'zzspider'
     # allowed_domains = ['toutiao.com']
     start_urls = []
-    custom_settings = {
-        "DOWNLOAD_HANDLERS": {
-            'http': 'zzspider.tools.s5downloader.Socks5DownloadHandler',
-            'https': 'zzspider.tools.s5downloader.Socks5DownloadHandler',
-        },
-    }
+    # custom_settings = {
+    #     "DOWNLOAD_HANDLERS": {
+    #         'http': 'zzspider.tools.s5downloader.Socks5DownloadHandler',
+    #         'https': 'zzspider.tools.s5downloader.Socks5DownloadHandler',
+    #     },
+    # }
 
     def __init__(self, start_urls, cate, start_word, word, word_sub, word_id, name=None):
         self.start_urls = start_urls
@@ -251,13 +251,14 @@ class zzspider(scrapy.Spider):
                 if attr in item.attrs:
                     del item[attr]
 
-            item_str = html.unescape(str(item))
             if item.name == 'img':
-                item['class'] = 'syl-page-img aligncenter j-lazy'
                 item.attrs['referrerpolicy'] = 'no-referrer'
+                item['class'] = 'syl-page-img aligncenter j-lazy'
+                item_str = html.unescape(str(item))
                 content_str += '<p>' + item_str + '</p>'
                 continue
 
+            item_str = html.unescape(str(item))
             leap_flag = False
             for f in ConfigUtil.config['collect']['filter'].split(','):
                 if item_str.__contains__(f):
