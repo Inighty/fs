@@ -131,12 +131,12 @@ class zzspider(scrapy.Spider):
     name = 'zzspider'
     # allowed_domains = ['toutiao.com']
     start_urls = []
-    # custom_settings = {
-    #     "DOWNLOAD_HANDLERS": {
-    #         'http': 'zzspider.tools.s5downloader.Socks5DownloadHandler',
-    #         'https': 'zzspider.tools.s5downloader.Socks5DownloadHandler',
-    #     },
-    # }
+    custom_settings = {
+        "DOWNLOAD_HANDLERS": {
+            'http': 'zzspider.tools.s5downloader.Socks5DownloadHandler',
+            'https': 'zzspider.tools.s5downloader.Socks5DownloadHandler',
+        },
+    }
 
     def __init__(self, start_urls, cate, start_word, word, word_sub, word_id, name=None):
         self.start_urls = start_urls
