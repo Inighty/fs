@@ -19,6 +19,11 @@ pip3 install cryptography --only-binary=:all:
 yum install -y python3-devel
 
 
+git clone https://github.com/unk2k/txsocksx
+cd txsocksx
+python3 setup.py bdist_wheel
+
+
 #CentOS 8
 yum config-manager --set-enabled PowerTools
 
