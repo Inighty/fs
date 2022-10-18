@@ -240,7 +240,7 @@ class zzspider(scrapy.Spider):
                     d.extract()
 
             # 去除不要的tag 保留内容
-            invalid_tags = ['span', 'font']
+            invalid_tags = ['span', 'font', 'tt-game']
             for tag in invalid_tags:
                 for match in item.findAll(tag):
                     match.replaceWithChildren()
