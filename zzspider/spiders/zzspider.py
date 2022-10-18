@@ -349,8 +349,8 @@ class zzspider(scrapy.Spider):
         if ConfigUtil.config['collect']['post_id'] != '':
             real_post_id = int(ConfigUtil.config['collect']['post_id'])
             dbhelper.execute(
-                f"UPDATE `zbp_post` set `log_Intro` = %s,`log_Content` = %s,`log_UpdateTime` = %s where log_ID = %s",
-                [intro, content_str, now_time, ConfigUtil.config['collect']['post_id']])
+                f"UPDATE `zbp_post` set `log_Intro` = %s,`log_Content` = %s,`log_UpdateTime` = %s,`log_Source` = %s where log_ID = %s",
+                [intro, content_str, now_time, response.url, ConfigUtil.config['collect']['post_id']])
             dbhelper.execute(f"update zbp_words set used = 1, url = '{response.url}' where id = {self.word_id}")
         else:
             if ConfigUtil.config['collect']['special_title'] == '':
@@ -358,11 +358,11 @@ class zzspider(scrapy.Spider):
             else:
                 title = ConfigUtil.config['collect']['special_title']
             result = dbhelper.execute(
-                f"INSERT INTO `zbp_post`(`log_CateID`, `log_AuthorID`, `log_Tag`, `log_Status`, `log_Type`, `log_Alias`, `log_IsTop`, `log_IsLock`, `log_Title`, `log_Intro`, `log_Content`, `log_CreateTime`, `log_PostTime`, `log_UpdateTime`, `log_CommNums`, `log_ViewNums`, `log_Template`, `log_Meta`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                f"INSERT INTO `zbp_post`(`log_CateID`, `log_AuthorID`, `log_Tag`, `log_Status`, `log_Type`, `log_Alias`, `log_IsTop`, `log_IsLock`, `log_Title`, `log_Intro`, `log_Content`, `log_CreateTime`, `log_PostTime`, `log_UpdateTime`, `log_CommNums`, `log_ViewNums`, `log_Template`, `log_Meta`, `log_Source`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
                 [self.cate, self.author, '', 0, 0, '', 0, 1, title, intro, content_str, now_time,
                  now_time,
                  now_time, 0,
-                 0, '', ''])
+                 0, '', '', response.url])
             if result:
                 real_post_id = dbhelper.cur.lastrowid
                 after_insert_post(self.word_id, self.author, self.cate, response.url, title, real_post_id)
