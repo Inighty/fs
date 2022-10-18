@@ -234,13 +234,13 @@ class zzspider(scrapy.Spider):
             if item.name == 'h1':
                 item.name = 'h3'
             # 去除不要的tag 不保留内容
-            dels = item.find_all(['img', 'a'])
+            dels = item.find_all(['img', 'a', 'tt-game'])
             if len(dels) > 0:
                 for d in dels:
                     d.extract()
 
             # 去除不要的tag 保留内容
-            invalid_tags = ['span', 'font', 'tt-game']
+            invalid_tags = ['span', 'font']
             for tag in invalid_tags:
                 for match in item.findAll(tag):
                     match.replaceWithChildren()
