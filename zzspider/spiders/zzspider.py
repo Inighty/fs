@@ -75,7 +75,7 @@ def baidu_push(post_id):
 
 
 def after_insert_post(word_id, author, cate, url, title, post_id):
-    dbhelper.execute(f"update zbp_words set used = 1, url = '{url}' where id = {word_id}")
+    dbhelper.execute(f"update zbp_words set used = 1, url = '{url}', pid = '{post_id}' where id = {word_id}")
     dbhelper.execute(
         f"update zbp_member set mem_Articles = mem_Articles + 1, mem_PostTime = {int(round(time.time()))} where mem_ID = {author}")
     dbhelper.execute(
@@ -351,7 +351,7 @@ class zzspider(scrapy.Spider):
             dbhelper.execute(
                 f"UPDATE `zbp_post` set `log_Intro` = %s,`log_Content` = %s,`log_UpdateTime` = %s,`log_Source` = %s where log_ID = %s",
                 [intro, content_str, now_time, response.url, ConfigUtil.config['collect']['post_id']])
-            dbhelper.execute(f"update zbp_words set used = 1, url = '{response.url}' where id = {self.word_id}")
+            dbhelper.execute(f"update zbp_words set used = 1, url = '{response.url}', pid = '{real_post_id}' where id = {self.word_id}")
         else:
             if ConfigUtil.config['collect']['special_title'] == '':
                 title = response.meta['title']
