@@ -15,7 +15,7 @@ ip = [
 ]
 
 
-def get_version(client):
+def get_exist_and_version(client):
     # 实例化一个请求对象,每个接口都会对应一个request对象
     req = models.DescribeFirewallRulesRequest()
     params = {
@@ -27,7 +27,11 @@ def get_version(client):
     # 返回的resp是一个DescribeFirewallRulesResponse的实例，与请求对象对应
     resp = client.DescribeFirewallRules(req)
     # 输出json格式的字符串回包
-    return resp.FirewallVersion
+    exist_ip = []
+    for rule in resp.FirewallRuleSet:
+        if rule.Action == 'DROP':
+            exist_ip.append(rule.CidrBlock)
+    return resp.FirewallVersion, exist_ip
 
 
 def add_firewall(client, version, rules):
@@ -50,8 +54,6 @@ def build_data(ip):
             item in ip]
 
 
-rules = build_data(ip)
-
 try:
     # 实例化一个认证对象，入参需要传入腾讯云账户secretId，secretKey,此处还需注意密钥对的保密
     # 密钥可前往https://console.cloud.tencent.com/cam/capi网站进行获取
@@ -66,7 +68,12 @@ try:
     # 实例化要请求产品的client对象,clientProfile是可选的
     client = lighthouse_client.LighthouseClient(cred, region, clientProfile)
 
-    version = get_version(client)
+    version, exist_ip = get_exist_and_version(client)
+    ip = [i for i in ip if i not in exist_ip]
+    if len(ip) == 0:
+        print("all black ip exist.")
+        exit(0)
+    rules = build_data(ip)
     add_firewall(client, version, rules)
 
 except TencentCloudSDKException as err:
