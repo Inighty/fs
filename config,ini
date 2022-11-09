@@ -11,3 +11,6 @@ filter = 更多精彩内容,请关注,我是华丽丽的分割线,欢迎投稿,�
 
 [proxy]
 url = https://proxy.yunkv.com/extract?Key=4FD7D75C&Num=1&AreaId=&Isp=&DataFormat=txt&DataSeparator=%%5Cr%%5Cn&Detail=0
+
+[upload]
+server = yzf
