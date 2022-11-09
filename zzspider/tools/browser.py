@@ -7,12 +7,11 @@ import time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 from zzspider import settings
-from zzspider.tools.proxyip import ProxyIp
 from zzspider.tools.singleton_type import Singleton
 
 logger = logging.getLogger(__name__)

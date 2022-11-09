@@ -4,7 +4,6 @@ import json
 import os
 
 from watchdog.events import *
-from watchdog.observers import Observer
 
 logger = logging.getLogger(__name__)
 

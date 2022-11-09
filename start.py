@@ -21,7 +21,7 @@ from zzspider import settings
 from zzspider.config import ConfigUtil
 from zzspider.spiders.zzspider import zzspider
 from zzspider.tools.dbhelper import DBHelper
-from zzspider.tools.image_bed import upload_to_jd
+from zzspider.tools.image_bed import upload
 from zzspider.tools.proxyip import ProxyIp
 from zzspider.tools.same_word import get_best_word, get_real_arr
 from zzspider.tools.timeout_err import timeout_error
@@ -254,7 +254,7 @@ def process_upload():
                     if not os.path.exists(real_path):
                         logger.error("image not found,real_path:" + real_path)
                         continue
-                    new_url = upload_to_jd(real_path)
+                    new_url = upload(real_path)
                     if new_url is None:
                         continue
                     filename = os.path.basename(real_path)
@@ -281,7 +281,7 @@ def process_upload_ys():
                 if not os.path.exists(real_path):
                     logger.error("image not found,real_path:" + real_path)
                     continue
-                new_url = upload_to_jd(real_path)
+                new_url = upload(real_path)
                 if new_url is None:
                     continue
                 new_url = new_url.replace("https://", "mac://")

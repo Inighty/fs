@@ -1,9 +1,9 @@
-import os
 import json
-from datetime import datetime
-from datetime import timezone
-from datetime import timedelta
+import os
 from collections import OrderedDict
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
 
 import requests
 from bs4 import BeautifulSoup

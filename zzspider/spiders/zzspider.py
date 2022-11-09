@@ -19,7 +19,7 @@ from zzspider.config import ConfigUtil
 from zzspider.tools.browser import Browser
 from zzspider.tools.dbhelper import DBHelper
 from zzspider.tools.format import format_txt
-from zzspider.tools.image_bed import upload_to_jd
+from zzspider.tools.image_bed import upload
 from zzspider.tools.img import img_to_progressive
 from zzspider.tools.proxyip import ProxyIp
 from zzspider.tools.same_word import get_best_word
@@ -56,10 +56,10 @@ def baidu_push(post_id):
         push_url = 'http://data.zz.baidu.com/urls?site=' + ConfigUtil.config['main']['url'] + '&token=' + \
                    ConfigUtil.config['main']['baidu_push_token']
         url = ConfigUtil.config['main']['url'] + f"/s/{post_id}.html"
-        #proxy_ip = {
+        # proxy_ip = {
         #    "http": "socks5://" + proxy_util.get(),  # HTTP代理
         #    "https": "socks5://" + proxy_util.get()  # HTTPS代理
-        #}
+        # }
         response = requests.post(push_url, data=url)
         res_dict = json.loads(response.text)
 
@@ -323,7 +323,7 @@ class zzspider(scrapy.Spider):
                 sftp.upload_to_dir(real_path, ConfigUtil.config['sftp']['path'] + "/" + linux_relate_path)
                 os.remove(real_path)
             elif ConfigUtil.config['sftp']['enable'] == 'jd':
-                real_image_url = upload_to_jd(real_path)
+                real_image_url = upload(real_path)
             images.append({"real_path": real_path, "content_type": content_type, "real_image_url": real_image_url})
             upload_count += 1
             content_str = content_str.replace(src, real_image_url)
@@ -351,7 +351,8 @@ class zzspider(scrapy.Spider):
             dbhelper.execute(
                 f"UPDATE `zbp_post` set `log_Intro` = %s,`log_Content` = %s,`log_UpdateTime` = %s,`log_Source` = %s where log_ID = %s",
                 [intro, content_str, now_time, response.url, ConfigUtil.config['collect']['post_id']])
-            dbhelper.execute(f"update zbp_words set used = 1, url = '{response.url}', pid = '{real_post_id}' where id = {self.word_id}")
+            dbhelper.execute(
+                f"update zbp_words set used = 1, url = '{response.url}', pid = '{real_post_id}' where id = {self.word_id}")
         else:
             if ConfigUtil.config['collect']['special_title'] == '':
                 title = response.meta['title']

@@ -9,7 +9,6 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 import os
-import time
 
 from zzspider.config import ConfigUtil
 
@@ -107,11 +106,9 @@ MYSQL_PASSWD = ConfigUtil.config['db']['db_pwd']
 # 数据库端口
 MYSQL_PORT = int(ConfigUtil.config['db']['db_port'])
 
-
 SFTP_HOST = ConfigUtil.config['sftp']['host']
 SFTP_USER = ConfigUtil.config['sftp']['user']
 SFTP_PASSWD = ConfigUtil.config['sftp']['pwd']
 SFTP_PORT = int(ConfigUtil.config['sftp']['port'])
-
 
 UPLOAD_PATH = os.path.join(ConfigUtil.config['main']['path'], 'zb_users', 'upload')

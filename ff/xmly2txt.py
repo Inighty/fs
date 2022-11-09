@@ -7,7 +7,6 @@ import time
 import urllib.parse
 import urllib.request
 import urllib.request
-from hashlib import md5
 from mimetypes import guess_extension
 
 import requests

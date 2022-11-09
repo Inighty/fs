@@ -1,9 +1,10 @@
 import logging
 from urllib.parse import urlsplit
-from txsocksx.http import SOCKS5Agent
+
 from scrapy.core.downloader.handlers.http11 import HTTP11DownloadHandler, ScrapyAgent
 from twisted.internet import reactor
 from twisted.internet.endpoints import TCP4ClientEndpoint
+from txsocksx.http import SOCKS5Agent
 
 from zzspider.tools.proxyip import ProxyIp
 
