@@ -1,15 +1,13 @@
 import base64
 import json
 import logging
+import mimetypes
 import os
 import random
+import string
+from urllib.parse import unquote
 
-import lxml.html
 import requests
-from requests_toolbelt import MultipartEncoder
-
-from svglib.svglib import svg2rlg
-from reportlab.graphics import renderPM
 
 from zzspider.tools.img import img_to_progressive
 
@@ -158,7 +156,74 @@ def img_to_base64(imagefile):
 
 
 def upload_to_jd(imagefile):
-    return upload_to_58(imagefile)
+    return upload_to_qq(imagefile)
+
+
+def upload_to_qq(imagefile):
+    print("localfile:" + imagefile)
+    imagefile = img_to_progressive(imagefile)
+    if os.path.getsize(imagefile) > (10 * 1024 * 1024):
+        logger.error("the file is too large: " + imagefile)
+        return None
+    url = 'https://yzf.qq.com/fsna/kf-file/upload_wx_media'
+    ip = get_ip()
+    headers = {
+        'CLIENT-IP': ip,
+        'X-FORWARDED-FOR': ip,
+        'authority': 'yzf.qq.com',
+        'accept': 'application/json',
+        'accept-language': 'zh,zh-CN;q=0.9,en;q=0.8,zh-TW;q=0.7,en-US;q=0.6,ja;q=0.5',
+        'cache-control': 'no-cache',
+        'cookie': 'RK=ZGd4NNnlbl; ptcz=6e6fff01ff81d6ba3507085b08d12274acaacc7163cc0a5a4ba693e9e366d1a9; pgv_pvid=5933162848; pac_uid=0_d892c367b8180; iip=0; tvfe_boss_uuid=830163bc9b230620; ptui_loginuin=843454009',
+        'pragma': 'no-cache',
+        'sec-ch-ua': '"Google Chrome";v="107", "Chromium";v="107", "Not=A?Brand";v="24"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'none',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36',
+        'x-requested-with': 'XMLHttpRequest'
+    }
+    userid = list(map(lambda x: random.choice(string.ascii_letters + string.digits), range(18)))
+    userid[15] += '_'
+    userid = f'kf{"".join(userid)}'
+    form = {
+        'media_type': 'image',
+        'mid': 'fsna',
+        'agentid': '',
+        'userid': userid
+    }
+
+    try:
+        with open(imagefile, 'rb') as f:
+            r = requests.post(
+                url=url,
+                files={
+                    "file": (os.path.basename(f.name), f,
+                             mimetypes.guess_type(f.name)[0] or 'image/jpeg'),
+                },
+                data=form,
+                headers={
+                    **{
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko',
+                        'X-Forwarded-For': '.'.join(str(random.randint(0, 255)) for x in range(4)),
+                    },
+                    **headers,
+                },
+                allow_redirects=False
+            )
+        r.encoding = 'utf-8'
+        json_obj = json.loads(r.text)
+        if "code" in json_obj and json_obj['code'] == 0:
+            print(json_obj['KfPicUrl'])
+            # os.remove(imagefile)
+            return unquote(json_obj['KfPicUrl']).split('?')[0]
+        else:
+            logger.error("上传图片失败：" + imagefile + "返回：" + r.text)
+    except Exception as e:
+        logger.error('遇到错误:', e, '图片文件：', imagefile)
+    return None
 
 
 # def upload_to_jd(imagefile):
@@ -251,5 +316,6 @@ def upload_to_58(imagefile):
         logger.error('遇到错误:', e, '图片文件：', imagefile)
     return None
 
-# if __name__ == '__main__':
-#     print(upload_to_58("E:/桌面/微信截图_20221024202611.png"))
+
+if __name__ == '__main__':
+    print(upload_to_jd("E:/Desktop/111.jpg"))
