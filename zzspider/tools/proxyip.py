@@ -1,54 +1,48 @@
 # ！/usr/bin/env python
 # -*- coding: UTF-8 -*-
+import json
 import logging
-import traceback
+import urllib.parse
+import urllib.request
 
 import requests
 
-from zzspider.config import ConfigUtil
-from zzspider.tools.singleton_type import Singleton
+from zzspider import settings
 
 logger = logging.getLogger(__name__)
 
 
-class ProxyIp(metaclass=Singleton):
-    # 构造函数
-    def __init__(self):
-        self.ip = None
-        self.last_time = None
+def get_expiretime():
+    res_data = urllib.request.urlopen(settings.PROXY_EXPIRE_URL)
+    result = res_data.read().decode('utf-8')
+    return json.loads(result)['expiretime']
 
-    def get(self, host="https://www.baidu.com/"):
-        if not self.check(host):
-            return self.get_new()
-        return self.ip
 
-    def get_proxy(self):
-        return {
-            "http": "socks5://" + self.get()
-        }
+def get_proxies():
+    res_data = urllib.request.urlopen(settings.PROXY_URL)
+    return res_data.read().decode('utf-8')
+    # while True:
+    #     res_data = urllib.request.urlopen(settings.PROXY_URL)
+    #     proxy = res_data.read().decode('utf-8')
+    #     if check_proxy(proxy):
+    #         return proxy
 
-    def get_new(self):
-        res = requests.get(ConfigUtil.config['proxy']['url'])
-        self.ip = res.text
-        return self.ip
 
-    def check(self, host):
-        if self.ip is None:
-            return False
-        logger.error("ip:" + self.ip)
-        proxies = {
-            "http": "socks5://" + self.ip,
-            "https": "socks5://" + self.ip
-        }
-        r = None
-        try:
-            r = requests.get(host, proxies=proxies, timeout=10)
-            if r.status_code == 407:
-                return False
-        except Exception as e:
-            logger.error("check ip error:" + self.ip + "," + traceback.format_exc())
-            pass
-        if r:
+def get_proxies_pure():
+    return get_proxies().replace('http://', '')
+
+
+def check_proxy(proxy):
+    proxies = {  # 分别对着一个代理ip，进行http尝试和https尝试
+        'http': proxy,
+        'https': proxy,
+    }
+    test_url = 'https://httpbin.org/get'
+
+    try:
+        response = requests.get(test_url, proxies=proxies, timeout=3)
+        if response.ok:
             return True
-        else:
-            return False
+        return False
+    except Exception as ex:
+        return False

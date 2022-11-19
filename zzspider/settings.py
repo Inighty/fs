@@ -112,3 +112,5 @@ SFTP_PASSWD = ConfigUtil.config['sftp']['pwd']
 SFTP_PORT = int(ConfigUtil.config['sftp']['port'])
 
 UPLOAD_PATH = os.path.join(ConfigUtil.config['main']['path'], 'zb_users', 'upload')
+PROXY_URL = ConfigUtil.config['proxy']['url']
+PROXY_EXPIRE_URL = ConfigUtil.config['proxy']['expire_url']

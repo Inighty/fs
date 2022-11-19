@@ -22,7 +22,7 @@ from zzspider.config import ConfigUtil
 from zzspider.spiders.zzspider import zzspider
 from zzspider.tools.dbhelper import DBHelper
 from zzspider.tools.image_bed import upload
-from zzspider.tools.proxyip import ProxyIp
+from zzspider.tools.proxyip import get_proxies
 from zzspider.tools.same_word import get_best_word, get_real_arr
 from zzspider.tools.timeout_err import timeout_error
 
@@ -47,7 +47,6 @@ end_hour.sort()
 cates = ConfigUtil.config['collect']['cate'].split(',')
 thread_size = int(ConfigUtil.config['main']['thread_size'])
 baiduspider = BaiduSpider()
-proxy_util = ProxyIp()
 
 
 def baidu_relate(start_word, relate_arr):
@@ -57,9 +56,10 @@ def baidu_relate(start_word, relate_arr):
     time_num = 0
     while len(relate_arr) == 0 and time_num < 100:
         try:
+            proxy = get_proxies()
             proxy_ip = {
-                "http": "socks5://" + proxy_util.get(),  # HTTP代理
-                "https": "socks5://" + proxy_util.get()  # HTTPS代理
+                "http": proxy,  # HTTP代理
+                "https": proxy  # HTTPS代理
             }
             logger.error("baidu relate time:" + str(time_num))
             if platform.system() == 'Windows':

@@ -21,7 +21,6 @@ from zzspider.tools.dbhelper import DBHelper
 from zzspider.tools.format import format_txt
 from zzspider.tools.image_bed import upload
 from zzspider.tools.img import img_to_progressive
-from zzspider.tools.proxyip import ProxyIp
 from zzspider.tools.same_word import get_best_word
 from zzspider.tools.sftp import Sftp
 
@@ -30,7 +29,6 @@ dbhelper = DBHelper()
 logger = logging.getLogger(__name__)
 sentence_pattern = r',|\.|/|;|\'|`|\[|\]|<|>|\?|:|：|"|\{|\}|\~|!|@|#|\$|%|\^|&|？|\(|\)|-|=|\_|\+|，|。|、|；|‘|’|【|】|·|！| |…|（|）'
 sitemap_path = ConfigUtil.config['main']['sitemap_path']
-proxy_util = ProxyIp()
 
 
 def baidu_push(post_id):
@@ -131,12 +129,6 @@ class zzspider(scrapy.Spider):
     name = 'zzspider'
     # allowed_domains = ['toutiao.com']
     start_urls = []
-    custom_settings = {
-        "DOWNLOAD_HANDLERS": {
-            'http': 'zzspider.tools.s5downloader.Socks5DownloadHandler',
-            'https': 'zzspider.tools.s5downloader.Socks5DownloadHandler',
-        },
-    }
 
     def __init__(self, start_urls, cate, start_word, word, word_sub, word_id, name=None):
         self.start_urls = start_urls
