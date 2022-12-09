@@ -96,7 +96,7 @@ def bing_relate(start_word, relate_arr):
         return
     url_word = urllib.parse.quote(start_word)
     bing_url = u'{}/search?q={}&search=&form=QBLH'.format('https://cn.bing.com', url_word)
-    result = requests.get(bing_url)
+    result = requests.get(bing_url, verify=False, timeout=5)
     if result.status_code == 200:
         tags = BeautifulSoup(result.text, "html.parser")
         rs = tags.find('ol', {'id': 'b_results'})
