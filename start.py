@@ -99,9 +99,18 @@ def bing_relate(start_word, relate_arr):
     result = requests.get(bing_url)
     if result.status_code == 200:
         tags = BeautifulSoup(result.text, "html.parser")
-        rs = tags.find('div', {'class': 'b_rs'})
+        rs = tags.find('ol', {'id': 'b_results'})
         if rs is not None:
-            relate_arr.extend([item.text for item in rs.find_all('li')])
+            lis = rs.find_all('li')
+            for item in lis:
+                if item.text.__contains__('没有与此相关的结果'):
+                    return
+                else:
+                    if item.find('h2') is not None:
+                        reals = re.search("^(.*?)[!@#$%^&*()_\-+=<>?:\"{}|,.\/;'\\[\]·~！￥…（）—《》？：“”、；‘，。]", item.find('h2').text)
+                        if reals is not None and len(reals.groups()) > 1:
+                            real = reals.group(1)
+                            relate_arr.append(real)
     logger.error("bing relate end")
 
 

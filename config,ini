@@ -14,4 +14,4 @@ url = http://uu-proxy.com/api/get_proxies?id=F8TBKHK54B&size=1&schemes=http&supp
 expire_url = http://uu-proxy.com/api/get_expiretime?id=F8TBKHK54B&size=1&schemes=http&support_https=true&restime_within_ms=5000&format=txt2_1
 
 [upload]
-server = jdimio
+server = oppo
