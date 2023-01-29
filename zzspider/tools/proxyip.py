@@ -27,7 +27,7 @@ def replace_key():
             present_key = key
             return settings.PROXY_URL.replace('{id}', present_key)
         else:
-            logger.error("proxy key expire")
+            logger.error("proxy key expire," + result)
             exit(0)
     else:
         ex_date = datetime.datetime.strptime(expire_time, "%Y-%m-%d  %H:%M:%S+0800")
