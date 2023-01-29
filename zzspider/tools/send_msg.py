@@ -11,7 +11,7 @@ def sendMsg(msg, title, group):
         },
         data=json.dumps({
             "body": msg,
-            "device_key": "X7hGGgkWDK9z2Y4j5EB8wT",
+            "device_key": "S7weFcCSQ449MiKrn8uavn",
             "title": title,
             "ext_params": {
                 "badge": 1,
